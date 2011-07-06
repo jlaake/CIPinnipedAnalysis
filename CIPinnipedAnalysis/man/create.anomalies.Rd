@@ -1,0 +1,38 @@
+\name{create.anomalies}
+\title{Create SST monthly anomaly matrices and dataframes...}
+\usage{create.anomalies(x, yrange, average.years)}
+
+\description{
+  Create SST monthly anomaly matrices and dataframes
+  :\code{create.anomalies} computes a matrix of year-month
+  anomalies and \code{create.anomaly.table} converts the
+  matrix into a dataframe of anomalies.
+}
+
+\details{
+  Creates daily means from hourly observations.  Averages
+  daily means within month.  Computes average monthly value
+  from a defined set of years (\code{average.years}) and
+  subtracts the monthly means from the observed year-month
+  matrix to produce anomaly matrix.
+}
+\alias{create.anomalies}
+\alias{create.anomaly.table}
+\value{for \code{create.anomalies} a matrix of monthly anomalies with years
+as rows and months as columns
+
+for \code{create.anomaly.table } a dataframe with fields: Year - 4 digit
+numeric, Month - character, midDate - date 15th of the month, and
+SSTAnomaly - SST anomaly value.}
+\author{Jeff Laake}
+\seealso{\code{\link{create.SST.anomalies}}}
+\arguments{
+  \item{x}{for \code{create.anomalies} a dataframe containing WTMP (sea
+surface temp) and either a date or 3 separate fields MM,DD,YYYY for
+numeric month, day and year respectively; for \code{create.anomaly.table}
+x is a matrix that was created by \code{create.anomalies}.}
+  \item{yrange}{range of years to construct matrix of anomalies}
+  \item{average.years}{vector of years to be included in the monthly mean
+calculations the monthly means are subtracted from the specific year-month
+values to create the anomaly}
+}
