@@ -1,7 +1,7 @@
 \name{check.dead.pup.areas}
 \alias{check.dead.pup.areas}
 \title{Checks for errors in the assigned dead pup sample areas...}
-\usage{check.dead.pup.areas(fdir="./")}
+\usage{check.dead.pup.areas(fdir="")}
 
 \description{
   Checks for errors in the assigned dead pup sample areas

@@ -24,11 +24,12 @@
 #' @note Creates log file MissingDeadPupArea.txt with any errors
 #' @author Jeff Laake
 check.dead.pup.areas <-
-function(fdir="./")
+function(fdir="")
 {
 #
 #  Make connection to CIPinnipedCensusQuery.mdb
 #
+if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")
 fdir=file.path(fdir,"CIPinnipedCensusQuery.mdb")
 connection=odbcConnectAccess2007(fdir)
 sink("MissingDeadPupArea.txt")

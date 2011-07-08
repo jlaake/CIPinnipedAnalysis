@@ -1,7 +1,7 @@
 
 
 #' Pup production stats
-#' Computes pup production stats for Zalophus or Callorhinus at San Miguel or
+#' : computes pup production stats for Zalophus or Callorhinus at San Miguel or
 #' Castle Rock and creates production tables in the ACCESS database.
 #' 
 #' Dead pup surveys are conducted typically on 3 occasions during July.  Dead

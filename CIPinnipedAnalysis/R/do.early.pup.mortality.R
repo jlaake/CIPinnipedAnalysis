@@ -15,7 +15,7 @@
 #' @return None
 #' @export
 #' @author Jeff Laake
-do.early.pup.mortality=function(fdir="./")
+do.early.pup.mortality=function(fdir="")
 {
 #
 #  Produces early pup mortality estimates for Cu and Zc at SMI using
@@ -27,6 +27,7 @@ do.early.pup.mortality=function(fdir="./")
 #
 #  Make connection to CIPinnipedCensusQuery.mdb
 #
+if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")	
 fdir=file.path(fdir,"CIPinnipedCensusQuery.mdb")
 connection=odbcConnectAccess2007(fdir)
 xx=sqlDrop(connection,"ZcEarlyPupMortality",errors=FALSE)

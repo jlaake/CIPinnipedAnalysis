@@ -1,7 +1,7 @@
 \name{do.early.pup.mortality}
 \alias{do.early.pup.mortality}
 \title{Early pup mortality estimation...}
-\usage{do.early.pup.mortality(fdir="./")}
+\usage{do.early.pup.mortality(fdir="")}
 
 \description{
   Early pup mortality estimation For Zc and Cu, creates

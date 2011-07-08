@@ -16,7 +16,7 @@
 #' @return None
 #' @export
 #' @author Jeff Laake
-do.pup.production=function(fdir="./")
+do.pup.production=function(fdir="")
 {
 #
 #  Constructs Pup Production tables for Cu and Zc at SMI in CIPinnipedCensusQuery
@@ -24,6 +24,7 @@ do.pup.production=function(fdir="./")
 #  in CIPinnipedCensusQuery.  It also saves plots of production in pdf files.
 #
 sink("PupProduction.log")
+if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")
 #  Make connection to CIPinnipedCensusQuery.mdb; assumed to be on J: (Calcur/Databases)
 fdir=file.path(fdir,"CIPinnipedCensusQuery.mdb")
 connection=odbcConnectAccess2007(fdir)

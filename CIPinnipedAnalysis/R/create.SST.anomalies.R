@@ -31,8 +31,8 @@
 #' # each defaults below to current working directory
 #' # Use "J:/" if it should be Calcurr/Databases
 #' # fdir="J:/"
-#' fdir="." 
-#' edir="."
+#' fdir="" 
+#' edir=""
 #' anomalies=create.SST.anomalies(c(1994:1996,1998:2008),fdir=fdir)
 #' CentralSSTAnomalies=t(apply(anomalies[,,3:7],c(2,1),mean,na.rm=TRUE))
 #' SouthSSTAnomalies=t(apply(anomalies[,,1:2],c(2,1),mean,na.rm=TRUE))
@@ -62,8 +62,9 @@
 #' abline(h=0)
 #' dev.off()
 #' 
-#' fpath=file.path(fdir,"environmental.data.mdb")
-#' connection=odbcConnectAccess(fpath)
+#' fpath=file.path(system.file(package="CIPinnipedAnalysis"),"environmental.data.mdb")
+#' require(RODBC)
+#' connection=odbcConnectAccess2007(fpath)
 #' pdf("MultivariateENSOIndex.pdf",pointsize=10)
 #' MEI=sqlFetch(connection,"MEI")
 #' minyear=min(MEI$Year)
@@ -93,7 +94,7 @@
 #' 
 #' odbcClose(connection)
 #' 
-create.SST.anomalies=function(average.years,fdir="./",store=FALSE)
+create.SST.anomalies=function(average.years,fdir="",store=FALSE)
 {
 # Create SST monthly anomaly matrices by location
 #
@@ -113,6 +114,7 @@ create.SST.anomalies=function(average.years,fdir="./",store=FALSE)
 #
 # Open a connection to the ACCESS database, attach the data tables and
 # modify some fieldnames and values to make uniform
+  if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")
   fdir=file.path(fdir,"environmental.data.mdb")
   connection=odbcConnectAccess2007(fdir)
   PtArg=sqlFetch(connection,"PtArguelloBuoyData")

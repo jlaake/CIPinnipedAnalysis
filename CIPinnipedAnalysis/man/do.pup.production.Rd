@@ -1,7 +1,7 @@
 \name{do.pup.production}
 \alias{do.pup.production}
 \title{Pup production estimation...}
-\usage{do.pup.production(fdir="./")}
+\usage{do.pup.production(fdir="")}
 
 \description{
   Pup production estimation For Zc and Cu, creates data

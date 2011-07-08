@@ -18,8 +18,8 @@
 #' # Use "J:/" if it should be Calcurr/Databases
 #' # edir="J:/"
 #' # fdir="J:/"
-#' fdir="." 
-#' edir="."
+#' fdir="" 
+#' edir=""
 #' plot.weight.series=function (time, predictions, ...) 
 #' {
 #'	plotCI(time, predictions$fit, predictions$fit - 1.96 * predictions$se, 
@@ -110,8 +110,12 @@
 #' # Get SST Anomalies at 8 locations using 1994:1996 and 1998:2008 for averages
 #' 
 #' anomalies=create.SST.anomalies(c(1994:1996,1998:2008),fdir=edir)
+#' if(edir=="")edir=system.file(package="CIPinnipedAnalysis")
 #' dir=file.path(edir,"environmental.data.mdb")
+#' require(RODBC)
 #' connection=odbcConnectAccess(dir)
+#' MEI=sqlFetch(connection,"MEI")
+#' UWI=sqlFetch(connection,"UWIAnomaly")
 #' # Use Locations 1-5 (ESB,WSB,PtArg,PtSM,PtSL) for pup weight predictions
 #' SSTAnomalies=t(apply(anomalies[,,1:5],c(2,1),mean,na.rm=TRUE))
 #' maxyear= max(as.numeric(row.names(SSTAnomalies)))
@@ -138,8 +142,7 @@
 #'   data.frame(Year=minyear:maxyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies) )
 #' x$Season=factor(x$Season,levels=c("Spring","Summer","Fall"))
 #' x=x[order(x$Year,x$Season),]
-#' MEI=sqlFetch(connection,"MEI")
-#' UWI=sqlFetch(connection,"UWIAnomaly")
+
 #' UWI=UWI[order(UWI$Year,UWI$Month),]
 #' UWImeansJunetoSept=with(UWI[UWI$Month%in%6:9&UWI$Year>=1975,], tapply(UWIAnomaly,list(Location,Year),mean))
 #' 
@@ -175,7 +178,7 @@
 #' JunetoFebAnomalies=JunetoFebAnomalies[4:numyears]
 #' zcweights.environ=merge(zcweights,data.frame(cohort=1975:maxyear,SST1=JunetoSeptAnomalies,SST2=OcttoFebAnomalies,SST3=JunetoFebAnomalies,
 #'                             MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],UWI33=UWImeansJunetoSept[1,],UWI36=UWImeansJunetoSept[2,],
-#'                             UWI331=UWImeansOcttoFeb[1,7:41],UWI361=UWImeansOcttoFeb[2,7:41]))
+#'                             UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)]))
 #' zcweights.environ$SST=zcweights.environ$SST1
 #' zcweights.environ$SST[zcweights.environ$days>90]=zcweights.environ$SST3[zcweights.environ$days>90]
 #' zcweights.environ$MEI[zcweights.environ$days>90]=zcweights.environ$MEI1[zcweights.environ$days>90]
@@ -261,12 +264,12 @@
 #' # Plot predictions and observed
 #' win.graph()
 #' par(mfrow=c(2,1))
-#' with(ZCWeight.df,plot(1975:2009,female.eviron.mean,pch="F",type="b",ylim=c(12,26)))
-#' with(ZCWeight.df,points(1975:2009,female.observed.mean,pch="O"))
-#' with(ZCWeight.df,lines(1975:2009,female.observed.mean,lty=2))
-#' with(ZCWeight.df,plot(1975:2009,male.environ.mean,pch="M",type="b",ylim=c(12,26)))
-#' with(ZCWeight.df,points(1975:2009,male.observed.mean,pch="O"))
-#' with(ZCWeight.df,lines(1975:2009,male.observed.mean,lty=2))
+#' with(ZCWeight.df,plot(1975:maxyear,female.eviron.mean,pch="F",type="b",ylim=c(12,26)))
+#' with(ZCWeight.df,points(1975:maxyear,female.observed.mean,pch="O"))
+#' with(ZCWeight.df,lines(1975:maxyear,female.observed.mean,lty=2))
+#' with(ZCWeight.df,plot(1975:maxyear,male.environ.mean,pch="M",type="b",ylim=c(12,26)))
+#' with(ZCWeight.df,points(1975:maxyear,male.observed.mean,pch="O"))
+#' with(ZCWeight.df,lines(1975:maxyear,male.observed.mean,lty=2))
 #' 
 #' # Plot predictions and predictions at SST=0
 #' pp=zcweights.environ
@@ -278,12 +281,12 @@
 #' male.averages=data.frame(fit=pp[,2],se=stderrors[(length(pp[,1])+1):(2*length(pp[,1]))])
 #' win.graph()
 #' par(mfrow=c(2,1))
-#' with(ZCWeight.df,plot(1975:2009,female.eviron.mean,pch="F",type="b",ylim=c(12,26)))
-#' points(1975:2009,female.averages$fit,pch="S")
-#' lines(1975:2009,female.averages$fit,pch="S",lty=2)
-#' with(ZCWeight.df,plot(1975:2009,male.environ.mean,pch="M",type="b",ylim=c(12,26)))
-#' points(1975:2009,male.averages$fit,pch="S")
-#' lines(1975:2009,male.averages$fit,pch="S",lty=2)
+#' with(ZCWeight.df,plot(1975:maxyear,female.eviron.mean,pch="F",type="b",ylim=c(12,26)))
+#' points(1975:maxyear,female.averages$fit,pch="S")
+#' lines(1975:maxyear,female.averages$fit,pch="S",lty=2)
+#' with(ZCWeight.df,plot(1975:maxyear,male.environ.mean,pch="M",type="b",ylim=c(12,26)))
+#' points(1975:maxyear,male.averages$fit,pch="S")
+#' lines(1975:maxyear,male.averages$fit,pch="S",lty=2)
 #' 
 #' 
 #' ################################################################################
@@ -313,7 +316,7 @@
 #' grdata=merge(initial,grdata)
 #' # Merge growth data with environmental data
 #' zcweights.environ.lon=merge(grdata,data.frame(cohort=1975:maxyear,SST=OcttoFebAnomalies,MEI=LaggedMEIOcttoFeb[-1],
-#'                                          UWI33=UWImeansOcttoFeb[1,7:41],UWI36=UWImeansOcttoFeb[2,7:41]))
+#'                                          UWI33=UWImeansOcttoFeb[1,-(1:6)],UWI36=UWImeansOcttoFeb[2,-(1:6)]))
 #' # Create model
 #' mod=lme(gr~sex*UWI33,random=~1|cohort,data=zcweights.environ.lon,method="ML")
 #' summary(mod)$AIC
@@ -361,8 +364,9 @@
 #' # Close ACCESS tables
 #' odbcCloseAll()
 #' 
-get.zc.weights=function(fdir="./",ENYears=c(1976,1983,1984,1987,1992,1997,1998))
+get.zc.weights=function(fdir="",ENYears=c(1976,1983,1984,1987,1992,1997,1998))
 {
+if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")
 fdir=file.path(fdir,"Brandmaster.mdb")
 connection=odbcConnectAccess2007(fdir)
 #

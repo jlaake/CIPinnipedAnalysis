@@ -21,7 +21,7 @@
 #' # each defaults below to current working directory
 #' # Use "J:/" if it should be Calcurr/Databases
 #' # fdir="J:/"
-#' fdir="./" 
+#' fdir="" 
 #' getwd()
 #' check.dead.pup.areas(fdir=fdir)
 #' do.pup.production(fdir=fdir)

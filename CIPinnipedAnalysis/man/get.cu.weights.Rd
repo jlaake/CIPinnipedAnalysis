@@ -1,7 +1,7 @@
 \name{get.cu.weights}
 \alias{get.cu.weights}
 \title{Extracts weights for Cu pups...}
-\usage{get.cu.weights(fdir="./", ENYears=c(1976, 1983, 1984, 1987,
+\usage{get.cu.weights(fdir="", ENYears=c(1976, 1983, 1984, 1987,
     1992, 1997, 1998))}
 
 \description{
@@ -21,8 +21,8 @@
 # Use "J:/" if it should be Calcurr/Databases
 # edir="J:/"
 # fdir="J:/"
-fdir="." 
-edir="."
+fdir="" 
+edir=""
 plot.weight.series=function (time, predictions, ...) 
 {
 plotCI(time, predictions$fit, predictions$fit - 1.96 * predictions$se, 
@@ -104,9 +104,10 @@ dev.off()
 # Construct environmental values for models
 ################################################################################
 # Get SST Anomalies at 8 locations using 1994:1996 and 1998:2008 for averages
-if(!"edir"\%in\%ls())edir="J:/"
 anomalies=create.SST.anomalies(c(1994:1996,1998:2008),fdir=edir)
+if(edir=="")edir=system.file(package="CIPinnipedAnalysis")
 dir=file.path(edir,"environmental.data.mdb")
+require(RODBC)
 connection=odbcConnectAccess(dir)
 # Use Locations 1-5 (ESB,WSB,PtArg,PtSM,PtSL) for pup weight predictions
 SSTAnomalies=t(apply(anomalies[,,1:5],c(2,1),mean,na.rm=TRUE))
@@ -118,8 +119,8 @@ JantoMayAnomalies=rowMeans(SSTAnomalies[,c("Jan","Feb","Mar","Apr","May")])
 OcttoFebAnomalies=cbind(SSTAnomalies[,c("Oct","Nov","Dec")],rbind(SSTAnomalies[2:nrow(SSTAnomalies),c("Jan","Feb")],data.frame(Jan=NA,Feb=NA)))
 OcttoFebAnomalies[is.nan(OcttoFebAnomalies)]=NA
 OcttoFebAnomalies=rowMeans(OcttoFebAnomalies,na.rm=TRUE)
-JunetoSeptAnomalies[is.nan(JunetoSeptAnomalies)]=NA
 JunetoSeptAnomalies=rowMeans(SSTAnomalies[,c("June","July","Aug","Sept")],na.rm=TRUE)
+JunetoSeptAnomalies[is.nan(JunetoSeptAnomalies)]=NA
 OcttoDecAnomalies=SSTAnomalies[,c("Oct","Nov","Dec")]
 OcttoDecAnomalies[is.nan(OcttoDecAnomalies)]=NA
 OcttoDecAnomalies=rowMeans(OcttoDecAnomalies,na.rm=TRUE)
@@ -171,7 +172,7 @@ OcttoFebAnomalies=OcttoFebAnomalies[4:numyears]
 JunetoFebAnomalies=JunetoFebAnomalies[4:numyears]
 cuweights.environ=merge(cuweights,data.frame(cohort=1975:maxyear,SST1=JunetoSeptAnomalies,SST2=OcttoFebAnomalies,SST3=JunetoFebAnomalies,
 MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],UWI33=UWImeansJunetoSept[1,],UWI36=UWImeansJunetoSept[2,],
-UWI331=UWImeansOcttoFeb[1,7:41],UWI361=UWImeansOcttoFeb[2,7:41]))
+UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)]))
 cuweights.environ$SST=cuweights.environ$SST1
 cuweights.environ$SST[cuweights.environ$days>90]=cuweights.environ$SST3[cuweights.environ$days>90]
 cuweights.environ$MEI[cuweights.environ$days>90]=cuweights.environ$MEI1[cuweights.environ$days>90]
@@ -271,12 +272,12 @@ CUWeight.df$male.environ.mean.se=male.averages$se
 # Plot predictions and observed
 win.graph()
 par(mfrow=c(2,1))
-with(CUWeight.df,plot(1975:2009,female.eviron.mean,pch="F",type="b",ylim=c(4,16)))
-with(CUWeight.df,points(1975:2009,female.observed.mean,pch="O"))
-with(CUWeight.df,lines(1975:2009,female.observed.mean,lty=2))
-with(CUWeight.df,plot(1975:2009,male.environ.mean,pch="M",type="b",ylim=c(4,16)))
-with(CUWeight.df,points(1975:2009,male.observed.mean,pch="O"))
-with(CUWeight.df,lines(1975:2009,male.observed.mean,lty=2))
+with(CUWeight.df,plot(1975:maxyear,female.eviron.mean,pch="F",type="b",ylim=c(4,16)))
+with(CUWeight.df,points(1975:maxyear,female.observed.mean,pch="O"))
+with(CUWeight.df,lines(1975:maxyear,female.observed.mean,lty=2))
+with(CUWeight.df,plot(1975:maxyear,male.environ.mean,pch="M",type="b",ylim=c(4,16)))
+with(CUWeight.df,points(1975:maxyear,male.observed.mean,pch="O"))
+with(CUWeight.df,lines(1975:maxyear,male.observed.mean,lty=2))
 
 # Plot predictions and predictions at SST=0
 pp=cuweights.environ
