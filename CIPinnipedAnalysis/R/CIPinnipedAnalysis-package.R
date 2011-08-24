@@ -1,8 +1,7 @@
 
 
 #' Channel Islands Pinniped Analysis functions
-#' Channel Islands Pinniped Analysis functions: pup production, early pup
-#' mortality, SST and other enviromental measurement computations
+#' : pup production, early pup mortality, SST and other enviromental measurement computations
 #' 
 #' \tabular{ll}{ Package: \tab CIPinnipedAnalysis\cr Type: \tab Package\cr
 #' Version: \tab 1.0\cr Date: \tab 2009-11-30\cr License: \tab GPL-2\cr

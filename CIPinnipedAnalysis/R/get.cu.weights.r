@@ -1,7 +1,7 @@
 
 
 #' Extracts weights for Cu pups
-#' Extracts weights for Cu pups from various tables in the cutagnew.mdb ACCESS
+#' : from various tables in the cutagnew.mdb ACCESS
 #' database and returns a dataframe with ancillary fields added.
 #' 
 #' 

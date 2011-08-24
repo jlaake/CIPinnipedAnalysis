@@ -17,7 +17,6 @@
 #' @param island Either "SMI" or "SNI"
 #' @param species Either "Zc" or "Cu"
 #' @param connection RODBC connection to the database
-#' @export
 #' @return for \code{construct.live} a dataframe containing YearArea, Survey
 #'   date, Area, AvgCount, Year, Month, Day, DeadPupArea (Y/N if included in
 #'   area sampled for dead pups).

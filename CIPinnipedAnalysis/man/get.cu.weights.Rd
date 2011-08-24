@@ -1,32 +1,39 @@
 \name{get.cu.weights}
 \alias{get.cu.weights}
-\title{Extracts weights for Cu pups...}
-\usage{get.cu.weights(fdir="", ENYears=c(1976, 1983, 1984, 1987,
-    1992, 1997, 1998))}
-
-\description{
-  Extracts weights for Cu pups Extracts weights for Cu pups
-  from various tables in the cutagnew.mdb ACCESS database
-  and returns a dataframe with ancillary fields added.
+\title{Extracts weights for Cu pups
+: from various tables in the cutagnew.mdb ACCESS
+database and returns a dataframe with ancillary fields added.}
+\usage{
+  get.cu.weights(fdir = "", ENYears = c(1976, 1983, 1984,
+  1987, 1992, 1997, 1998))
 }
-\value{dataframe of weights for Cu}
-\author{Jeff Laake}
 \arguments{
   \item{fdir}{directory for cutagnew.mdb}
-  \item{ENYears}{values of years that will be flagged as ENSO years}
+
+  \item{ENYears}{values of years that will be flagged as
+  ENSO years}
 }
-\examples{# fdir should be set to location of  BrandMaster.mdb
+\value{
+  dataframe of weights for Cu
+}
+\description{
+  Extracts weights for Cu pups : from various tables in the
+  cutagnew.mdb ACCESS database and returns a dataframe with
+  ancillary fields added.
+}
+\examples{
+# fdir should be set to location of  BrandMaster.mdb
 # edir should be set to location of environmental.data.mdb
 # each defaults below to current working directory
 # Use "J:/" if it should be Calcurr/Databases
 # edir="J:/"
 # fdir="J:/"
-fdir="" 
+fdir=""
 edir=""
-plot.weight.series=function (time, predictions, ...) 
+plot.weight.series=function (time, predictions, ...)
 {
-plotCI(time, predictions$fit, predictions$fit - 1.96 * predictions$se, 
-predictions$fit + 1.96 * predictions$se, xlab = "Year", 
+plotCI(time, predictions$fit, predictions$fit - 1.96 * predictions$se,
+predictions$fit + 1.96 * predictions$se, xlab = "Year",
 ylab = "Predicted average weight (kg) 1 Oct", ...)
 lines(time, predictions$fit)
 invisible()
@@ -295,4 +302,9 @@ points(year.seq,female.averages$fit,pch="S")
 lines(year.seq,female.averages$fit,pch="S",lty=2)
 with(CUWeight.df,plot(year.seq,male.environ.mean,pch="M",type="b",ylim=c(4,16),xlab="Year"))
 points(year.seq,male.averages$fit,pch="S")
-lines(year.seq,male.averages$fit,pch="S",lty=2)}
+lines(year.seq,male.averages$fit,pch="S",lty=2)
+}
+\author{
+  Jeff Laake
+}
+

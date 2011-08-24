@@ -1,9 +1,7 @@
 
 
 #' Extracts weights for Zc pups
-#' Extracts weights for Zc pups from various tables in the BrandMaster.mdb
-#' ACCESS database and returns a dataframe with ancillary fields added.
-#' 
+#' :from various tables in the BrandMaster.mdb ACCESS database and returns a dataframe with ancillary fields added.
 #' 
 #' @param fdir directory for BrandMaster.mdb
 #' @param ENYears values of years that will be flagged as ENSO years

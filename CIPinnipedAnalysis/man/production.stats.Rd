@@ -1,16 +1,37 @@
 \name{production.stats}
 \alias{production.stats}
-\title{Pup production stats...}
-\usage{production.stats(island="SMI", mainland=TRUE, years,
-    PreLiveCountCf=1.33, species="Zc", connection)}
-
-\description{
-  Pup production stats : computes pup production stats for
-  Zalophus or Callorhinus at San Miguel or Castle Rock and
-  creates production tables in the ACCESS database.
+\title{Pup production stats
+: computes pup production stats for Zalophus or Callorhinus at San Miguel or
+Castle Rock and creates production tables in the ACCESS database.}
+\usage{
+  production.stats(island = "SMI", mainland = TRUE, years =
+  NULL, PreLiveCountCf = 1.33, species = "Zc", connection)
 }
+\arguments{
+  \item{island}{the character name for the island "SMI" or
+  "SNI"}
 
-\details{
+  \item{mainland}{If TRUE, computation is for San Miguel
+  mainland; otherwise, Castle Rock}
+
+  \item{years}{vector of years to select or NULL if all to
+  be used}
+
+  \item{PreLiveCountCf}{Multiplicative correction factor
+  for observed mortality prior to live count to account for
+  dead pups that were missed and decomposed or were buried}
+
+  \item{species}{either "Zc" for Zalophus or "Cu" for
+  Callorhinus}
+
+  \item{connection}{database connection}
+}
+\value{
+  dataframe containing results
+  LiveCountDate,Area,Year,LiveInDeadSampleArea,DeadInDeadSampleArea,AdjustedDeadInDeadSampleArea,
+  MortalityRateAtLiveCount,TotalLiveCountByYear,PupProduction
+}
+\description{
   Dead pup surveys are conducted typically on 3 occasions
   during July.  Dead pups are either stacked or tagged so
   they are not recounted.  A live count is also conducted
@@ -27,25 +48,15 @@
   scale the total live count to compute the number of pups
   produced (born). The computed values are output in the
   production table for each species.
-
+}
+\details{
   \code{\link{do.pup.production}} is the driver function
   which calls this function for Zc for SMI and Castle Rock
   and then combines the result in the table ZcProduction
   which is stored in CIPinnipedCensusQuery.mdb.  Then it
   does the same thing for Cu and creates CuProduction.
 }
-\value{dataframe containing results
-LiveCountDate,Area,Year,LiveInDeadSampleArea,DeadInDeadSampleArea,AdjustedDeadInDeadSampleArea,
-MortalityRateAtLiveCount,TotalLiveCountByYear,PupProduction}
-\author{Jeff Laake}
-\arguments{
-  \item{island}{the character name for the island "SMI" or "SNI"}
-  \item{mainland}{If TRUE, computation is for San Miguel mainland; otherwise,
-Castle Rock}
-  \item{years}{vector of years to select or NULL if all to be used}
-  \item{PreLiveCountCf}{Multiplicative correction factor for observed
-mortality prior to live count to account for dead pups that were missed
-and decomposed or were buried}
-  \item{species}{either "Zc" for Zalophus or "Cu" for Callorhinus}
-  \item{connection}{database connection}
+\author{
+  Jeff Laake
 }
+

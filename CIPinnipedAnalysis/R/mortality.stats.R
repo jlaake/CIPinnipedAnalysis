@@ -20,7 +20,6 @@
 #' @param island the character name for the island "SMI" or "SNI"
 #' @param connection database connection
 #' @param years vector of years that should be selected if not all years
-#' @export
 #' @return dataframe containing year,SurveyDate,Pups(number of pups alive at
 #'   time),ObservedDead (number observed to die in that interval)
 #'   AdjustedDead(corrected count that died),MortalityRate(mortality rate

@@ -19,7 +19,6 @@
 #' @param average.years vector of years to be included in the monthly mean
 #'   calculations the monthly means are subtracted from the specific year-month
 #'   values to create the anomaly
-#' @export
 #' @return for \code{create.anomalies} a matrix of monthly anomalies with years
 #'   as rows and months as columns
 #' 

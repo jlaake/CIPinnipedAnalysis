@@ -31,7 +31,6 @@
 #'   and decomposed or were buried
 #' @param species either "Zc" for Zalophus or "Cu" for Callorhinus
 #' @param connection database connection
-#' @export
 #' @return dataframe containing results
 #'   LiveCountDate,Area,Year,LiveInDeadSampleArea,DeadInDeadSampleArea,AdjustedDeadInDeadSampleArea,
 #'   MortalityRateAtLiveCount,TotalLiveCountByYear,PupProduction

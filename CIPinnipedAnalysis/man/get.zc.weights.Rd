@@ -1,34 +1,39 @@
 \name{get.zc.weights}
 \alias{get.zc.weights}
-\title{Extracts weights for Zc pups...}
-\usage{get.zc.weights(fdir="", ENYears=c(1976, 1983, 1984, 1987,
-    1992, 1997, 1998))}
-
-\description{
-  Extracts weights for Zc pups Extracts weights for Zc pups
-  from various tables in the BrandMaster.mdb ACCESS
-  database and returns a dataframe with ancillary fields
-  added.
+\title{Extracts weights for Zc pups
+:from various tables in the BrandMaster.mdb ACCESS database and returns a dataframe with ancillary fields added.}
+\usage{
+  get.zc.weights(fdir = "", ENYears = c(1976, 1983, 1984,
+  1987, 1992, 1997, 1998))
 }
-\value{dataframe of weights for Zc}
-\author{Jeff Laake}
 \arguments{
   \item{fdir}{directory for BrandMaster.mdb}
-  \item{ENYears}{values of years that will be flagged as ENSO years}
+
+  \item{ENYears}{values of years that will be flagged as
+  ENSO years}
 }
-\examples{# fdir should be set to location of  BrandMaster.mdb
+\value{
+  dataframe of weights for Zc
+}
+\description{
+  Extracts weights for Zc pups :from various tables in the
+  BrandMaster.mdb ACCESS database and returns a dataframe
+  with ancillary fields added.
+}
+\examples{
+# fdir should be set to location of  BrandMaster.mdb
 # edir should be set to location of environmental.data.mdb
 # each defaults below to current working directory
 # Use "J:/" if it should be Calcurr/Databases
 # edir="J:/"
 # fdir="J:/"
-fdir="" 
+fdir=""
 edir=""
-plot.weight.series=function (time, predictions, ...) 
+plot.weight.series=function (time, predictions, ...)
 {
-plotCI(time, predictions$fit, predictions$fit - 1.96 * predictions$se, 
-predictions$fit + 1.96 * predictions$se, xlab = "Year", 
-ylab = "Predicted average weight (kg) 1 Oct", 
+plotCI(time, predictions$fit, predictions$fit - 1.96 * predictions$se,
+predictions$fit + 1.96 * predictions$se, xlab = "Year",
+ylab = "Predicted average weight (kg) 1 Oct",
 ...)
 lines(time, predictions$fit)
 invisible()
@@ -231,7 +236,7 @@ summary(zc.weight.model)$AIC
 # Get predicted means and compute std errors and add to ZCWeight.df table
 best.zc.weight.model=lme(weight~sex*days*SST+cohort,random=list(~days|cohort,~1|batch),data=zcweights.environ)
 summary(best.zc.weight.model)
-zc.weight.model=best.zc.weight.model   
+zc.weight.model=best.zc.weight.model
 bootstrap.se=function(x,nreps)
 {
 pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))
@@ -365,4 +370,9 @@ be.fem=with(zcweights.be,tapply(weight,list(cohort,tag.type,sex),mean))[,,"F"]
 be.m=with(zcweights.be,tapply(weight,list(cohort,tag.type,sex),mean))[,,"M"]
 t.test(x=c(be.fem[,1],be.m[,1]),y=c(be.fem[,2],be.m[,2]),paired=TRUE)
 # Close ACCESS tables
-odbcCloseAll()}
+odbcCloseAll()
+}
+\author{
+  Jeff Laake
+}
+

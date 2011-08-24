@@ -1,44 +1,47 @@
 \name{create.SST.anomalies}
 \alias{create.SST.anomalies}
-\title{Create SST monthly anomaly matrices for each of 8 locations...}
-\usage{create.SST.anomalies(average.years, fdir="", store=FALSE)}
-
-\description{
-  Create SST monthly anomaly matrices for each of 8
-  locations Computes SST anomaly matrix for month and year
-  for each of 8 locations: East Santa Barbara (ESB), West
-  Santa Barbara (WSB), Point Arguello (PtArg), Point Santa
-  Maria (PtSM), Port San Luis (PtSL), Cape San Martin
-  (CSM), Monterey Bay (MB) and Point Reyes (PtReyes).
+\title{Create SST monthly anomaly matrices for each of 8 locations
+Computes SST anomaly matrix for month and year for each of 8 locations: East
+Santa Barbara (ESB), West Santa Barbara (WSB), Point Arguello (PtArg), Point
+Santa Maria (PtSM), Port San Luis (PtSL), Cape San Martin (CSM), Monterey
+Bay (MB) and Point Reyes (PtReyes).}
+\usage{
+  create.SST.anomalies(average.years, fdir = "", store =
+  FALSE)
 }
+\arguments{
+  \item{average.years}{vector of years to be included in
+  the monthly mean calculations the monthly means are
+  subtracted from the specific year-month values to create
+  the anomaly}
 
-\details{
+  \item{fdir}{directory for location of environmental.mdb
+  file. default assumes it is in directory containing the
+  workspace}
+
+  \item{store}{if TRUE, deletes and replaces anaomaly
+  tables in the ACCESS database}
+}
+\value{
+  A three dimensional array (year by month by location)
+  with the 8 locations ordered as ESB, WSB, PtArg, PtSM,
+  PtSL, CSM, MB and PtReyes. Side effect of function is to
+  delete existing anomaly tables in ACCESS and re-write new
+  ones.
+}
+\description{
   Creates daily means from hourly observations.  Averages
   daily means within month.  Computes average monthly value
   from a defined set of years (\code{average.years}) and
   subtracts the monthly means from the observed year-month
   matrix to produce anomaly matrix.
 }
-\value{A three dimensional array (year by month by location) with the 8
-locations ordered as ESB, WSB, PtArg, PtSM, PtSL, CSM, MB and PtReyes.
-Side effect of function is to delete existing anomaly tables in ACCESS and
-re-write new ones.}
-\author{Jeff Laake}
-\seealso{\code{\link{create.anomalies}}}
-\arguments{
-  \item{average.years}{vector of years to be included in the monthly mean
-calculations the monthly means are subtracted from the specific year-month
-values to create the anomaly}
-  \item{fdir}{directory for location of environmental.mdb file. default
-assumes it is in directory containing the workspace}
-  \item{store}{if TRUE, deletes and replaces anaomaly tables in the ACCESS
-database}
-}
-\examples{# fdir should be set to location of environmental.data.mdb
+\examples{
+# fdir should be set to location of environmental.data.mdb
 # each defaults below to current working directory
 # Use "J:/" if it should be Calcurr/Databases
 # fdir="J:/"
-fdir="" 
+fdir=""
 edir=""
 anomalies=create.SST.anomalies(c(1994:1996,1998:2008),fdir=fdir)
 CentralSSTAnomalies=t(apply(anomalies[,,3:7],c(2,1),mean,na.rm=TRUE))
@@ -99,4 +102,12 @@ axis(1,at=12*(0:(numyears-1))+1,labels=as.character(minyear:maxyear))
 abline(h=0)
 dev.off()
 
-odbcClose(connection)}
+odbcClose(connection)
+}
+\author{
+  Jeff Laake
+}
+\seealso{
+  \code{\link{create.anomalies}}
+}
+

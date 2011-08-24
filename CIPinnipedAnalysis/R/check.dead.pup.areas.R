@@ -6,7 +6,6 @@
 #' 
 #' \preformatted{ If there are no missing records the output should look as
 #' follows:
-#' 
 #' ***Checking Zc CU dead pup census for Zc at SMI ***Checking Zc CU dead pup
 #' census for Cu at SMI ***Checking Zc CU live pup census for Zc at SMI
 #' ***Checking Zc CU live pup census for Cu at SMI ***Checking Zc dead tag
@@ -22,7 +21,7 @@
 #' @param fdir directory for CIPinnipedCensusMaster.mdb file
 #' @return None
 #' @note Creates log file MissingDeadPupArea.txt with any errors
-#' @author Jeff Laake
+#' @author Jeff Laake 
 check.dead.pup.areas <-
 function(fdir="")
 {
