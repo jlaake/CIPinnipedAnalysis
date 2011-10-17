@@ -32,8 +32,8 @@ fdir=""
 edir=""
 plot.weight.series=function (time, predictions, ...)
 {
-plotCI(time, predictions$fit, predictions$fit - 1.96 * predictions$se,
-predictions$fit + 1.96 * predictions$se, xlab = "Year",
+plotCI(time, predictions$fit,  1.96 * predictions$se,
+1.96 * predictions$se, xlab = "Year",
 ylab = "Predicted average weight (kg) 1 Oct", ...)
 lines(time, predictions$fit)
 invisible()
