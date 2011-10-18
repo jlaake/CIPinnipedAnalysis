@@ -11,7 +11,7 @@
 #' tables will not be created. If successful the pdf files are created in this
 #' directory which can then be copied to Presentations/PinnipedPlots.
 #' 
-#' @param fdir directory for CIPinnipedCensusQuery.mdb
+#' @param fdir directory for CIPinnipedCensusMaster.mdb
 #' @return None
 #' @export
 #' @author Jeff Laake
@@ -25,26 +25,41 @@ do.early.pup.mortality=function(fdir="")
 #  pdf files
 #
 #
-#  Make connection to CIPinnipedCensusQuery.mdb
+#  Make connection to CIPinnipedCensusQuery.mdb and CIPinnipedCensusMaster.mdb
 #
-if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")	
-fdir=file.path(fdir,"CIPinnipedCensusQuery.mdb")
-connection=odbcConnectAccess2007(fdir)
-xx=sqlDrop(connection,"ZcEarlyPupMortality",errors=FALSE)
-xx=sqlDrop(connection,"CuEarlyPupMortality",errors=FALSE)
-zcsmi.mort=mortality.stats(island="SMI",species="Zc",connection=connection)
+if(fdir=="")
+{
+	fdir1=system.file(package="CIPinnipedAnalysis")
+	fdir2=fdir1
+} else
+{
+	fdir1=fdir
+	fdir2=file.path(fdir2,"Master")
+}
+#  Make connection to CIPinnipedCensusQuery.mdb; assumed to be on J: (Calcur/Databases)
+fdir1=file.path(fdir1,"CIPinnipedCensusQuery.mdb")
+connection1=odbcConnectAccess2007(fdir1)
+#  Make connection to CIPinnipedCensusMaster.mdb; assumed to be on J: (Calcur/Databases/Master)
+fdir2=file.path(fdir2,"CIPinnipedCensusMaster.mdb")
+connection2=odbcConnectAccess2007(fdir2)
+# Delete current tables
+xx=sqlDrop(connection1,"ZcEarlyPupMortality",errors=FALSE)
+xx=sqlDrop(connection1,"CuEarlyPupMortality",errors=FALSE)
+# Construct mortality tables for Zc on San Miguel
+zcsmi.mort=mortality.stats(island="SMI",species="Zc",connection1=connection1,connection2=connection2)
 zcsmi.mort$Island="SMI"
 #zcsni.mort=mortality.stats(island="SNI",species="Zc",connection=connection,years=2005:2006)
 #zcsni.mort$Island="SNI"
 #zc.mort=rbind(zcsmi.mort,zcsni.mort)
 zc.mort=zcsmi.mort
-cu.mort=mortality.stats(species="Cu",connection=connection)
+# Construct mortality tables for Cu on San Miguel
+cu.mort=mortality.stats(species="Cu",connection1=connection1,connection2=connection2)
 cu.mort.table=cu.mort
 zc.mort.table=zc.mort
 cu.mort.table$SurveyDate=substr(as.character(cu.mort$SurveyDate),1,10)
 zc.mort.table$SurveyDate=substr(as.character(zc.mort$SurveyDate),1,10)
-xx=sqlSave(connection,cu.mort.table,tablename="CuEarlyPupMortality",append=FALSE,rownames=FALSE)
-xx=sqlSave(connection,zc.mort.table,tablename="ZcEarlyPupMortality",append=FALSE,rownames=FALSE)
+xx=sqlSave(connection1,cu.mort.table,tablename="CuEarlyPupMortality",append=FALSE,rownames=FALSE)
+xx=sqlSave(connection1,zc.mort.table,tablename="ZcEarlyPupMortality",append=FALSE,rownames=FALSE)
 pdf("CuEarlyPupMortality.pdf",width=9)
 minyear=min(cu.mort$Year)-1
 maxyear=max(cu.mort$Year)

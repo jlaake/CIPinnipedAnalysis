@@ -30,7 +30,7 @@
 #'   mortality prior to live count to account for dead pups that were missed
 #'   and decomposed or were buried
 #' @param species either "Zc" for Zalophus or "Cu" for Callorhinus
-#' @param connection database connection
+#' @param connection database connection in CensusMaster
 #' @return dataframe containing results
 #'   LiveCountDate,Area,Year,LiveInDeadSampleArea,DeadInDeadSampleArea,AdjustedDeadInDeadSampleArea,
 #'   MortalityRateAtLiveCount,TotalLiveCountByYear,PupProduction

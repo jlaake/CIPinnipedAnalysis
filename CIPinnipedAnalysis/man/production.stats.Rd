@@ -24,7 +24,7 @@ Castle Rock and creates production tables in the ACCESS database.}
   \item{species}{either "Zc" for Zalophus or "Cu" for
   Callorhinus}
 
-  \item{connection}{database connection}
+  \item{connection}{database connection in CensusMaster}
 }
 \value{
   dataframe containing results

@@ -26,10 +26,10 @@ check.dead.pup.areas <-
 function(fdir="")
 {
 #
-#  Make connection to CIPinnipedCensusQuery.mdb
+#  Make connection to CIPinnipedCensusMaster.mdb
 #
 if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")
-fdir=file.path(fdir,"CIPinnipedCensusQuery.mdb")
+fdir=file.path(fdir,"CIPinnipedCensusMaster.mdb")
 connection=odbcConnectAccess2007(fdir)
 sink("MissingDeadPupArea.txt")
 areas=sqlFetch(connection,"DeadPupSampleAreas")

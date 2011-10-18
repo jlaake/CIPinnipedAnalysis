@@ -8,7 +8,7 @@ plots of those values.}
   do.early.pup.mortality(fdir = "")
 }
 \arguments{
-  \item{fdir}{directory for CIPinnipedCensusQuery.mdb}
+  \item{fdir}{directory for CIPinnipedCensusMaster.mdb}
 }
 \value{
   None

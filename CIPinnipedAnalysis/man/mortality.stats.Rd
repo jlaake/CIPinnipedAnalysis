@@ -6,8 +6,8 @@ from birth to either Aug or Sept-Oct depending on the extent of the
 mortality surveys which has varied across the years.}
 \usage{
   mortality.stats(PreLiveCountCf = 1.33, PostLiveCountCf =
-  1.25, species = "Zc", island = "SMI", connection, years =
-  NULL)
+  1.25, species = "Zc", island = "SMI", connection1,
+  connection2, years = NULL)
 }
 \arguments{
   \item{PreLiveCountCf}{Multiplicative correction factor
@@ -23,7 +23,11 @@ mortality surveys which has varied across the years.}
   \item{island}{the character name for the island "SMI" or
   "SNI"}
 
-  \item{connection}{database connection}
+  \item{connection1}{database connection to
+  CIPinnipedCensusQuery}
+
+  \item{connection2}{database connection to
+  CIPinnipedCensusMaster}
 
   \item{years}{vector of years that should be selected if
   not all years}

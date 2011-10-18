@@ -24,25 +24,40 @@ do.pup.production=function(fdir="")
 #  in CIPinnipedCensusQuery.  It also saves plots of production in pdf files.
 #
 sink("PupProduction.log")
-if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")
+if(fdir=="")
+{
+	fdir1=system.file(package="CIPinnipedAnalysis")
+	fdir2=fdir1
+} else
+{
+	fdir1=fdir
+    fdir2=file.path(fdir2,"Master")
+}
 #  Make connection to CIPinnipedCensusQuery.mdb; assumed to be on J: (Calcur/Databases)
-fdir=file.path(fdir,"CIPinnipedCensusQuery.mdb")
-connection=odbcConnectAccess2007(fdir)
-xx=sqlDrop(connection,"ZcProduction",errors=FALSE)
-xx=sqlDrop(connection,"CuProduction",errors=FALSE)
-smidat=production.stats(island="SMI",mainland=TRUE,species="Zc",connection=connection)
-crdat=production.stats(island="SMI",mainland=FALSE,species="Zc",connection=connection)
-livepups=sqlFetch(connection,"Zc Cu live pup census")
-snidat=production.stats(island="SNI",mainland=FALSE,species="Zc",connection=connection,years=sort(unique(livepups$Year[livepups$Island=="SNI"])))
+fdir1=file.path(fdir1,"CIPinnipedCensusQuery.mdb")
+connection1=odbcConnectAccess2007(fdir1)
+#  Make connection to CIPinnipedCensusMaster.mdb; assumed to be on J: (Calcur/Databases/Master)
+fdir2=file.path(fdir2,"CIPinnipedCensusMaster.mdb")
+connection2=odbcConnectAccess2007(fdir2)
+# Delete current production tables	
+xx=sqlDrop(connection1,"ZcProduction",errors=FALSE)
+xx=sqlDrop(connection1,"CuProduction",errors=FALSE)
+# Compute production stats for smi and castle rock for Zc
+smidat=production.stats(island="SMI",mainland=TRUE,species="Zc",connection=connection2)
+crdat=production.stats(island="SMI",mainland=FALSE,species="Zc",connection=connection2)
+# Compute production stats for San Nicolas
+livepups=sqlFetch(connection2,"Zc Cu live pup census")
+snidat=production.stats(island="SNI",mainland=FALSE,species="Zc",connection=connection2,years=sort(unique(livepups$Year[livepups$Island=="SNI"])))
 rm(livepups)
-xx=sqlSave(connection,rbind(smidat,crdat,snidat),tablename="ZcProduction",append=FALSE,rownames=FALSE)
-smidat=production.stats(island="SMI",mainland=TRUE,species="Cu",connection=connection)
-crdat=production.stats(island="SMI",mainland=FALSE,species="Cu",connection=connection)
-xx=sqlSave(connection,rbind(smidat,crdat),tablename="CuProduction",append=FALSE,rownames=FALSE)
+xx=sqlSave(connection1,rbind(smidat,crdat,snidat),tablename="ZcProduction",append=FALSE,rownames=FALSE)
+# Compute production stats for CU on SMI and Castle Rock
+smidat=production.stats(island="SMI",mainland=TRUE,species="Cu",connection=connection2)
+crdat=production.stats(island="SMI",mainland=FALSE,species="Cu",connection=connection2)
+xx=sqlSave(connection1,rbind(smidat,crdat),tablename="CuProduction",append=FALSE,rownames=FALSE)
 sink()
-
-ZcProduction=sqlFetch(connection,"ZcProduction")
-CuProduction=sqlFetch(connection,"CuProduction")
+# Get production tables and create pdfs
+ZcProduction=sqlFetch(connection1,"ZcProduction")
+CuProduction=sqlFetch(connection1,"CuProduction")
 maxyr=max(ZcProduction$Year)
 
 pdf("ZcPupProduction.pdf")
@@ -50,7 +65,6 @@ par(mfrow=c(2,1))
 plot(ZcProduction$Year[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],ZcProduction$PupProduction[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],xlab="Year",ylab="Pup production",xaxt="n",main="SMI California sea lions Mainland")
 lines(ZcProduction$Year[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],ZcProduction$PupProduction[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"])
 axis(1,at=seq(1970,maxyr,2),labels= seq(1970,maxyr,2)) 
-
 
 zccr.years=ZcProduction$Year[ZcProduction$Area=="CastleRock"]
 zccr.prod=ZcProduction$PupProduction[ZcProduction$Area=="CastleRock"]
