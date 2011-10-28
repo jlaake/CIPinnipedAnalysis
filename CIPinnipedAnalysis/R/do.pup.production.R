@@ -31,7 +31,7 @@ if(fdir=="")
 } else
 {
 	fdir1=fdir
-    fdir2=file.path(fdir2,"Master")
+    fdir2=file.path(fdir,"Master")
 }
 #  Make connection to CIPinnipedCensusQuery.mdb; assumed to be on J: (Calcur/Databases)
 fdir1=file.path(fdir1,"CIPinnipedCensusQuery.mdb")

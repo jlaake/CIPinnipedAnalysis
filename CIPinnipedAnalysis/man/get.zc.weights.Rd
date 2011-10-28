@@ -158,8 +158,9 @@ UWIOcttoDec=with(UWI[UWI$Month\%in\%10:12,], tapply(UWIAnomaly,list(Month,Year,L
 UWIJantoFeb=with(UWI[UWI$Month\%in\%1:2,], tapply(UWIAnomaly,list(Month,Year,Location),mean))
 
 UWImeansOcttoFeb=NULL
+ny=min(c(dim(UWIOcttoDec)[2],dim(UWIJantoFeb)[2]))
 for(i in 1:2)
-UWImeansOcttoFeb=rbind(UWImeansOcttoFeb,colMeans(rbind(UWIOcttoDec[,,i],UWIJantoFeb[,,i]),na.rm=TRUE))
+UWImeansOcttoFeb=rbind(UWImeansOcttoFeb,colMeans(rbind(UWIOcttoDec[,1:ny,i],UWIJantoFeb[,1:ny,i]),na.rm=TRUE))
 
 #
 # Fit some models to predicted averages

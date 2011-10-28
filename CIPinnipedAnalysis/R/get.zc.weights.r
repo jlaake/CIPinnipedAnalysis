@@ -170,7 +170,6 @@
 #' average.MEI=function(x,months)return(tapply(x$MEI[x$Month%in%months],x$Year[x$Month%in%months],mean))
 #' LaggedMEIJunetoSept=average.MEI(MEI,(6:9-lag))
 #' LaggedMEIOcttoFeb=average.MEI(MEI,8:12) # assumes 2 month lag to avoid Dec/Jan break
-#' 
 #' JunetoSeptAnomalies=JunetoSeptAnomalies[4:numyears]
 #' OcttoFebAnomalies=OcttoFebAnomalies[4:numyears]
 #' JunetoFebAnomalies=JunetoFebAnomalies[4:numyears]
