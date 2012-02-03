@@ -5,9 +5,9 @@ Creates a survivorship curve from dead pup count surveys.  The curve extends
 from birth to either Aug or Sept-Oct depending on the extent of the
 mortality surveys which has varied across the years.}
 \usage{
-  mortality.stats(PreLiveCountCf = 1.33, PostLiveCountCf =
-  1.25, species = "Zc", island = "SMI", connection1,
-  connection2, years = NULL)
+  mortality.stats(PreLiveCountCf = 1.33,
+    PostLiveCountCf = 1.25, species = "Zc", island = "SMI",
+    connection1, connection2, years = NULL)
 }
 \arguments{
   \item{PreLiveCountCf}{Multiplicative correction factor

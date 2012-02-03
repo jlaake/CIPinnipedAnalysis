@@ -3,8 +3,8 @@
 \title{Extracts weights for Zc pups
 :from various tables in the BrandMaster.mdb ACCESS database and returns a dataframe with ancillary fields added.}
 \usage{
-  get.zc.weights(fdir = "", ENYears = c(1976, 1983, 1984,
-  1987, 1992, 1997, 1998))
+  get.zc.weights(fdir = "",
+    ENYears = c(1976, 1983, 1984, 1987, 1992, 1997, 1998))
 }
 \arguments{
   \item{fdir}{directory for BrandMaster.mdb}
@@ -31,12 +31,12 @@ fdir=""
 edir=""
 plot.weight.series=function (time, predictions, ...)
 {
-plotCI(time, predictions$fit, 1.96 * predictions$se,
-1.96 * predictions$se, xlab = "Year",
-ylab = "Predicted average weight (kg) 1 Oct",
-...)
-lines(time, predictions$fit)
-invisible()
+	plotCI(time, predictions$fit, 1.96 * predictions$se,
+			1.96 * predictions$se, xlab = "Year",
+			ylab = "Predicted average weight (kg) 1 Oct",
+			...)
+	lines(time, predictions$fit)
+	invisible()
 }
 
 #################################################################################
@@ -48,15 +48,15 @@ zcweights=get.zc.weights(fdir=fdir)
 #  exclude brand eval weights and captures in April
 #
 zcweights.all=zcweights[zcweights$days>-30&zcweights$days<150&
-zcweights$sitecode=="SMI"&zcweights$type=="Initial",]
+   zcweights$sitecode=="SMI"&zcweights$type=="Initial",]
 #
 # compute observed averages - using data within 1 Sept to 15 Nov
 #
 zcweights=zcweights.all[zcweights.all$days>=-31&zcweights.all$days<=45,]
 female.observed=sapply(split(zcweights$weight[zcweights$sex=="F"],
-factor(zcweights$cohort[zcweights$sex=="F"],levels=levels(factor(zcweights.all$cohort)))),mean)
+ factor(zcweights$cohort[zcweights$sex=="F"],levels=levels(factor(zcweights.all$cohort)))),mean)
 male.observed=sapply(split(zcweights$weight[zcweights$sex=="M"],
-factor(zcweights$cohort[zcweights$sex=="M"],levels=levels(factor(zcweights.all$cohort)))),mean)
+ factor(zcweights$cohort[zcweights$sex=="M"],levels=levels(factor(zcweights.all$cohort)))),mean)
 zcweights=zcweights.all
 zcweights$batch=factor(paste(zcweights$cohort,zcweights$days))
 #
@@ -68,22 +68,22 @@ print(summary(zc.weight.model))
 # define bootstrap function to compute std error for predicted sex-cohort means
 bootstrap.se=function(x,nreps)
 {
-pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))
-i=0
-while(i<nreps)
-{
-xsamp=lapply(split(x,list(x$batch,x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
-xsamp=do.call("rbind",xsamp)
-mod=try(lme(formula(zc.weight.model),random=as.formula(zc.weight.model$call$random),data=as.data.frame(xsamp)))
-if(class(mod)!="try-error")
-{
-i=i+1
-xsamp=data.frame(days=0,cohort=rep(sort(unique(x$cohort)),2),sex=rep(c("F","M"),each=length(unique(x$cohort))))
-pp=predict(mod,newdata=xsamp,level=1)
-pmat[i,]=unique(data.frame(predict=as.vector(pp),cohort=xsamp$cohort,sex=xsamp$sex))$predict
-}
-}
-return(sqrt(apply(pmat,2,var)))
+   pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))
+   i=0
+   while(i<nreps)
+   {
+     xsamp=lapply(split(x,list(x$batch,x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
+     xsamp=do.call("rbind",xsamp)
+     mod=try(lme(formula(zc.weight.model),random=as.formula(zc.weight.model$call$random),data=as.data.frame(xsamp)))
+     if(class(mod)!="try-error")
+     {
+       i=i+1
+       xsamp=data.frame(days=0,cohort=rep(sort(unique(x$cohort)),2),sex=rep(c("F","M"),each=length(unique(x$cohort))))
+       pp=predict(mod,newdata=xsamp,level=1)
+       pmat[i,]=unique(data.frame(predict=as.vector(pp),cohort=xsamp$cohort,sex=xsamp$sex))$predict
+     }
+   }
+   return(sqrt(apply(pmat,2,var)))
 }
 # use 100 reps to compute std error
 stderrors=bootstrap.se(zcweights,100)
@@ -147,8 +147,8 @@ JunetoFebAnomalies[is.nan(JunetoFebAnomalies)]=NA
 JunetoFebAnomalies=rowMeans(JunetoFebAnomalies,na.rm=TRUE)
 
 x=rbind(data.frame(Year=minyear:maxyear,Season=rep("Spring",numyears),SSTAnomaly=JantoMayAnomalies),
-data.frame(Year=minyear:maxyear,Season=rep("Summer",numyears),SSTAnomaly=JunetoSeptAnomalies),
-data.frame(Year=minyear:maxyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies) )
+  data.frame(Year=minyear:maxyear,Season=rep("Summer",numyears),SSTAnomaly=JunetoSeptAnomalies),
+  data.frame(Year=minyear:maxyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies) )
 x$Season=factor(x$Season,levels=c("Spring","Summer","Fall"))
 x=x[order(x$Year,x$Season),]
 UWI=UWI[order(UWI$Year,UWI$Month),]
@@ -158,9 +158,8 @@ UWIOcttoDec=with(UWI[UWI$Month\%in\%10:12,], tapply(UWIAnomaly,list(Month,Year,L
 UWIJantoFeb=with(UWI[UWI$Month\%in\%1:2,], tapply(UWIAnomaly,list(Month,Year,Location),mean))
 
 UWImeansOcttoFeb=NULL
-ny=min(c(dim(UWIOcttoDec)[2],dim(UWIJantoFeb)[2]))
 for(i in 1:2)
-UWImeansOcttoFeb=rbind(UWImeansOcttoFeb,colMeans(rbind(UWIOcttoDec[,1:ny,i],UWIJantoFeb[,1:ny,i]),na.rm=TRUE))
+   UWImeansOcttoFeb=rbind(UWImeansOcttoFeb,colMeans(rbind(UWIOcttoDec[,,i],UWIJantoFeb[,,i]),na.rm=TRUE))
 
 #
 # Fit some models to predicted averages
@@ -171,8 +170,8 @@ SSTAnomalies.db=data.frame(SSTAnomaly=as.vector(t(SSTAnomalies[-(1:2),])))
 MEIcor=vector("numeric",8)
 for(lag in 0:7)
 {
-MEIcor[lag+1]=cor(MEI$MEI[1:(length(MEI$MEI)-lag)],SSTAnomalies.db$SSTAnomaly[(lag+1):length(MEI$MEI)],use="complete.obs")
-cat("\\nlag = ",lag,"cor = ",MEIcor[lag+1])
+  MEIcor[lag+1]=cor(MEI$MEI[1:(length(MEI$MEI)-lag)],SSTAnomalies.db$SSTAnomaly[(lag+1):length(MEI$MEI)],use="complete.obs")
+  cat("\\nlag = ",lag,"cor = ",MEIcor[lag+1])
 }
 lag=which(MEIcor==max(MEIcor))-1
 #
@@ -181,13 +180,12 @@ lag=which(MEIcor==max(MEIcor))-1
 average.MEI=function(x,months)return(tapply(x$MEI[x$Month\%in\%months],x$Year[x$Month\%in\%months],mean))
 LaggedMEIJunetoSept=average.MEI(MEI,(6:9-lag))
 LaggedMEIOcttoFeb=average.MEI(MEI,8:12) # assumes 2 month lag to avoid Dec/Jan break
-
 JunetoSeptAnomalies=JunetoSeptAnomalies[4:numyears]
 OcttoFebAnomalies=OcttoFebAnomalies[4:numyears]
 JunetoFebAnomalies=JunetoFebAnomalies[4:numyears]
 zcweights.environ=merge(zcweights,data.frame(cohort=1975:maxyear,SST1=JunetoSeptAnomalies,SST2=OcttoFebAnomalies,SST3=JunetoFebAnomalies,
-MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],UWI33=UWImeansJunetoSept[1,],UWI36=UWImeansJunetoSept[2,],
-UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)]))
+                            MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],UWI33=UWImeansJunetoSept[1,],UWI36=UWImeansJunetoSept[2,],
+                            UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)]))
 zcweights.environ$SST=zcweights.environ$SST1
 zcweights.environ$SST[zcweights.environ$days>90]=zcweights.environ$SST3[zcweights.environ$days>90]
 zcweights.environ$MEI[zcweights.environ$days>90]=zcweights.environ$MEI1[zcweights.environ$days>90]
@@ -240,22 +238,22 @@ summary(best.zc.weight.model)
 zc.weight.model=best.zc.weight.model
 bootstrap.se=function(x,nreps)
 {
-pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))
-i=0
-while(i<nreps)
-{
-xsamp=lapply(split(x,list(x$batch,x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
-xsamp=do.call("rbind",xsamp)
-mod=try(lme(formula(zc.weight.model),random=as.formula(zc.weight.model$call$random),data=as.data.frame(xsamp)))
-if(class(mod)!="try-error")
-{
-i=i+1
-xsamp$days=0
-pp=predict(mod,newdata=xsamp)
-pmat[i,]=as.vector(tapply(as.vector(pp),list(x$cohort,x$sex),mean))
-}
-}
-return(sqrt(apply(pmat,2,var)))
+   pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))
+   i=0
+   while(i<nreps)
+   {
+     xsamp=lapply(split(x,list(x$batch,x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
+     xsamp=do.call("rbind",xsamp)
+     mod=try(lme(formula(zc.weight.model),random=as.formula(zc.weight.model$call$random),data=as.data.frame(xsamp)))
+     if(class(mod)!="try-error")
+     {
+       i=i+1
+       xsamp$days=0
+       pp=predict(mod,newdata=xsamp)
+       pmat[i,]=as.vector(tapply(as.vector(pp),list(x$cohort,x$sex),mean))
+     }
+   }
+   return(sqrt(apply(pmat,2,var)))
 }
 # use 100 reps to compute std error
 stderrors=bootstrap.se(zcweights.environ,100)
@@ -325,7 +323,7 @@ grdata=data.frame(gr=gr,AnimalID=names(gr))
 grdata=merge(initial,grdata)
 # Merge growth data with environmental data
 zcweights.environ.lon=merge(grdata,data.frame(cohort=1975:maxyear,SST=OcttoFebAnomalies,MEI=LaggedMEIOcttoFeb[-1],
-UWI33=UWImeansOcttoFeb[1,-(1:6)],UWI36=UWImeansOcttoFeb[2,-(1:6)]))
+                                         UWI33=UWImeansOcttoFeb[1,-(1:6)],UWI36=UWImeansOcttoFeb[2,-(1:6)]))
 # Create model
 mod=lme(gr~sex*UWI33,random=~1|cohort,data=zcweights.environ.lon,method="ML")
 summary(mod)$AIC

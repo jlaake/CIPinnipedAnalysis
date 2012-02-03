@@ -4,8 +4,8 @@
 : from various tables in the cutagnew.mdb ACCESS
 database and returns a dataframe with ancillary fields added.}
 \usage{
-  get.cu.weights(fdir = "", ENYears = c(1976, 1983, 1984,
-  1987, 1992, 1997, 1998))
+  get.cu.weights(fdir = "",
+    ENYears = c(1976, 1983, 1984, 1987, 1992, 1997, 1998))
 }
 \arguments{
   \item{fdir}{directory for cutagnew.mdb}
@@ -32,11 +32,11 @@ fdir=""
 edir=""
 plot.weight.series=function (time, predictions, ...)
 {
-plotCI(time, predictions$fit,  1.96 * predictions$se,
-1.96 * predictions$se, xlab = "Year",
-ylab = "Predicted average weight (kg) 1 Oct", ...)
-lines(time, predictions$fit)
-invisible()
+	plotCI(time, predictions$fit,  1.96 * predictions$se,
+			1.96 * predictions$se, xlab = "Year",
+			ylab = "Predicted average weight (kg) 1 Oct", ...)
+	lines(time, predictions$fit)
+	invisible()
 }
 
 #################################################################################
@@ -53,9 +53,9 @@ cuweights.all=cuweights[cuweights$days>-30&cuweights$days<150,]
 #
 cuweights=cuweights.all[cuweights.all$days>=-31&cuweights.all$days<=45,]
 female.observed=sapply(split(cuweights$weight[cuweights$sex=="F"],
-factor(cuweights$cohort[cuweights$sex=="F"],levels=levels(factor(cuweights.all$cohort)))),mean)
+ factor(cuweights$cohort[cuweights$sex=="F"],levels=levels(factor(cuweights.all$cohort)))),mean)
 male.observed=sapply(split(cuweights$weight[cuweights$sex=="M"],
-factor(cuweights$cohort[cuweights$sex=="M"],levels=levels(factor(cuweights.all$cohort)))),mean)
+ factor(cuweights$cohort[cuweights$sex=="M"],levels=levels(factor(cuweights.all$cohort)))),mean)
 cuweights=cuweights.all
 #
 #  fit growth model
@@ -66,22 +66,22 @@ print(summary(cu.weight.model))
 # define bootstrap function to compute std error for predicted sex-cohort means
 bootstrap.se=function(x,nreps)
 {
-pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))
-i=0
-while(i<nreps)
-{
-xsamp=lapply(split(x,list(x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
-xsamp=do.call("rbind",xsamp)
-mod=try(lme(formula(cu.weight.model),random=as.formula(cu.weight.model$call$random),data=as.data.frame(xsamp)))
-if(class(mod)!="try-error")
-{
-i=i+1
-xsamp=data.frame(days=0,cohort=rep(sort(unique(x$cohort)),2),sex=rep(c("F","M"),each=length(unique(x$cohort))))
-pp=predict(mod,newdata=xsamp,level=1)
-pmat[i,]=unique(data.frame(predict=as.vector(pp),cohort=xsamp$cohort,sex=xsamp$sex))$predict
-}
-}
-return(sqrt(apply(pmat,2,var)))
+   pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))
+   i=0
+   while(i<nreps)
+   {
+     xsamp=lapply(split(x,list(x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
+     xsamp=do.call("rbind",xsamp)
+     mod=try(lme(formula(cu.weight.model),random=as.formula(cu.weight.model$call$random),data=as.data.frame(xsamp)))
+     if(class(mod)!="try-error")
+     {
+       i=i+1
+       xsamp=data.frame(days=0,cohort=rep(sort(unique(x$cohort)),2),sex=rep(c("F","M"),each=length(unique(x$cohort))))
+       pp=predict(mod,newdata=xsamp,level=1)
+       pmat[i,]=unique(data.frame(predict=as.vector(pp),cohort=xsamp$cohort,sex=xsamp$sex))$predict
+     }
+   }
+   return(sqrt(apply(pmat,2,var)))
 }
 # use 100 reps to compute std error
 stderrors=bootstrap.se(cuweights,100)
@@ -138,8 +138,8 @@ JunetoFebAnomalies[is.nan(JunetoFebAnomalies)]=NA
 JunetoFebAnomalies=rowMeans(JunetoFebAnomalies,na.rm=TRUE)
 
 x=rbind(data.frame(Year=minyear:maxyear,Season=rep("Spring",numyears),SSTAnomaly=JantoMayAnomalies),
-data.frame(Year=minyear:maxyear,Season=rep("Summer",numyears),SSTAnomaly=JunetoSeptAnomalies),
-data.frame(Year=minyear:maxyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies) )
+  data.frame(Year=minyear:maxyear,Season=rep("Summer",numyears),SSTAnomaly=JunetoSeptAnomalies),
+  data.frame(Year=minyear:maxyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies) )
 x$Season=factor(x$Season,levels=c("Spring","Summer","Fall"))
 x=x[order(x$Year,x$Season),]
 MEI=sqlFetch(connection,"MEI")
@@ -152,7 +152,7 @@ UWIJantoFeb=with(UWI[UWI$Month\%in\%1:2,], tapply(UWIAnomaly,list(Month,Year,Loc
 
 UWImeansOcttoFeb=NULL
 for(i in 1:2)
-UWImeansOcttoFeb=rbind(UWImeansOcttoFeb,colMeans(rbind(UWIOcttoDec[,,i],UWIJantoFeb[,,i]),na.rm=TRUE))
+   UWImeansOcttoFeb=rbind(UWImeansOcttoFeb,colMeans(rbind(UWIOcttoDec[,,i],UWIJantoFeb[,,i]),na.rm=TRUE))
 
 #
 # Fit some models to predicted averages
@@ -163,8 +163,8 @@ SSTAnomalies.db=data.frame(SSTAnomaly=as.vector(t(SSTAnomalies[-(1:2),])))
 MEIcor=vector("numeric",8)
 for(lag in 0:7)
 {
-MEIcor[lag+1]=cor(MEI$MEI[1:(length(MEI$MEI)-lag)],SSTAnomalies.db$SSTAnomaly[(lag+1):length(MEI$MEI)],use="complete.obs")
-cat("\\nlag = ",lag,"cor = ",MEIcor[lag+1])
+  MEIcor[lag+1]=cor(MEI$MEI[1:(length(MEI$MEI)-lag)],SSTAnomalies.db$SSTAnomaly[(lag+1):length(MEI$MEI)],use="complete.obs")
+  cat("\\nlag = ",lag,"cor = ",MEIcor[lag+1])
 }
 lag=which(MEIcor==max(MEIcor))-1
 #
@@ -178,8 +178,8 @@ JunetoSeptAnomalies=JunetoSeptAnomalies[4:numyears]
 OcttoFebAnomalies=OcttoFebAnomalies[4:numyears]
 JunetoFebAnomalies=JunetoFebAnomalies[4:numyears]
 cuweights.environ=merge(cuweights,data.frame(cohort=1975:maxyear,SST1=JunetoSeptAnomalies,SST2=OcttoFebAnomalies,SST3=JunetoFebAnomalies,
-MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],UWI33=UWImeansJunetoSept[1,],UWI36=UWImeansJunetoSept[2,],
-UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)]))
+				MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],UWI33=UWImeansJunetoSept[1,],UWI36=UWImeansJunetoSept[2,],
+				UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)]))
 cuweights.environ$SST=cuweights.environ$SST1
 cuweights.environ$SST[cuweights.environ$days>90]=cuweights.environ$SST3[cuweights.environ$days>90]
 cuweights.environ$MEI[cuweights.environ$days>90]=cuweights.environ$MEI1[cuweights.environ$days>90]
@@ -246,22 +246,22 @@ summary(best.cu.weight.model)
 cu.weight.model=best.cu.weight.model
 bootstrap.se=function(x,nreps)
 {
-pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))
-i=0
-while(i<nreps)
-{
-xsamp=lapply(split(x,list(x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
-xsamp=do.call("rbind",xsamp)
-mod=try(lme(formula(cu.weight.model),random=as.formula(cu.weight.model$call$random),data=as.data.frame(xsamp)))
-if(class(mod)!="try-error")
-{
-i=i+1
-xsamp$days=0
-pp=predict(mod,newdata=xsamp)
-pmat[i,]=as.vector(tapply(as.vector(pp),list(x$cohort,x$sex),mean))
-}
-}
-return(sqrt(apply(pmat,2,var)))
+   pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))
+   i=0
+   while(i<nreps)
+   {
+     xsamp=lapply(split(x,list(x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
+     xsamp=do.call("rbind",xsamp)
+     mod=try(lme(formula(cu.weight.model),random=as.formula(cu.weight.model$call$random),data=as.data.frame(xsamp)))
+     if(class(mod)!="try-error")
+     {
+       i=i+1
+       xsamp$days=0
+       pp=predict(mod,newdata=xsamp)
+       pmat[i,]=as.vector(tapply(as.vector(pp),list(x$cohort,x$sex),mean))
+     }
+   }
+   return(sqrt(apply(pmat,2,var)))
 }
 # use 100 reps to compute std error
 stderrors=bootstrap.se(cuweights.environ,100)

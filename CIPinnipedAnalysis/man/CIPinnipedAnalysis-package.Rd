@@ -1,6 +1,5 @@
 \docType{package}
 \name{CIPinnipedAnalysis-package}
-\alias{"CIPinnipedAnalysis-package"}
 \alias{CIPinnipedAnalysis}
 \alias{CIPinnipedAnalysis-package}
 \title{Channel Islands Pinniped Analysis functions

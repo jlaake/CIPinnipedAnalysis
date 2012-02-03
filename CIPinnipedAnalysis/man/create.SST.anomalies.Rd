@@ -6,8 +6,8 @@ Santa Barbara (ESB), West Santa Barbara (WSB), Point Arguello (PtArg), Point
 Santa Maria (PtSM), Port San Luis (PtSL), Cape San Martin (CSM), Monterey
 Bay (MB) and Point Reyes (PtReyes).}
 \usage{
-  create.SST.anomalies(average.years, fdir = "", store =
-  FALSE)
+  create.SST.anomalies(average.years, fdir = "",
+    store = FALSE)
 }
 \arguments{
   \item{average.years}{vector of years to be included in
@@ -25,7 +25,7 @@ Bay (MB) and Point Reyes (PtReyes).}
 \value{
   A three dimensional array (year by month by location)
   with the 8 locations ordered as ESB, WSB, PtArg, PtSM,
-  PtSL, CSM, MB and PtReyes. Side effect of function is to
+  PtSL, CSM, MB and PtReyes.  Side effect of function is to
   delete existing anomaly tables in ACCESS and re-write new
   ones.
 }
@@ -55,8 +55,8 @@ JantoMayAnomalies=rowMeans(SSTAnomalies[,c("Jan","Feb","Mar","Apr","May")])
 JunetoSeptAnomalies=rowMeans(SSTAnomalies[,c("June","July","Aug","Sept")])
 OcttoDecAnomalies=rowMeans(SSTAnomalies[,c("Oct","Nov","Dec")])
 x=rbind(data.frame(Year=minyear:maxyear,Season=rep("Spring",numyears),SSTAnomaly=JantoMayAnomalies),
-data.frame(Year=minyear:maxyear,Season=rep("Summer",numyears),SSTAnomaly=JunetoSeptAnomalies),
-data.frame(Year=minyear:maxyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies) )
+  data.frame(Year=minyear:maxyear,Season=rep("Summer",numyears),SSTAnomaly=JunetoSeptAnomalies),
+  data.frame(Year=minyear:maxyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies) )
 x$Season=factor(x$Season,levels=c("Spring","Summer","Fall"))
 x=x[order(x$Year,x$Season),]
 pdf("SSTAnomaly.pdf",pointsize=10)

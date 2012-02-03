@@ -4,8 +4,9 @@
 : computes pup production stats for Zalophus or Callorhinus at San Miguel or
 Castle Rock and creates production tables in the ACCESS database.}
 \usage{
-  production.stats(island = "SMI", mainland = TRUE, years =
-  NULL, PreLiveCountCf = 1.33, species = "Zc", connection)
+  production.stats(island = "SMI", mainland = TRUE,
+    years = NULL, PreLiveCountCf = 1.33, species = "Zc",
+    connection)
 }
 \arguments{
   \item{island}{the character name for the island "SMI" or
