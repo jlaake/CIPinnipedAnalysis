@@ -7,7 +7,7 @@ mortality surveys which has varied across the years.}
 \usage{
   mortality.stats(PreLiveCountCf = 1.33,
     PostLiveCountCf = 1.25, species = "Zc", island = "SMI",
-    connection1, connection2, years = NULL)
+    fdir1, fdir2, years = NULL)
 }
 \arguments{
   \item{PreLiveCountCf}{Multiplicative correction factor
@@ -23,10 +23,10 @@ mortality surveys which has varied across the years.}
   \item{island}{the character name for the island "SMI" or
   "SNI"}
 
-  \item{connection1}{database connection to
+  \item{fdir1}{database directory for
   CIPinnipedCensusQuery}
 
-  \item{connection2}{database connection to
+  \item{fdir2}{database directory for
   CIPinnipedCensusMaster}
 
   \item{years}{vector of years that should be selected if

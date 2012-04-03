@@ -1,7 +1,6 @@
-
-
 #' Create SST monthly anomaly matrices and dataframes
-#' :\code{create.anomalies} computes a matrix of year-month anomalies and
+#' 
+#' \code{create.anomalies} computes a matrix of year-month anomalies and
 #' \code{create.anomaly.table} converts the matrix into a dataframe of
 #' anomalies.
 #' 
@@ -27,22 +26,14 @@
 #'   SSTAnomaly - SST anomaly value.
 #' @author Jeff Laake
 #' @seealso \code{\link{create.SST.anomalies}}
+#' @examples 
+#' fdir=system.file(package="CIPinnipedAnalysis")
+#' source(file.path(fdir,"CreateAnomalies.r"))
+#' 
+#' source("CreateAnomalies.r")
+#' 
 create.anomalies=function(x,yrange,average.years)
 {
-#  Function to create a matrix of anomalies.
-#  Arguments:
-#    x - dataframe containing the following fields:
-#          WTMP - Sea surface temp
-#          date - Date of measurement
-#            or
-#                MM    - numeric month
-#                DD    - numeric day
-#                YYYY  - 4-digit year
-#   yrange - range of years for table
-#   average.years - years to be used to calculate long-term mean for anomaly measure
-#
-#  Value: matrix of monthly anomalies with years as rows and months as columns        
-#################################################################################
 #    Exclude any invalid temps
      x=x[!x$WTMP>=99,]
 #    If there is no date field, create one

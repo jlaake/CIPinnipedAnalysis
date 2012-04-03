@@ -1,6 +1,5 @@
-
-
 #' Create SST monthly anomaly matrices for each of 8 locations
+#' 
 #' Computes SST anomaly matrix for month and year for each of 8 locations: East
 #' Santa Barbara (ESB), West Santa Barbara (WSB), Point Arguello (PtArg), Point
 #' Santa Maria (PtSM), Port San Luis (PtSL), Cape San Martin (CSM), Monterey
@@ -25,76 +24,8 @@
 #' @export
 #' @author Jeff Laake
 #' @seealso \code{\link{create.anomalies}}
-#' @examples
 #' 
-#' # fdir should be set to location of environmental.data.mdb
-#' # each defaults below to current working directory
-#' # Use "J:/" if it should be Calcurr/Databases
-#' # fdir="J:/"
-#' fdir="" 
-#' edir=""
-#' anomalies=create.SST.anomalies(c(1994:1996,1998:2008),fdir=fdir)
-#' CentralSSTAnomalies=t(apply(anomalies[,,3:7],c(2,1),mean,na.rm=TRUE))
-#' SouthSSTAnomalies=t(apply(anomalies[,,1:2],c(2,1),mean,na.rm=TRUE))
-#' NorthSSTAnomalies=anomalies[,,8]
-#' SSTAnomalies=t(apply(anomalies[,,1:5],c(2,1),mean,na.rm=TRUE))
-#' maxyear= max(as.numeric(row.names(SSTAnomalies)))
-#' minyear= min(as.numeric(row.names(SSTAnomalies)))
-#' numyears=maxyear-minyear+1
-#' JantoMayAnomalies=rowMeans(SSTAnomalies[,c("Jan","Feb","Mar","Apr","May")])
-#' JunetoSeptAnomalies=rowMeans(SSTAnomalies[,c("June","July","Aug","Sept")])
-#' OcttoDecAnomalies=rowMeans(SSTAnomalies[,c("Oct","Nov","Dec")])
-#' x=rbind(data.frame(Year=minyear:maxyear,Season=rep("Spring",numyears),SSTAnomaly=JantoMayAnomalies),
-#'   data.frame(Year=minyear:maxyear,Season=rep("Summer",numyears),SSTAnomaly=JunetoSeptAnomalies),
-#'   data.frame(Year=minyear:maxyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies) )
-#' x$Season=factor(x$Season,levels=c("Spring","Summer","Fall"))
-#' x=x[order(x$Year,x$Season),]
-#' pdf("SSTAnomaly.pdf",pointsize=10)
-#' par(mfrow=c(3,1))
-#' plot(minyear:maxyear,x$SSTAnomaly[x$Season=="Spring"],ylab="SST Anomaly",main="Winter/Spring (Jan-May)",xlab="")
-#' lines(minyear:maxyear,x$SSTAnomaly[x$Season=="Spring"])
-#' abline(h=0)
-#' plot(minyear:maxyear,x$SSTAnomaly[x$Season=="Summer"],ylab="SST Anomaly",main="Summer (June-Sept)",xlab="")
-#' lines(minyear:maxyear,x$SSTAnomaly[x$Season=="Summer"])
-#' abline(h=0)
-#' plot(minyear:maxyear,x$SSTAnomaly[x$Season=="Fall"],ylab="SST Anomaly",main="Fall (Oct-Dec)",xlab="")
-#' lines(minyear:maxyear,x$SSTAnomaly[x$Season=="Fall"])
-#' abline(h=0)
-#' dev.off()
-#' 
-#' fpath=file.path(system.file(package="CIPinnipedAnalysis"),"environmental.data.mdb")
-#' require(RODBC)
-#' connection=odbcConnectAccess2007(fpath)
-#' pdf("MultivariateENSOIndex.pdf",pointsize=10)
-#' MEI=sqlFetch(connection,"MEI")
-#' minyear=min(MEI$Year)
-#' maxyear=max(MEI$Year)
-#' numyears=maxyear-minyear+1
-#' plot(MEI$MEI,type="l",lwd=2,xaxt="n",ylab="MEI",xlab="Year")
-#' axis(1,at=12*(0:(numyears-1))+1,labels=as.character(minyear:maxyear))
-#' abline(h=0)
-#' abline(h=1)
-#' abline(h=-1)
-#' dev.off()
-#' 
-#' pdf("UWIAnomaly.pdf",pointsize=10)
-#' par(mfrow=c(2,1))
-#' UWI=sqlFetch(connection,"UWIAnomaly")
-#' UWI=UWI[order(UWI$Year,UWI$Month),]
-#' minyear=min(UWI$Year)
-#' maxyear=max(UWI$Year)
-#' numyears=maxyear-minyear+1
-#' plot(UWI$UWI[UWI$Location=="36N122W"],type="l",lwd=2,xaxt="n",ylab="UWI",xlab="Year",main="36N122W")
-#' axis(1,at=12*(0:(numyears-1))+1,labels=as.character(minyear:maxyear))
-#' abline(h=0)
-#' plot(UWI$UWI[UWI$Location=="33N119W"],type="l",lwd=2,xaxt="n",ylab="UWI",xlab="Year",main="33N119W")
-#' axis(1,at=12*(0:(numyears-1))+1,labels=as.character(minyear:maxyear))
-#' abline(h=0)
-#' dev.off()
-#' 
-#' odbcClose(connection)
-#' 
-create.SST.anomalies=function(average.years,fdir="",store=FALSE)
+create.SST.anomalies=function(average.years,fdir=NULL,store=FALSE)
 {
 # Create SST monthly anomaly matrices by location
 #
@@ -114,15 +45,21 @@ create.SST.anomalies=function(average.years,fdir="",store=FALSE)
 #
 # Open a connection to the ACCESS database, attach the data tables and
 # modify some fieldnames and values to make uniform
-  if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")
-  fdir=file.path(fdir,"environmental.data.mdb")
-  connection=odbcConnectAccess2007(fdir)
-  PtArg=sqlFetch(connection,"PtArguelloBuoyData")
-  PtSm=sqlFetch(connection,"PtSantaMariaBuoyData")
-  ESB=sqlFetch(connection,"EastSantaBarbaraChannelBuoyData")
-  WSB=sqlFetch(connection,"WestSantaBarbaraChannelBuoyData")
-  PtSanLuis=sqlFetch(connection,"PtSanLuisDailySST")
-  Nsst=sqlFetch(connection,"NorthernCaliforniaSSTData")
+#  if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")
+#  fdir=file.path(fdir,"environmental.data.mdb")
+#  connection=odbcConnectAccess2007(fdir)
+	PtArg=getCalcurData("Environ","PtArguelloBuoyData",dir=fdir)
+	PtSm=getCalcurData("Environ","PtSantaMariaBuoyData",dir=fdir)
+	ESB=getCalcurData("Environ","EastSantaBarbaraChannelBuoyData",dir=fdir)
+	WSB=getCalcurData("Environ","WestSantaBarbaraChannelBuoyData",dir=fdir)
+	PtSanLuis=getCalcurData("Environ","PtSanLuisDailySST",dir=fdir)
+	Nsst=getCalcurData("Environ","NorthernCaliforniaSSTData",dir=fdir)
+#  PtArg=sqlFetch(connection,"PtArguelloBuoyData")
+#  PtSm=sqlFetch(connection,"PtSantaMariaBuoyData")
+#  ESB=sqlFetch(connection,"EastSantaBarbaraChannelBuoyData")
+#  WSB=sqlFetch(connection,"WestSantaBarbaraChannelBuoyData")
+#  PtSanLuis=sqlFetch(connection,"PtSanLuisDailySST")
+#  Nsst=sqlFetch(connection,"NorthernCaliforniaSSTData")
   Nsst$YYYY=as.POSIXlt(Nsst$Date)$year+1900
   Nsst$date=Nsst$Date
   Nsst$WTMP=Nsst$SST
@@ -155,23 +92,30 @@ create.SST.anomalies=function(average.years,fdir="",store=FALSE)
 	 MontereyBaySSTAnomalies=create.anomaly.table( anomalies.bylocation[,,7])
 	 CSMSSTAnomalies=create.anomaly.table( anomalies.bylocation[,,6])
 	 PtReyesSSTAnomalies=create.anomaly.table( anomalies.bylocation[,,8])
-	 xx=sqlDrop(connection,"PtSanLuisSSTAnomalies",errors=FALSE)
-	 xx=sqlDrop(connection,"PtArguelloSSTAnomalies",errors=FALSE)
-	 xx=sqlDrop(connection,"PtSantaMariaSSTAnomalies",errors=FALSE)
-	 xx=sqlDrop(connection,"WestSantaBarbaraSSTAnomalies",errors=FALSE)
-	 xx=sqlDrop(connection,"EastSantaBarbaraSSTAnomalies",errors=FALSE)
-	 xx=sqlDrop(connection,"MontereyBaySSTAnomalies",errors=FALSE)
-	 xx=sqlDrop(connection,"CapeSanMartinSSTAnomalies",errors=FALSE)
-	 xx=sqlDrop(connection,"PtReyesSSTAnomalies",errors=FALSE)
-	 xx=sqlSave(connection,PtArguelloSSTAnomalies,tablename="PtArguelloSSTAnomalies",append=FALSE,rownames=FALSE)
-	 xx=sqlSave(connection,PtSanLuisSSTAnomalies,tablename="PtSanLuisSSTAnomalies",append=FALSE,rownames=FALSE)
-	 xx=sqlSave(connection,PtSantaMariaSSTAnomalies,tablename="PtSantaMariaSSTAnomalies",append=FALSE,rownames=FALSE)
-	 xx=sqlSave(connection,WestSantaBarbaraSSTAnomalies,tablename="WestSantaBarbaraSSTAnomalies",append=FALSE,rownames=FALSE)
-	 xx=sqlSave(connection,EastSantaBarbaraSSTAnomalies,tablename="EastSantaBarbaraSSTAnomalies",append=FALSE,rownames=FALSE)
-	 xx=sqlSave(connection,MontereyBaySSTAnomalies,tablename="MontereyBaySSTAnomalies",append=FALSE,rownames=FALSE)
-	 xx=sqlSave(connection,CSMSSTAnomalies,tablename="CapeSanMartinSSTAnomalies",append=FALSE,rownames=FALSE)
-	 xx=sqlSave(connection,PtReyesSSTAnomalies,tablename="PtReyesSSTAnomalies",append=FALSE,rownames=FALSE)
-  }
-  odbcClose(connection)
+	 xx=saveCalcurData(PtArguelloSSTAnomalies,"Environ","PtSanLuisSSTAnomalies",dir=fdir)
+	 xx=saveCalcurData(PtSanLuisSSTAnomalies,"Environ","PtArguelloSSTAnomalies",dir=fdir)
+	 xx=saveCalcurData( PtSantaMariaSSTAnomalies,"Environ","PtSantaMariaSSTAnomalies",dir=fdir)
+	 xx=saveCalcurData(WestSantaBarbaraSSTAnomalies,"Environ","WestSantaBarbaraSSTAnomalies",dir=fdir)
+	 xx=saveCalcurData(EastSantaBarbaraSSTAnomalies,"Environ","EastSantaBarbaraSSTAnomalies",dir=fdir)
+	 xx=saveCalcurData(MontereyBaySSTAnomalies,"Environ","MontereyBaySSTAnomalies",dir=fdir)
+	 xx=saveCalcurData(CSMSSTAnomalies,"Environ","CapeSanMartinSSTAnomalies",dir=fdir)
+	 xx=saveCalcurData(PtReyesSSTAnomalies,"Environ","PtReyesSSTAnomalies",dir=fdir)
+#	 xx=sqlDrop(connection,"PtSanLuisSSTAnomalies",errors=FALSE)
+#	 xx=sqlDrop(connection,"PtArguelloSSTAnomalies",errors=FALSE)
+#	 xx=sqlDrop(connection,"PtSantaMariaSSTAnomalies",errors=FALSE)
+#	 xx=sqlDrop(connection,"WestSantaBarbaraSSTAnomalies",errors=FALSE)
+#	 xx=sqlDrop(connection,"EastSantaBarbaraSSTAnomalies",errors=FALSE)
+#	 xx=sqlDrop(connection,"MontereyBaySSTAnomalies",errors=FALSE)
+#	 xx=sqlDrop(connection,"CapeSanMartinSSTAnomalies",errors=FALSE)
+#	 xx=sqlDrop(connection,"PtReyesSSTAnomalies",errors=FALSE)
+#	 xx=sqlSave(connection,PtArguelloSSTAnomalies,tablename="PtArguelloSSTAnomalies",append=FALSE,rownames=FALSE)
+#	 xx=sqlSave(connection,PtSanLuisSSTAnomalies,tablename="PtSanLuisSSTAnomalies",append=FALSE,rownames=FALSE)
+#	 xx=sqlSave(connection,PtSantaMariaSSTAnomalies,tablename="PtSantaMariaSSTAnomalies",append=FALSE,rownames=FALSE)
+#	 xx=sqlSave(connection,EastSantaBarbaraSSTAnomalies,tablename="EastSantaBarbaraSSTAnomalies",append=FALSE,rownames=FALSE)
+#	 xx=sqlSave(connection,MontereyBaySSTAnomalies,tablename="MontereyBaySSTAnomalies",append=FALSE,rownames=FALSE)
+#	 xx=sqlSave(connection,CSMSSTAnomalies,tablename="CapeSanMartinSSTAnomalies",append=FALSE,rownames=FALSE)
+#	 xx=sqlSave(connection,PtReyesSSTAnomalies,tablename="PtReyesSSTAnomalies",append=FALSE,rownames=FALSE)
+ }
+#  odbcClose(connection)
   return(anomalies.bylocation)
 }

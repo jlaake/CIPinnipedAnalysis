@@ -15,17 +15,9 @@
 #' Maintainer: <jeff.laake@@noaa.gov>
 #' @keywords package
 #' @examples
-#' 
-#' # fdir should be set to location of  BrandMaster.mdb
-#' # each defaults below to current working directory
-#' # Use "J:/" if it should be Calcurr/Databases
-#' # fdir="J:/"
-#' fdir="" 
-#' getwd()
-#' check.dead.pup.areas(fdir=fdir)
-#' do.pup.production(fdir=fdir)
-#' do.early.pup.mortality(fdir=fdir)
-#' example(create.SST.anomalies)
+#' check.dead.pup.areas()
+#' do.pup.production()
+#' do.early.pup.mortality()
 #' 
 NULL
 

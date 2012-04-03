@@ -1,10 +1,7 @@
 \name{create.anomalies}
 \alias{create.anomalies}
 \alias{create.anomaly.table}
-\title{Create SST monthly anomaly matrices and dataframes
-:\code{create.anomalies} computes a matrix of year-month anomalies and
-\code{create.anomaly.table} converts the matrix into a dataframe of
-anomalies.}
+\title{Create SST monthly anomaly matrices and dataframes}
 \usage{
   create.anomalies(x, yrange, average.years)
 }
@@ -32,11 +29,22 @@ anomalies.}
   15th of the month, and SSTAnomaly - SST anomaly value.
 }
 \description{
+  \code{create.anomalies} computes a matrix of year-month
+  anomalies and \code{create.anomaly.table} converts the
+  matrix into a dataframe of anomalies.
+}
+\details{
   Creates daily means from hourly observations.  Averages
   daily means within month.  Computes average monthly value
   from a defined set of years (\code{average.years}) and
   subtracts the monthly means from the observed year-month
   matrix to produce anomaly matrix.
+}
+\examples{
+fdir=system.file(package="CIPinnipedAnalysis")
+source(file.path(fdir,"CreateAnomalies.r"))
+
+source("CreateAnomalies.r")
 }
 \author{
   Jeff Laake

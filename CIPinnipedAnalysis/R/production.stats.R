@@ -1,7 +1,6 @@
-
-
 #' Pup production stats
-#' : computes pup production stats for Zalophus or Callorhinus at San Miguel or
+#' 
+#' Computes pup production stats for Zalophus or Callorhinus at San Miguel or
 #' Castle Rock and creates production tables in the ACCESS database.
 #' 
 #' Dead pup surveys are conducted typically on 3 occasions during July.  Dead
@@ -30,27 +29,15 @@
 #'   mortality prior to live count to account for dead pups that were missed
 #'   and decomposed or were buried
 #' @param species either "Zc" for Zalophus or "Cu" for Callorhinus
-#' @param connection database connection in CensusMaster
+#' @param dir database directory for CensusMaster
 #' @return dataframe containing results
 #'   LiveCountDate,Area,Year,LiveInDeadSampleArea,DeadInDeadSampleArea,AdjustedDeadInDeadSampleArea,
 #'   MortalityRateAtLiveCount,TotalLiveCountByYear,PupProduction
 #' @author Jeff Laake
 production.stats <-
-function(island="SMI",mainland=TRUE,years=NULL,PreLiveCountCf=1.33,species="Zc",connection)
+function(island="SMI",mainland=TRUE,years=NULL,PreLiveCountCf=1.33,species="Zc",dir=NULL)
 {
 # Computes pup production stats for San Miguel or Castle Rock
-#
-# Arguments:
-#
-# island         - "SMI" or "SNI"
-# mainland       - if TRUE compute results from mainland SMI otherwise Castle Rock
-# PreLiveCountCf - correction factor for observed mortality prior to or at time of live count
-# species        - either "Zc" or "Cu"
-#
-# Value: dataframe containing results
-#   LiveCountDate,Area,Year,LiveInDeadSampleArea,DeadInDeadSampleArea,AdjustedDeadInDeadSampleArea,
-#   MortalityRateAtLiveCount,TotalLiveCountByYear,PupProduction
-#
 # Define a function to create a dataframe of cummulative counts of dead pups with dates
 #  for use in extrapolating number dead at time of live count which typically falls between
 #  dead pup counts and thus the need for interpolation.
@@ -87,14 +74,15 @@ else
 #
 if(species=="Zc")
 {
-  live=construct.live(island,"Zc",connection)
-  dead=construct.dead(island,"Zc",connection)
+  live=construct.live(island,"Zc",dir)
+  dead=construct.dead(island,"Zc",dir)
 }
 else
 {
-  live=construct.live("SMI","Cu",connection)
-  dead=construct.dead("SMI","Cu",connection)
-  CUDates=sqlFetch(connection,"CU Survey Dates")
+  live=construct.live("SMI","Cu",dir)
+  dead=construct.dead("SMI","Cu",dir)
+  CUDates=getCalcurData("CIPCensus","CU Survey Dates",dir=dir)
+#  CUDates=sqlFetch(connection,"CU Survey Dates")
   CUDates$days=as.double(difftime(CUDates$Date,strptime(paste(c(6),c(15),CUDates$Year,sep="/"), "%m/%d/%Y")))
 }
 if(!is.null(years))
@@ -276,7 +264,8 @@ for (i in 1:length(livenames))
 }
 TotalLiveCountByYear=round(sapply(split(live$AvgCount,live$Year),sum))
 Years=as.numeric(names(TotalLiveCountByYear))
-mc=sqlFetch(connection,"MissingCounts")
+mc=getCalcurData("CIPCensus","MissingCounts",dir=dir)
+#mc=sqlFetch(connection,"MissingCounts")
 mc$Year=factor(mc$Year,levels=Years)
 mc=mc[mc$Island==island & mc$Species==species,]
 if(island=="SMI")

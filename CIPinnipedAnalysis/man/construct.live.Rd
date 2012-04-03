@@ -1,18 +1,16 @@
 \name{construct.live}
 \alias{construct.dead}
 \alias{construct.live}
-\title{Constructs dataframes of live or dead pup counts
-:extracts data from CIPinnipedMaster database and constructs dataframe of
-dead pup counts or live pup counts for specified island and species.}
+\title{Constructs dataframes of live or dead pup counts}
 \usage{
-  construct.live(island, species, connection)
+  construct.live(island, species, dir = NULL)
 }
 \arguments{
   \item{island}{Either "SMI" or "SNI"}
 
   \item{species}{Either "Zc" or "Cu"}
 
-  \item{connection}{RODBC connection to the database}
+  \item{dir}{database directory}
 }
 \value{
   for \code{construct.live} a dataframe containing
@@ -26,12 +24,16 @@ dead pup counts or live pup counts for specified island and species.}
   for dead pups), and MatchingLiveArea.
 }
 \description{
+  Extracts data from CIPinnipedMaster database and
+  constructs dataframe of dead pup counts or live pup
+  counts for specified island and species.
+}
+\details{
   \code{construct.live} extracts data from table \code{Zc
   Cu live pup census} and sums counts for an observer
   within an area for a year and then averages those counts
   across observers that counted the same area that year.
-}
-\details{
+
   \code{construct.dead} extracts data from table \code{Zc
   Cu dead pup census} and table \code{Zc dead tag initial}
   and totals dead pups by survey number/date.  It will

@@ -11,7 +11,8 @@ Description: Channel Islands Pinniped Analysis functions:
 License: GPL-2
 Depends:
     nlme,
-    plotrix
+    plotrix,
+    CalcurData
 Imports:
     RODBC
 LazyLoad: yes

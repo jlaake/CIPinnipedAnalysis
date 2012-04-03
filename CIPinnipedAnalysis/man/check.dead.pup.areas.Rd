@@ -4,7 +4,7 @@
 Checks to make sure that each table in CIPinnipedCensusMaster.mdb has a
 matching record in DeadPupSampleAreas table for SMI for species=Zc and Cu.}
 \usage{
-  check.dead.pup.areas(fdir = "")
+  check.dead.pup.areas(fdir = NULL)
 }
 \arguments{
   \item{fdir}{directory for CIPinnipedCensusMaster.mdb

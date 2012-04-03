@@ -1,6 +1,5 @@
-
-
 #' Early pup mortality estimation
+#' 
 #' For Zc and Cu, creates data tables in the ACCESS database with the early pup
 #' mortality estimates during the season in each year.  Also constructs pdf
 #' plots of those values.
@@ -15,7 +14,7 @@
 #' @return None
 #' @export
 #' @author Jeff Laake
-do.early.pup.mortality=function(fdir="")
+do.early.pup.mortality=function(fdir=NULL)
 {
 #
 #  Produces early pup mortality estimates for Cu and Zc at SMI using
@@ -27,39 +26,46 @@ do.early.pup.mortality=function(fdir="")
 #
 #  Make connection to CIPinnipedCensusQuery.mdb and CIPinnipedCensusMaster.mdb
 #
-if(fdir=="")
-{
-	fdir1=system.file(package="CIPinnipedAnalysis")
-	fdir2=fdir1
-} else
+if(is.null(fdir))
 {
 	fdir1=fdir
+	fdir2=fdir
+}else
+   if(fdir=="")
+   {
+	   fdir1=system.file(package="CIPinnipedAnalysis")
+	   fdir2=fdir1
+   } else
+   {
+	fdir1=fdir
 	fdir2=file.path(fdir,"Master")
-}
+   }
 #  Make connection to CIPinnipedCensusQuery.mdb; assumed to be on J: (Calcur/Databases)
-fdir1=file.path(fdir1,"CIPinnipedCensusQuery.mdb")
-connection1=odbcConnectAccess2007(fdir1)
+#fdir1=file.path(fdir1,"CIPinnipedCensusQuery.mdb")
+#connection1=odbcConnectAccess2007(fdir1)
 #  Make connection to CIPinnipedCensusMaster.mdb; assumed to be on J: (Calcur/Databases/Master)
-fdir2=file.path(fdir2,"CIPinnipedCensusMaster.mdb")
-connection2=odbcConnectAccess2007(fdir2)
+#fdir2=file.path(fdir2,"CIPinnipedCensusMaster.mdb")
+#connection2=odbcConnectAccess2007(fdir2)
 # Delete current tables
-xx=sqlDrop(connection1,"ZcEarlyPupMortality",errors=FALSE)
-xx=sqlDrop(connection1,"CuEarlyPupMortality",errors=FALSE)
+#xx=sqlDrop(connection1,"ZcEarlyPupMortality",errors=FALSE)
+#xx=sqlDrop(connection1,"CuEarlyPupMortality",errors=FALSE)
 # Construct mortality tables for Zc on San Miguel
-zcsmi.mort=mortality.stats(island="SMI",species="Zc",connection1=connection1,connection2=connection2)
+zcsmi.mort=mortality.stats(island="SMI",species="Zc",fdir1=fdir1,fdir2=fdir2)
 zcsmi.mort$Island="SMI"
-#zcsni.mort=mortality.stats(island="SNI",species="Zc",connection=connection,years=2005:2006)
+#zcsni.mort=mortality.stats(island="SNI",species="Zc",fdir1=fdir1,fdir2=fdir2,years=2005:2006)
 #zcsni.mort$Island="SNI"
 #zc.mort=rbind(zcsmi.mort,zcsni.mort)
 zc.mort=zcsmi.mort
 # Construct mortality tables for Cu on San Miguel
-cu.mort=mortality.stats(species="Cu",connection1=connection1,connection2=connection2)
+cu.mort=mortality.stats(species="Cu",fdir1=fdir1,fdir2=fdir2)
 cu.mort.table=cu.mort
 zc.mort.table=zc.mort
 cu.mort.table$SurveyDate=substr(as.character(cu.mort$SurveyDate),1,10)
 zc.mort.table$SurveyDate=substr(as.character(zc.mort$SurveyDate),1,10)
-xx=sqlSave(connection1,cu.mort.table,tablename="CuEarlyPupMortality",append=FALSE,rownames=FALSE)
-xx=sqlSave(connection1,zc.mort.table,tablename="ZcEarlyPupMortality",append=FALSE,rownames=FALSE)
+xx=saveCalcurData(cu.mort.table,db="CIPquery",tbl="CuEarlyPupMortality",dir=fdir1)
+xx=saveCalcurData(cu.mort.table,db="CIPquery",tbl="ZcEarlyPupMortality",dir=fdir1)
+#xx=sqlSave(connection1,cu.mort.table,tablename="CuEarlyPupMortality",append=FALSE,rownames=FALSE)
+#xx=sqlSave(connection1,zc.mort.table,tablename="ZcEarlyPupMortality",append=FALSE,rownames=FALSE)
 pdf("CuEarlyPupMortality.pdf",width=9)
 minyear=min(cu.mort$Year)-1
 maxyear=max(cu.mort$Year)
@@ -94,7 +100,6 @@ for (i in 1:ceiling(numyears/6))
      }
 }
 dev.off()
-odbcCloseAll()
 invisible()
 }
 

@@ -1,7 +1,6 @@
-
-
 #' Constructs dataframes of live or dead pup counts
-#' :extracts data from CIPinnipedMaster database and constructs dataframe of
+#' 
+#' Extracts data from CIPinnipedMaster database and constructs dataframe of
 #' dead pup counts or live pup counts for specified island and species.
 #' 
 #' \code{construct.live} extracts data from table \code{Zc Cu live pup census}
@@ -16,7 +15,7 @@
 #' @aliases construct.live construct.dead
 #' @param island Either "SMI" or "SNI"
 #' @param species Either "Zc" or "Cu"
-#' @param connection RODBC connection to the database
+#' @param dir database directory
 #' @return for \code{construct.live} a dataframe containing YearArea, Survey
 #'   date, Area, AvgCount, Year, Month, Day, DeadPupArea (Y/N if included in
 #'   area sampled for dead pups).
@@ -25,14 +24,15 @@
 #'   SurveyDate, Area, count, Year, Month, Day, DeadPupArea (Y/N if included in
 #'   area sampled for dead pups), and MatchingLiveArea.
 #' @author Jeff Laake
-construct.live=function(island,species,connection)
+construct.live=function(island,species,dir=NULL)
 {
 # Function to create the dataframe of live counts; this used to be done with
 # query from Access Zc SMI Live Count by area, year. Instead it now uses table Zc Cu live pup census
 # and constructs the total counts by averaging over observer counts in the same area-year.  It can
 # also be used for SNI counts.
 #
-	livepups=sqlFetch(connection,"Zc Cu live pup census")
+	livepups=getCalcurData("CIPCensus","Zc Cu live pup census",dir=dir)
+#	livepups=sqlFetch(connection,"Zc Cu live pup census")
 	livepups=livepups[!is.na(livepups$Count),]
 	livepups$Observer=as.character(livepups$Observer)
 	livepups$Observer[is.na(livepups$Observer)]="Unknown"
@@ -54,7 +54,8 @@ construct.live=function(island,species,connection)
 	count.df$Month=as.POSIXlt(count.df[,"Survey date"])[[5]]+1
 	count.df$Day=as.POSIXlt(count.df[,"Survey date"])[[4]]
 	count.df$YearArea=paste(count.df$Year,count.df$Area,sep="")
-	dps=sqlFetch(connection,"DeadPupSampleAreas")
+	dps=getCalcurData("CIPCensus","DeadPupSampleAreas",dir=dir)
+#	dps=sqlFetch(connection,"DeadPupSampleAreas")
 	dps=dps[dps$YearAreaSpecies==species,]
 	tt=table(paste(dps$Year,dps$Area))
 	if(any(tt>1))
@@ -64,7 +65,7 @@ construct.live=function(island,species,connection)
 	return(count.df)
 }
 
-construct.dead=function(island,species,connection)
+construct.dead=function(island,species,dir=NULL)
 {
 # Function to create the dataframe of dead counts; this used to be done with
 # query from Access "Zc SMI Total Dead by Area and Survey Number" or
@@ -73,15 +74,17 @@ construct.dead=function(island,species,connection)
 # by survey date-area across both tables. It can also be used for SNI counts.
 #
 #   Get dead pup sample area table
-    dps=sqlFetch(connection,"DeadPupSampleAreas")
-    dps=dps[dps$YearAreaSpecies==species,]
+    dps=getCalcurData("CIPCensus","DeadPupSampleAreas",dir=dir)
+#	dps=sqlFetch(connection,"DeadPupSampleAreas")
+	dps=dps[dps$YearAreaSpecies==species,]
     tt=table(paste(dps$Year,dps$Area))
     if(any(tt>1))
      stop(paste("Following dead pup sample areas are duplicated for species",species,": "),paste(names(tt)[tt>1],sep=", "))
 #   Get dead stacked pups and filter to island and species and only use fullterm pups
 #   and exclude any NA survey number
-    dead.stack=sqlFetch(connection,"Zc Cu dead pup census")
-    dead.stack=dead.stack[dead.stack$Island==island&dead.stack$Species==species&
+    dead.stack=getCalcurData("CIPCensus","Zc Cu dead pup census",dir=dir)
+#	dead.stack=sqlFetch(connection,"Zc Cu dead pup census")
+	dead.stack=dead.stack[dead.stack$Island==island&dead.stack$Species==species&
                                   dead.stack$Development%in%c("fullterm","Fullterm")
                                   &!is.na(dead.stack[,"Survey number"])&dead.stack$Disposition!="Tagged",]
     dead.stack[is.na(dead.stack[,"Survey date"]),"Survey date"]=as.Date(paste("08-01-",dead.stack$Year[is.na(dead.stack[,"Survey date"])],sep=""),"%m-%d-%Y")
@@ -106,7 +109,8 @@ construct.dead=function(island,species,connection)
     xmat$Year=as.POSIXlt(xmat$SurveyDate)[[6]]+1900
     if(species=="Zc")
     {
-       dead.tag=sqlFetch(connection,"Zc dead tag initial")
+  	   dead.tag=getCalcurData("CIPCensus","Zc dead tag initial",dir=dir)
+#	   dead.tag=sqlFetch(connection,"Zc dead tag initial")
        dead.tag=dead.tag[dead.tag$Island==island&(dead.tag$Development=="fullterm" |dead.tag$Development=="Fullterm"),]
        dead.tag[,"Area code"]=factor(dead.tag[,"Area code"])
 

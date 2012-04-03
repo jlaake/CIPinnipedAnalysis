@@ -18,8 +18,8 @@
 #'   mortality after live count
 #' @param species either "Zc" for Zalophus or "Cu" for Callorhinus
 #' @param island the character name for the island "SMI" or "SNI"
-#' @param connection1 database connection to CIPinnipedCensusQuery
-#' @param connection2 database connection to CIPinnipedCensusMaster
+#' @param fdir1 database directory for CIPinnipedCensusQuery
+#' @param fdir2 database directory for CIPinnipedCensusMaster
 #' @param years vector of years that should be selected if not all years
 #' @return dataframe containing year,SurveyDate,Pups(number of pups alive at
 #'   time),ObservedDead (number observed to die in that interval)
@@ -27,16 +27,17 @@
 #'   during the interval between surveys),DailyMortalityRate (mortality rate on
 #'   a constant daily rate), CumS (cummulative survival to that time).
 #' @author Jeff Laake
-mortality.stats <-function(PreLiveCountCf=1.33,PostLiveCountCf=1.25,species="Zc",island="SMI",connection1,connection2,years=NULL)
+mortality.stats <-function(PreLiveCountCf=1.33,PostLiveCountCf=1.25,species="Zc",island="SMI",fdir1,fdir2,years=NULL)
 {
 # Read in ZC dead count summary table from the ACCESS file CIPinnipedCensusQuery.mdb
 #
 Castle.Rock.Areas=c("ECR","WCR","CAS")
 if(species=="Zc")
 {
-  Production=sqlFetch(connection1,"ZcProduction")
+  Production=getCalcurData("CIPquery","ZcProduction",dir=fdir1)
+# Production=sqlFetch(connection1,"ZcProduction")
   Production=Production[Production$Area=="Mainland"&Production$Island==island,]
-  dead=construct.dead(island,species,connection2)
+  dead=construct.dead(island,species,dir=fdir2)
   dead=dead[dead$DeadPupArea!="N",]
   if(!is.null(years)) dead=dead[dead$Year%in%years,]
   if(island=="SMI") dead=dead[!dead$MatchingLiveArea%in%Castle.Rock.Areas,]
@@ -47,11 +48,13 @@ else
 # Read in Cu dead count summary table from the ACCESS file CIPinnipedCensusQuery.mdb
 #
 {
-  Production=sqlFetch(connection1,"CuProduction")
-  CUDates=sqlFetch(connection2,"CU Survey Dates")
+  Production=getCalcurData("CIPquery","CuProduction",dir=fdir1)
+  CUDates=getCalcurData("CIPCensus","CU Survey Dates",dir=fdir2)
+# Production=sqlFetch(connection1,"CuProduction")
+# CUDates=sqlFetch(connection2,"CU Survey Dates")
   CUDates$days=as.double(difftime(CUDates$Date,strptime(paste(c(6),c(15),CUDates$Year,sep="/"), "%m/%d/%Y")))
   Production=Production[Production$Area=="Mainland",]
-  dead=construct.dead(island,species,connection2)
+  dead=construct.dead(island,species,dir=fdir2)
   dead=dead[!dead$MatchingLiveArea%in%Castle.Rock.Areas,]
   dead=dead[dead$DeadPupArea!="N",]
   dead2=with(dead,data.frame(Year=Year,Month=Month,Day=Day,Survey=SurveyNumber,Area=MatchingLiveArea,count=count,type="Dead"))

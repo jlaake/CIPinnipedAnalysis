@@ -23,21 +23,26 @@
 #' @note Creates log file MissingDeadPupArea.txt with any errors
 #' @author Jeff Laake 
 check.dead.pup.areas <-
-function(fdir="")
+function(fdir=NULL)
 {
 #
 #  Make connection to CIPinnipedCensusMaster.mdb
 #
-if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")
-fdir=file.path(fdir,"Master/CIPinnipedCensusMaster.mdb")
-connection=odbcConnectAccess2007(fdir)
+#if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")
+#fdir=file.path(fdir,"Master/CIPinnipedCensusMaster.mdb")
+#connection=odbcConnectAccess2007(fdir)
 sink("MissingDeadPupArea.txt")
-areas=sqlFetch(connection,"DeadPupSampleAreas")
+areas=getCalcurData("CIPCensus","DeadPupSampleAreas",dir=fdir)
+#areas=sqlFetch(connection,"DeadPupSampleAreas")
 areas$YearArea=as.character(areas$YearArea)
-dead=sqlFetch(connection,"Zc Cu dead pup census")
-live=sqlFetch(connection,"Zc Cu live pup census")
-taginitial=sqlFetch(connection,"Zc dead tag initial")
-tagresight=sqlFetch(connection,"Zc dead tag resight")
+dead=getCalcurData("CIPCensus","Zc Cu dead pup census",dir=fdir)
+live=getCalcurData("CIPCensus","Zc Cu live pup census",dir=fdir)
+taginitial=getCalcurData("CIPCensus","Zc dead tag initial",dir=fdir)
+tagresight=getCalcurData("CIPCensus","Zc dead tag resight",dir=fdir)
+#dead=sqlFetch(connection,"Zc Cu dead pup census")
+#live=sqlFetch(connection,"Zc Cu live pup census")
+#taginitial=sqlFetch(connection,"Zc dead tag initial")
+#tagresight=sqlFetch(connection,"Zc dead tag resight")
 cat("\n\n ***Checking Zc CU dead pup census for Zc at SMI\n")
 x=dead[dead$Species=="Zc"&dead$Island=="SMI",]
 x$YearArea=paste(x$Year,x[,"Area code"],sep="")
@@ -92,7 +97,6 @@ if(any(is.na(z[,"Dead pup sample area"])))
    cat("\nMissing DeadPupSampleAreas for Zc at SMI\n")
    print(z[is.na(z[,"Dead pup sample area"]),])
 }
-odbcCloseAll()
 sink()
 invisible()
 }
