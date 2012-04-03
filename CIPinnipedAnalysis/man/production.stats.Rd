@@ -1,12 +1,10 @@
 \name{production.stats}
 \alias{production.stats}
-\title{Pup production stats
-: computes pup production stats for Zalophus or Callorhinus at San Miguel or
-Castle Rock and creates production tables in the ACCESS database.}
+\title{Pup production stats}
 \usage{
   production.stats(island = "SMI", mainland = TRUE,
     years = NULL, PreLiveCountCf = 1.33, species = "Zc",
-    connection)
+    dir = NULL)
 }
 \arguments{
   \item{island}{the character name for the island "SMI" or
@@ -25,7 +23,7 @@ Castle Rock and creates production tables in the ACCESS database.}
   \item{species}{either "Zc" for Zalophus or "Cu" for
   Callorhinus}
 
-  \item{connection}{database connection in CensusMaster}
+  \item{dir}{database directory for CensusMaster}
 }
 \value{
   dataframe containing results
@@ -33,6 +31,11 @@ Castle Rock and creates production tables in the ACCESS database.}
   MortalityRateAtLiveCount,TotalLiveCountByYear,PupProduction
 }
 \description{
+  Computes pup production stats for Zalophus or Callorhinus
+  at San Miguel or Castle Rock and creates production
+  tables in the ACCESS database.
+}
+\details{
   Dead pup surveys are conducted typically on 3 occasions
   during July.  Dead pups are either stacked or tagged so
   they are not recounted.  A live count is also conducted
@@ -49,8 +52,7 @@ Castle Rock and creates production tables in the ACCESS database.}
   scale the total live count to compute the number of pups
   produced (born). The computed values are output in the
   production table for each species.
-}
-\details{
+
   \code{\link{do.pup.production}} is the driver function
   which calls this function for Zc for SMI and Castle Rock
   and then combines the result in the table ZcProduction
