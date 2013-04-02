@@ -63,7 +63,7 @@ zc.mort.table=zc.mort
 cu.mort.table$SurveyDate=substr(as.character(cu.mort$SurveyDate),1,10)
 zc.mort.table$SurveyDate=substr(as.character(zc.mort$SurveyDate),1,10)
 xx=saveCalcurData(cu.mort.table,db="CIPquery",tbl="CuEarlyPupMortality",dir=fdir1)
-xx=saveCalcurData(cu.mort.table,db="CIPquery",tbl="ZcEarlyPupMortality",dir=fdir1)
+xx=saveCalcurData(zc.mort.table,db="CIPquery",tbl="ZcEarlyPupMortality",dir=fdir1)
 #xx=sqlSave(connection1,cu.mort.table,tablename="CuEarlyPupMortality",append=FALSE,rownames=FALSE)
 #xx=sqlSave(connection1,zc.mort.table,tablename="ZcEarlyPupMortality",append=FALSE,rownames=FALSE)
 pdf("CuEarlyPupMortality.pdf",width=9)
