@@ -43,7 +43,7 @@ zcweights.unmarked$sex=factor(zcweights.unmarked$sex)
 #
 zcTagOnly=getCalcurData("Zc","TagInitial",dir=fdir)
 #zcTagOnly=sqlFetch(connection,"TagInitial")
-zcTagOnly=zcTagOnly[!zcTagOnly$sex=="U" & !is.na(zcTagOnly$weight)& !is.na(zcTagOnly$sex),]
+zcTagOnly=zcTagOnly[zcTagOnly$age=="P"&!zcTagOnly$sex=="U" & !is.na(zcTagOnly$weight)& !is.na(zcTagOnly$sex),]
 zcTagOnly$sex=factor(zcTagOnly$sex)
 #
 #  read in the brand recaptures
@@ -64,11 +64,11 @@ zcTagRecap=merge(zcTagRecap,subset(zcTagOnly,select=c("cohort","AnimalID")),by="
 #
 #   Add a days field which is the number of days from 1 Oct of the year
 #
-zcweights$days=floor(as.numeric((zcweights$branddate-as.POSIXct(paste(as.character(zcweights$cohort),"-10-01",sep="")))/(24*3600)))
-zcTagOnly$days=floor(as.numeric((zcTagOnly$capturedate-as.POSIXct(paste(as.character(zcTagOnly$cohort),"-10-01",sep="")))))
-zcweights.unmarked$days=floor(as.numeric((zcweights.unmarked$capturedate-as.POSIXct(paste(as.character(zcweights.unmarked$cohort),"-10-01",sep="")))/(24*3600)))
-zcRecap$days=floor(as.numeric((zcRecap$capturedate-as.POSIXct(paste(as.character(zcRecap$cohort),"-10-01",sep="")))))
-zcTagRecap$days=floor(as.numeric((zcTagRecap$capturedate-as.POSIXct(paste(as.character(zcTagRecap$cohort),"-10-01",sep="")))))
+zcweights$days=floor(as.numeric((zcweights$branddate-as.POSIXct(paste(as.character(zcweights$cohort),"-10-01",sep=""),format="%Y-%m-%d"))/(24*3600)))
+zcTagOnly$days=floor(as.numeric((zcTagOnly$capturedate-as.POSIXct(paste(as.character(zcTagOnly$cohort),"-10-01",sep=""),format="%Y-%m-%d"))))
+zcweights.unmarked$days=floor(as.numeric((zcweights.unmarked$capturedate-as.POSIXct(paste(as.character(zcweights.unmarked$cohort),"-10-01",sep=""),format="%Y-%m-%d"))/(24*3600)))
+zcRecap$days=floor(as.numeric((zcRecap$capturedate-as.POSIXct(paste(as.character(zcRecap$cohort),"-10-01",sep=""),format="%Y-%m-%d"))))
+zcTagRecap$days=floor(as.numeric((zcTagRecap$capturedate-as.POSIXct(paste(as.character(zcTagRecap$cohort),"-10-01",sep=""),format="%Y-%m-%d"))))
 zcRecap=zcRecap[zcRecap$days>0,]
 #
 #  Combine data tables
