@@ -89,7 +89,7 @@ plot.weight.series(1975:maxyear,female.averages,main="California sea lion Female
 plot.weight.series(1975:maxyear,male.averages,main="California sea lion Male Pups",ylim=c(ymin,ymax),date="1 Oct")
 dev.off()
 
-jpeg("ZCPredictedWeightsCalcofi.jpg",pointsize=10)
+jpeg("ZCPredictedWeightsCalcofi.jpg",,height=600,width=600,quality=100,pointsize=12)
 maxyear=max(zcweights$cohort)
 par(lty=1)
 plot.weight.series(1997:maxyear,female.averages[23:38,],ylim=c(ymin,ymax),xaxp=c(1998,2012,7),date="1 Oct")
@@ -115,7 +115,7 @@ male.averages=data.frame(fit=pp$predict[pp$sex=="M"],se=stderrors[as.numeric(row
 ymin=min(c(female.averages$fit-1.96*female.averages$se, male.averages$fit-1.96*male.averages$se))*.9
 ymax=max(c(female.averages$fit+1.96*female.averages$se, male.averages$fit+1.96*male.averages$se))*1.1
 
-jpeg("ZCPredictedWeightsFebCalcofi.jpg",pointsize=10)
+jpeg("ZCPredictedWeightsFebCalcofi.jpg",height=600,width=600,quality=100,pointsize=12)
 maxyear=max(zcweights$cohort)
 par(lty=1)
 plot.weight.series(1997:maxyear,female.averages[23:38,],ylim=c(ymin,ymax),xaxp=c(1998,2012,7),date="1 Feb")
@@ -476,7 +476,7 @@ plot.growth.series=function (time, predictions,...)
 	invisible()
 }
 
-jpeg("growth.jpg",pointsize=10)
+jpeg("growth.jpg",pointsize=10,res=600)
 par(lty=1)
 plot.growth.series(sort(unique(pp$cohort[pp$cohort>=1997])),female.averages,ylim=c(0,.12),xaxp=c(1998,2012,7))
 par(lty=2)

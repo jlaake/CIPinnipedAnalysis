@@ -133,6 +133,8 @@ if(any(is.na(dead$DeadPupArea)))
 #
 live2=with(live[live$DeadPupArea!="N",],data.frame(Year=Year,Month=Month,Day=Day,Area=Area,count=AvgCount,type="Live"))
 dead2=with(dead[dead$DeadPupArea!="N",],data.frame(Year=Year,Month=Month,Day=Day,Area=MatchingLiveArea,SurveyNumber=SurveyNumber,count=count,type="Dead"))
+# Exclude months before June
+dead2=dead2[dead2$Month>= 6,]
 #
 # Check to make sure that each count was assigned a value for DeadPupArea and MatchingLiveArea in the DeadPupSamplesArea Access table
 #
