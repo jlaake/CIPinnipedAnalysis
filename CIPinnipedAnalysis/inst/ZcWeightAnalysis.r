@@ -22,7 +22,7 @@ zcweights=get.zc.weights(fdir=fdir)
 #  exclude brand eval weights and captures in April
 #
 zcweights.all=zcweights[zcweights$days>-30&zcweights$days<150&
-				zcweights$sitecode=="SMI"&zcweights$type=="Initial",]
+				zcweights$sitecode=="SMI",]
 #
 # compute observed averages - using data within 1 Sept to 15 Nov
 #
@@ -92,10 +92,10 @@ dev.off()
 jpeg("ZCPredictedWeightsCalcofi.jpg",,height=600,width=600,quality=100,pointsize=12)
 maxyear=max(zcweights$cohort)
 par(lty=1)
-plot.weight.series(1997:maxyear,female.averages[23:38,],ylim=c(ymin,ymax),xaxp=c(1998,2012,7),date="1 Oct")
+plot.weight.series(1997:maxyear,female.averages[23:(maxyear-1974),],ylim=c(ymin,ymax),xaxp=c(1998,2012,7),date="1 Oct")
 abline(h=17.4)
 par(lty=2)
-plot.weight.series(1997:maxyear,male.averages[23:38,],pch=2,add=TRUE,slty=1,date="1 Oct")
+plot.weight.series(1997:maxyear,male.averages[23:(maxyear-1974),],pch=2,add=TRUE,slty=1,date="1 Oct")
 abline(h=17.4+2.76)
 points(2009,25,pch=2)
 lines(x=c(2008.75,2009.25),y=c(25,25),pch=2,lty=2)
@@ -118,10 +118,10 @@ ymax=max(c(female.averages$fit+1.96*female.averages$se, male.averages$fit+1.96*m
 jpeg("ZCPredictedWeightsFebCalcofi.jpg",height=600,width=600,quality=100,pointsize=12)
 maxyear=max(zcweights$cohort)
 par(lty=1)
-plot.weight.series(1997:maxyear,female.averages[23:38,],ylim=c(ymin,ymax),xaxp=c(1998,2012,7),date="1 Feb")
+plot.weight.series(1997:maxyear,female.averages[23:(maxyear-1974),],ylim=c(ymin,ymax),xaxp=c(1998,2012,7),date="1 Feb")
 abline(h=25.69)
 par(lty=2)
-plot.weight.series(1997:maxyear,male.averages[23:38,],pch=2,add=TRUE,slty=1,date="1 Feb")
+plot.weight.series(1997:maxyear,male.averages[23:(maxyear-1974),],pch=2,add=TRUE,slty=1,date="1 Feb")
 abline(h=30.55)
 points(2009,40,pch=2)
 lines(x=c(2008.75,2009.25),y=c(40,40),pch=2,lty=2)
@@ -146,11 +146,14 @@ SSTAnomalies=t(apply(anomalies[,,1:5],c(2,1),mean,na.rm=TRUE))
 SSTAnomalies[is.nan(SSTAnomalies)]=NA
 maxyear= max(as.numeric(row.names(SSTAnomalies)))
 minyear= min(as.numeric(row.names(SSTAnomalies)))
-if(is.na(SSTAnomalies[maxyear-minyear+1,11]) &is.na(SSTAnomalies[maxyear-minyear+1,12]))maxyear=maxyear-1
+#if(is.na(SSTAnomalies[maxyear-minyear+1,11]) &is.na(SSTAnomalies[maxyear-minyear+1,12]))maxyear=maxyear-1
 numyears=maxyear-minyear+1
 # Compute averages across month grouping so use with period specific growth rate
 JantoMayAnomalies=rowMeans(SSTAnomalies[,c("Jan","Feb","Mar","Apr","May")])[1:(maxyear-minyear+1)]
-OcttoFebAnomalies=as.matrix(cbind(SSTAnomalies[,c("Oct","Nov","Dec")][1:(maxyear-minyear+1),],rbind(SSTAnomalies[2:nrow(SSTAnomalies),c("Jan","Feb")])))
+OtoD=SSTAnomalies[,c("Oct","Nov","Dec")][1:(maxyear-minyear+1),]
+JtoF=SSTAnomalies[2:nrow(SSTAnomalies),c("Jan","Feb")]
+if(nrow(JtoF)<nrow(OtoD))JtoF=rbind(JtoF,c(NA,NA))
+OcttoFebAnomalies=as.matrix(cbind(OtoD,JtoF))
 OcttoFebAnomalies[is.nan(OcttoFebAnomalies)]=NA
 OcttoFebAnomalies=rowMeans(OcttoFebAnomalies,na.rm=TRUE)[1:(maxyear-minyear+1)]
 JunetoSeptAnomalies=SSTAnomalies[,c("June","July","Aug","Sept")]
@@ -159,7 +162,10 @@ JunetoSeptAnomalies=rowMeans(JunetoSeptAnomalies,na.rm=TRUE)[1:(maxyear-minyear+
 OcttoDecAnomalies=SSTAnomalies[,c("Oct","Nov","Dec")]
 OcttoDecAnomalies[is.nan(OcttoDecAnomalies)]=NA
 OcttoDecAnomalies=rowMeans(OcttoDecAnomalies,na.rm=TRUE)[1:(maxyear-minyear+1)]
-JunetoFebAnomalies=as.matrix(cbind(SSTAnomalies[,c("June","July","Aug","Sept","Oct","Nov","Dec")][1:(maxyear-minyear+1),],rbind(SSTAnomalies[2:nrow(SSTAnomalies),c("Jan","Feb")])))
+JtoD=SSTAnomalies[,c("June","July","Aug","Sept","Oct","Nov","Dec")][1:(maxyear-minyear+1),]
+JtoF=SSTAnomalies[2:nrow(SSTAnomalies),c("Jan","Feb")]
+if(nrow(JtoF)<nrow(JtoD))JtoF=rbind(JtoF,c(NA,NA))
+JunetoFebAnomalies=as.matrix(cbind(JtoD,JtoF))
 JunetoFebAnomalies[is.nan(JunetoFebAnomalies)]=NA
 JunetoFebAnomalies=rowMeans(JunetoFebAnomalies,na.rm=TRUE)
 
@@ -478,7 +484,7 @@ plot.growth.series=function (time, predictions,...)
 
 jpeg("growth.jpg",pointsize=10,res=600)
 par(lty=1)
-plot.growth.series(sort(unique(pp$cohort[pp$cohort>=1997])),female.averages,ylim=c(0,.12),xaxp=c(1998,2012,7))
+plot.growth.series(sort(unique(pp$cohort[pp$cohort>=1997])),female.averages,ylim=c(0,.12),xaxp=c(1998,2014,7))
 par(lty=2)
 plot.weight.series(sort(unique(pp$cohort[pp$cohort>=1997]))+.2,male.averages,pch=2,add=TRUE,slty=1,date="1 Oct")
 points(2005,0.04,pch=2)

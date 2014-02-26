@@ -1,9 +1,6 @@
 \name{mortality.stats}
 \alias{mortality.stats}
-\title{Performs numerical computations for early pup mortality estimation
-Creates a survivorship curve from dead pup count surveys.  The curve extends
-from birth to either Aug or Sept-Oct depending on the extent of the
-mortality surveys which has varied across the years.}
+\title{Performs numerical computations for early pup mortality estimation}
 \usage{
   mortality.stats(PreLiveCountCf = 1.33,
     PostLiveCountCf = 1.25, species = "Zc", island = "SMI",
@@ -42,6 +39,12 @@ mortality surveys which has varied across the years.}
   time).
 }
 \description{
+  Creates a survivorship curve from dead pup count surveys.
+  The curve extends from birth to either Aug or Sept-Oct
+  depending on the extent of the mortality surveys which
+  has varied across the years.
+}
+\details{
   \code{\link{do.early.pup.mortality}} is the driver
   function to construct the ZcEarlPupMortality and
   CuEarlyPupMortality tables in CIPinnipedCensusQuery.mdb.

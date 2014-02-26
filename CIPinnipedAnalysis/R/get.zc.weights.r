@@ -3,7 +3,7 @@
 #' Extracts weights for Zc pups
 #' :from various tables in the BrandMaster.mdb ACCESS database and returns a dataframe with ancillary fields added.
 #' 
-#' @param fdir directory for BrandMaster.mdb
+#' @param fdir directory for data files; if NULL uses location specified in databases.txt of CalcurData package; if "" uses databases in CalcurData pacakge; otherwise uses specified directory location
 #' @param ENYears values of years that will be flagged as ENSO years
 #' @return dataframe of weights for Zc
 #' @export
@@ -14,13 +14,9 @@
 #' 
 get.zc.weights=function(fdir=NULL,ENYears=c(1976,1983,1984,1987,1992,1997,1998))
 {
-#if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")
-#fdir=file.path(fdir,"Brandmaster.mdb")
-#connection=odbcConnectAccess2007(fdir)
 #
 # read in weights from ZcBrand table of the Access database
 #
-#zcweights=sqlFetch(connection,"ZCBRAND")
 zcweights=getCalcurData("Zc","ZCBRAND",dir=fdir)
 maxyear=max(zcweights$cohort)
 #
@@ -33,7 +29,6 @@ zcweights$sex=factor(zcweights$sex)
 #
 	
 zcweights.unmarked=getCalcurData("Zc","UnmarkedPupWeights",dir=fdir)
-#zcweights.unmarked=sqlFetch(connection,"UnmarkedPupWeights")
 zcweights.unmarked=zcweights.unmarked[!zcweights.unmarked$sex=="U"& !is.na(zcweights.unmarked$sex),]
 #zcweights.unmarked=zcweights.unmarked[!zcweights.unmarked$sitecode=="SNI"& !is.na(zcweights.unmarked$sitecode),]
 #zcweights.unmarked=zcweights.unmarked[!zcweights.unmarked$sitecode=="SCI"& !is.na(zcweights.unmarked$sitecode),]
@@ -42,14 +37,12 @@ zcweights.unmarked$sex=factor(zcweights.unmarked$sex)
 #  read in the tag only pup weights but exclude those with missing sex or weight
 #
 zcTagOnly=getCalcurData("Zc","TagInitial",dir=fdir)
-#zcTagOnly=sqlFetch(connection,"TagInitial")
 zcTagOnly=zcTagOnly[zcTagOnly$age=="P"&!zcTagOnly$sex=="U" & !is.na(zcTagOnly$weight)& !is.na(zcTagOnly$sex),]
 zcTagOnly$sex=factor(zcTagOnly$sex)
 #
 #  read in the brand recaptures
 #
 zcRecap=getCalcurData("Zc","Recaptures",dir=fdir)
-#zcRecap=sqlFetch(connection,"Recaptures")
 zcRecap=zcRecap[!zcRecap$sex=="U" & !zcRecap$sex=="" &!is.na(zcRecap$weight)& !is.na(zcRecap$sex),]
 zcRecap$sex=factor(zcRecap$sex)
 zcRecap=merge(zcRecap,subset(zcweights,select=c("cohort","brand")),by="brand")
@@ -57,7 +50,6 @@ zcRecap=merge(zcRecap,subset(zcweights,select=c("cohort","brand")),by="brand")
 #  read in the tag recaptures
 #
 zcTagRecap=getCalcurData("Zc","TagRecapture",dir=fdir)
-#zcTagRecap=sqlFetch(connection,"TagRecapture")
 zcTagRecap=zcTagRecap[!zcTagRecap$Sex=="U" & !is.na(zcTagRecap$Weight)& !is.na(zcTagRecap$Sex),]
 zcTagRecap$sex=factor(zcTagRecap$Sex)
 zcTagRecap=merge(zcTagRecap,subset(zcTagOnly,select=c("cohort","AnimalID")),by="AnimalID")

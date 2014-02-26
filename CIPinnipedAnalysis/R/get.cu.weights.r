@@ -16,15 +16,11 @@
 #' 
 get.cu.weights=function(fdir=NULL,ENYears=c(1976,1983,1984,1987,1992,1997,1998))
 {
-#if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")
-#fdir=file.path(fdir,"cutagnew.mdb")
-#connection=odbcConnectAccess2007(fdir)
 ENIndices=ENYears-1975+1
 #
 # read in weights from cutags table of the Access database
 #
 cuweights.acv=getCalcurData("Cu","Cutags",dir=fdir)
-#cuweights.acv=sqlFetch(connection,"Cutags")
 #
 # Set maxyear to largest year; optionally you can set a lower bound
 #
@@ -46,11 +42,9 @@ cuweights.acv=cuweights.acv[cuweights.acv$sitedate>as.POSIXct(paste(as.character
 #  read in the discard weights from the UnmarkedPupWeights table and exclude any > maxyear
 #
 cuweights.unmark=getCalcurData("Cu","UnmarkedPupWeights",dir=fdir)
-#cuweights.unmark=sqlFetch(connection,"UnmarkedPupWeights")
 cuweights.unmark=cuweights.unmark[cuweights.unmark$cohort<=maxyear,]
 # Read duplicate tag table
 cuweights.dup=getCalcurData("Cu","DuplicateTags0708",dir=fdir)
-#cuweights.dup=sqlFetch(connection,"DuplicateTags0708")
 #
 #   Add a days field which is the number of days from 1 Oct of the year
 #

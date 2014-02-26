@@ -5,7 +5,10 @@
   do.pup.production(fdir = NULL)
 }
 \arguments{
-  \item{fdir}{directory for CIPinnipedCensusQuery.mdb}
+  \item{fdir}{directory for data files; if NULL uses
+  location specified in databases.txt of CalcurData
+  package; if "" uses databases in CalcurData pacakge;
+  otherwise uses specified directory location}
 }
 \value{
   None

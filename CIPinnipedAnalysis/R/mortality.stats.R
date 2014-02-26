@@ -1,6 +1,5 @@
-
-
 #' Performs numerical computations for early pup mortality estimation
+#' 
 #' Creates a survivorship curve from dead pup count surveys.  The curve extends
 #' from birth to either Aug or Sept-Oct depending on the extent of the
 #' mortality surveys which has varied across the years.

@@ -1,8 +1,6 @@
 \name{check.dead.pup.areas}
 \alias{check.dead.pup.areas}
-\title{Checks for errors in the assigned dead pup sample areas
-Checks to make sure that each table in CIPinnipedCensusMaster.mdb has a
-matching record in DeadPupSampleAreas table for SMI for species=Zc and Cu.}
+\title{Checks for errors in the assigned dead pup sample areas}
 \usage{
   check.dead.pup.areas(fdir = NULL)
 }
@@ -14,6 +12,11 @@ matching record in DeadPupSampleAreas table for SMI for species=Zc and Cu.}
   None
 }
 \description{
+  Checks to make sure that each table in
+  CIPinnipedCensusMaster.mdb has a matching record in
+  DeadPupSampleAreas table for SMI for species=Zc and Cu.
+}
+\details{
   \preformatted{ If there are no missing records the output
   should look as follows: ***Checking Zc CU dead pup census
   for Zc at SMI ***Checking Zc CU dead pup census for Cu at

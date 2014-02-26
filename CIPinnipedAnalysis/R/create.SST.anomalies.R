@@ -13,8 +13,7 @@
 #' @param average.years vector of years to be included in the monthly mean
 #'   calculations the monthly means are subtracted from the specific year-month
 #'   values to create the anomaly
-#' @param fdir directory for location of environmental.mdb file. default
-#'   assumes it is in directory containing the workspace
+#' @param fdir directory for data files; if NULL uses location specified in databases.txt of CalcurData package; if "" uses databases in CalcurData pacakge; otherwise uses specified directory location 
 #' @param store if TRUE, deletes and replaces anaomaly tables in the ACCESS
 #'   database
 #' @return A three dimensional array (year by month by location) with the 8
@@ -45,10 +44,8 @@ create.SST.anomalies=function(average.years,fdir=NULL,store=FALSE)
 #
 # Open a connection to the ACCESS database, attach the data tables and
 # modify some fieldnames and values to make uniform
-#  if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")
-#  fdir=file.path(fdir,"environmental.data.mdb")
-#  connection=odbcConnectAccess2007(fdir)
-	PtArg=getCalcurData("Environ","PtArguelloBuoyData",dir=fdir)
+    if(fdir=="")fdir=system.file(package="CalcurData")
+    PtArg=getCalcurData("Environ","PtArguelloBuoyData",dir=fdir)
 	PtSm=getCalcurData("Environ","PtSantaMariaBuoyData",dir=fdir)
 	ESB=getCalcurData("Environ","EastSantaBarbaraChannelBuoyData",dir=fdir)
 	WSB=getCalcurData("Environ","WestSantaBarbaraChannelBuoyData",dir=fdir)

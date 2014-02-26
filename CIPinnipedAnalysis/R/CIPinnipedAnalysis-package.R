@@ -15,6 +15,8 @@
 #' Maintainer: <jeff.laake@@noaa.gov>
 #' @keywords package
 #' @examples
+#' # Note this uses default argument value of NULL for dir which
+#' # means that the locations for the databases is specified by databases.txt in CalcurData package
 #' check.dead.pup.areas()
 #' do.pup.production()
 #' do.early.pup.mortality()

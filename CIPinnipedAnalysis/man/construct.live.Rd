@@ -10,7 +10,10 @@
 
   \item{species}{Either "Zc" or "Cu"}
 
-  \item{dir}{database directory}
+  \item{dir}{directory for data files; if NULL uses
+  location specified in databases.txt of CalcurData
+  package; if "" uses databases in CalcurData pacakge;
+  otherwise uses specified directory location}
 }
 \value{
   for \code{construct.live} a dataframe containing

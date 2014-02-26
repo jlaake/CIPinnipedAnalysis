@@ -1,6 +1,5 @@
-
-
 #' Checks for errors in the assigned dead pup sample areas
+#' 
 #' Checks to make sure that each table in CIPinnipedCensusMaster.mdb has a
 #' matching record in DeadPupSampleAreas table for SMI for species=Zc and Cu.
 #' 
@@ -27,22 +26,18 @@ function(fdir=NULL)
 {
 #
 #  Make connection to CIPinnipedCensusMaster.mdb
+if(!is.null(fdir) && fdir=="")
+{
+	fdir=system.file(package="CalcurData")
+} 
 #
-#if(fdir=="")fdir=system.file(package="CIPinnipedAnalysis")
-#fdir=file.path(fdir,"Master/CIPinnipedCensusMaster.mdb")
-#connection=odbcConnectAccess2007(fdir)
 sink("MissingDeadPupArea.txt")
 areas=getCalcurData("CIPCensus","DeadPupSampleAreas",dir=fdir)
-#areas=sqlFetch(connection,"DeadPupSampleAreas")
 areas$YearArea=as.character(areas$YearArea)
 dead=getCalcurData("CIPCensus","Zc Cu dead pup census",dir=fdir)
 live=getCalcurData("CIPCensus","Zc Cu live pup census",dir=fdir)
 taginitial=getCalcurData("CIPCensus","Zc dead tag initial",dir=fdir)
 tagresight=getCalcurData("CIPCensus","Zc dead tag resight",dir=fdir)
-#dead=sqlFetch(connection,"Zc Cu dead pup census")
-#live=sqlFetch(connection,"Zc Cu live pup census")
-#taginitial=sqlFetch(connection,"Zc dead tag initial")
-#tagresight=sqlFetch(connection,"Zc dead tag resight")
 cat("\n\n ***Checking Zc CU dead pup census for Zc at SMI\n")
 x=dead[dead$Species=="Zc"&dead$Island=="SMI",]
 x$YearArea=paste(x$Year,x[,"Area code"],sep="")

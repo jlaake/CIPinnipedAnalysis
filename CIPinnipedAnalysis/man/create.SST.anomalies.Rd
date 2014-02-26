@@ -11,9 +11,10 @@
   subtracted from the specific year-month values to create
   the anomaly}
 
-  \item{fdir}{directory for location of environmental.mdb
-  file. default assumes it is in directory containing the
-  workspace}
+  \item{fdir}{directory for data files; if NULL uses
+  location specified in databases.txt of CalcurData
+  package; if "" uses databases in CalcurData pacakge;
+  otherwise uses specified directory location}
 
   \item{store}{if TRUE, deletes and replaces anaomaly
   tables in the ACCESS database}

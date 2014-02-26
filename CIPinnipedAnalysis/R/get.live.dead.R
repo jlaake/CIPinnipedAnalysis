@@ -15,7 +15,7 @@
 #' @aliases construct.live construct.dead
 #' @param island Either "SMI" or "SNI"
 #' @param species Either "Zc" or "Cu"
-#' @param dir database directory
+#' @param dir directory for data files; if NULL uses location specified in databases.txt of CalcurData package; if "" uses databases in CalcurData pacakge; otherwise uses specified directory location
 #' @return for \code{construct.live} a dataframe containing YearArea, Survey
 #'   date, Area, AvgCount, Year, Month, Day, DeadPupArea (Y/N if included in
 #'   area sampled for dead pups).
@@ -32,7 +32,6 @@ construct.live=function(island,species,dir=NULL)
 # also be used for SNI counts.
 #
 	livepups=getCalcurData("CIPCensus","Zc Cu live pup census",dir=dir)
-#	livepups=sqlFetch(connection,"Zc Cu live pup census")
 	livepups=livepups[!is.na(livepups$Count),]
 	livepups$Observer=as.character(livepups$Observer)
 	livepups$Observer[is.na(livepups$Observer)]="Unknown"
@@ -55,7 +54,6 @@ construct.live=function(island,species,dir=NULL)
 	count.df$Day=as.POSIXlt(count.df[,"Survey date"])[[4]]
 	count.df$YearArea=paste(count.df$Year,count.df$Area,sep="")
 	dps=getCalcurData("CIPCensus","DeadPupSampleAreas",dir=dir)
-#	dps=sqlFetch(connection,"DeadPupSampleAreas")
 	dps=dps[dps$YearAreaSpecies==species,]
 	tt=table(paste(dps$Year,dps$Area))
 	if(any(tt>1))
@@ -75,7 +73,6 @@ construct.dead=function(island,species,dir=NULL)
 #
 #   Get dead pup sample area table
     dps=getCalcurData("CIPCensus","DeadPupSampleAreas",dir=dir)
-#	dps=sqlFetch(connection,"DeadPupSampleAreas")
 	dps=dps[dps$YearAreaSpecies==species,]
     tt=table(paste(dps$Year,dps$Area))
     if(any(tt>1))
@@ -83,7 +80,6 @@ construct.dead=function(island,species,dir=NULL)
 #   Get dead stacked pups and filter to island and species and only use fullterm pups
 #   and exclude any NA survey number
     dead.stack=getCalcurData("CIPCensus","Zc Cu dead pup census",dir=dir)
-#	dead.stack=sqlFetch(connection,"Zc Cu dead pup census")
 	dead.stack=dead.stack[dead.stack$Island==island&dead.stack$Species==species&
                                   dead.stack$Development%in%c("fullterm","Fullterm")
                                   &!is.na(dead.stack[,"Survey number"])&dead.stack$Disposition!="Tagged",]
@@ -110,10 +106,8 @@ construct.dead=function(island,species,dir=NULL)
     if(species=="Zc")
     {
   	   dead.tag=getCalcurData("CIPCensus","Zc dead tag initial",dir=dir)
-#	   dead.tag=sqlFetch(connection,"Zc dead tag initial")
        dead.tag=dead.tag[dead.tag$Island==island&(dead.tag$Development=="fullterm" |dead.tag$Development=="Fullterm"),]
        dead.tag[,"Area code"]=factor(dead.tag[,"Area code"])
-
 #   Make sure that there is only one survey number per survey date in each area
        xx=(tapply(dead.tag[,"Survey number"],list(dead.tag[,"Survey number"],dead.tag[,"Survey date"],dead.tag[,"Area code"]),length))
        xx=apply(xx,c(2,3),function(x) length(x[!is.na(x)]))

@@ -11,7 +11,7 @@
 #' any errors then the production tables will not be created. In addition to
 #' creating the tables, it also produces a set of plots of the results in pdfs.
 #' 
-#' @param fdir directory for CIPinnipedCensusQuery.mdb
+#' @param fdir directory for data files; if NULL uses location specified in databases.txt of CalcurData package; if "" uses databases in CalcurData pacakge; otherwise uses specified directory location
 #' @return None
 #' @export
 #' @author Jeff Laake
@@ -23,52 +23,31 @@ do.pup.production=function(fdir=NULL)
 #  in CIPinnipedCensusQuery.  It also saves plots of production in pdf files.
 #
 sink("PupProduction.log")
-if(is.null(fdir))
+if(!is.null(fdir) && fdir=="")
+{
+	fdir1=system.file(package="CalcurData")
+	fdir2=fdir1
+} else
 {
 	fdir1=fdir
 	fdir2=fdir
-} else
-   if(fdir=="")
-   {
-	   fdir1=system.file(package="CIPinnipedAnalysis")
-	   fdir2=fdir1
-   } else
-   {
-	fdir1=fdir
-    fdir2=file.path(fdir,"Master")
-   }
-#  Make connection to CIPinnipedCensusQuery.mdb; assumed to be on J: (Calcur/Databases)
-#fdir1=file.path(fdir1,"CIPinnipedCensusQuery.mdb")
-#connection1=odbcConnectAccess2007(fdir1)
-#  Make connection to CIPinnipedCensusMaster.mdb; assumed to be on J: (Calcur/Databases/Master)
-#fdir2=file.path(fdir2,"CIPinnipedCensusMaster.mdb")
-#connection2=odbcConnectAccess2007(fdir2)
-# Delete current production tables	
-#xx=sqlDrop(connection1,"ZcProduction",errors=FALSE)
-#xx=sqlDrop(connection1,"CuProduction",errors=FALSE)
+}
 # Compute production stats for smi and castle rock for Zc
 smidat=production.stats(island="SMI",mainland=TRUE,species="Zc",dir=fdir2)
 crdat=production.stats(island="SMI",mainland=FALSE,species="Zc",dir=fdir2)
-#smidat=production.stats(island="SMI",mainland=TRUE,species="Zc",connection=connection2)
-#crdat=production.stats(island="SMI",mainland=FALSE,species="Zc",connection=connection2)
 # Compute production stats for San Nicolas
 livepups=getCalcurData("CIPCensus","Zc Cu live pup census",dir=fdir2)
-#livepups=sqlFetch(connection2,"Zc Cu live pup census")
 snidat=production.stats(island="SNI",mainland=FALSE,species="Zc",dir=fdir2,years=sort(unique(livepups$Year[livepups$Island=="SNI"])))
 rm(livepups)
 xx=saveCalcurData(rbind(smidat,crdat,snidat),db="CIPquery",tbl="ZcProduction",dir=fdir1)
-#xx=sqlSave(connection1,rbind(smidat,crdat,snidat),tablename="ZcProduction",append=FALSE,rownames=FALSE)
 # Compute production stats for CU on SMI and Castle Rock
 smidat=production.stats(island="SMI",mainland=TRUE,species="Cu",dir=fdir2)
 crdat=production.stats(island="SMI",mainland=FALSE,species="Cu",dir=fdir2)
 xx=saveCalcurData(rbind(smidat,crdat),db="CIPquery",tbl="CuProduction",dir=fdir1)
-#xx=sqlSave(connection1,rbind(smidat,crdat),tablename="CuProduction",append=FALSE,rownames=FALSE)
 sink()
 # Get production tables and create pdfs
 ZcProduction=getCalcurData("CIPquery","ZcProduction",dir=fdir1)
 CuProduction=getCalcurData("CIPquery","CuProduction",dir=fdir1)
-#ZcProduction=sqlFetch(connection1,"ZcProduction")
-#CuProduction=sqlFetch(connection1,"CuProduction")
 maxyr=max(ZcProduction$Year)
 
 pdf("ZcPupProduction.pdf")

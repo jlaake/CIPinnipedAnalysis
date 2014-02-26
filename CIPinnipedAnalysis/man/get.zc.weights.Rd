@@ -7,7 +7,10 @@
     ENYears = c(1976, 1983, 1984, 1987, 1992, 1997, 1998))
 }
 \arguments{
-  \item{fdir}{directory for BrandMaster.mdb}
+  \item{fdir}{directory for data files; if NULL uses
+  location specified in databases.txt of CalcurData
+  package; if "" uses databases in CalcurData pacakge;
+  otherwise uses specified directory location}
 
   \item{ENYears}{values of years that will be flagged as
   ENSO years}
