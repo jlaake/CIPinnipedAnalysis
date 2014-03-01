@@ -1,0 +1,39 @@
+\name{fitmixed}
+\alias{fitmixed}
+\title{Fit a sequence of mixed effect models with normal error distribution}
+\usage{
+  fitmixed(fixed.f, random.f, data,
+    control = lmeControl(opt = "optim"), method = NULL,
+    ...)
+}
+\arguments{
+  \item{fixed.f}{sequence of formulas for fixed effects}
+
+  \item{random.f}{sequence of formulas for random effects}
+
+  \item{data}{dataframe for model fitting}
+
+  \item{control}{argument for nlme}
+
+  \item{method}{REML or ML; chosen as needed but can be
+  specified}
+
+  \item{...}{other arguments for plot}
+}
+\value{
+  list with following elements: results - list with each
+  fitted model object; model.table- model selection table;
+  best - model number that was best fit in results list;
+  best.f - formula for fixed effect from best model; best.r
+  - formula for random effects for best model
+}
+\description{
+  Either fits a sequence of random effect models with a
+  single fixed effect formula with REML or fits a sequence
+  of fixed effect models with a single random effect using
+  MLE.
+}
+\author{
+  Jeff Laake
+}
+

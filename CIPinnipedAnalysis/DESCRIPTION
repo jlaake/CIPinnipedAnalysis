@@ -10,9 +10,9 @@ Description: Channel Islands Pinniped Analysis functions:
     enviromental measurement computations
 License: GPL-2
 Depends:
+    CalcurData,
     nlme,
-    plotrix,
-    CalcurData
+    plotrix
 Imports:
     RODBC
 LazyLoad: yes
@@ -28,3 +28,5 @@ Collate:
     'mortality.stats.R'
     'production.stats.R'
     'SST.anomaly.r'
+    'plotweights.r'
+    'mixed.model.r'

@@ -26,6 +26,7 @@
 #'   SSTAnomaly - SST anomaly value.
 #' @author Jeff Laake
 #' @seealso \code{\link{create.SST.anomalies}}
+#' @export create.anomalies
 #' @examples 
 #' fdir=system.file(package="CIPinnipedAnalysis")
 #' source(file.path(fdir,"CreateAnomalies.r"))
