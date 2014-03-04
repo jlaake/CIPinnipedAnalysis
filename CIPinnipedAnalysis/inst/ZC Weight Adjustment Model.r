@@ -155,7 +155,7 @@ plot.weight.series(1997:maxyear,female.averages[23:(maxyear-1974),],ylim=c(ymin,
 abline(h=mean(female.averages$fit[23:(maxyear-1974)]))
 par(lty=2)
 plot.weight.series(1997:maxyear,male.averages[23:(maxyear-1974),],pch=2,add=TRUE,slty=1,date="1 Feb")
-abline(h=male.averages$fit[23:(maxyear-1974)])
+abline(h=mean(male.averages$fit[23:(maxyear-1974)]))
 points(2009,40,pch=2)
 lines(x=c(2008.75,2009.25),y=c(40,40),pch=2,lty=2)
 points(2009,38,pch=1)

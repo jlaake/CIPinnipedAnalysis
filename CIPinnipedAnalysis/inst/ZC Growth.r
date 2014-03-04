@@ -75,7 +75,7 @@ plot.growth.series=function (time, predictions,...)
 
 jpeg("growth.jpg")
 par(lty=1)
-plot.growth.series(sort(unique(pp$cohort[pp$cohort>=1997])),female.averages,ylim=c(0,.12),xaxp=c(1998,2014,7))
+plot.growth.series(sort(unique(pp$cohort[pp$cohort>=1997])),female.averages,ylim=c(0,.12),xaxp=c(1998,2014,8))
 par(lty=2)
 plot.weight.series(sort(unique(pp$cohort[pp$cohort>=1997]))+.2,male.averages,pch=2,add=TRUE,slty=1,date="1 Oct")
 points(2005,0.04,pch=2)

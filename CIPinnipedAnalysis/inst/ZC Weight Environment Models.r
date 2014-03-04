@@ -114,7 +114,7 @@ if(exists("ZCWeight.df"))
 
 
     # Plot predictions and observed
-    win.graph()
+	jpeg("ZCEnvironObserved&Predicted.jpg",height=600,width=600,quality=100,pointsize=12)
     par(mfrow=c(2,1))
     with(ZCWeight.df,plot(ZCWeight.df$Year,female.eviron.mean.fall,pch="F",type="b",ylim=c(12,26)))
     with(ZCWeight.df,points(ZCWeight.df$Year,female.observed.mean.fall,pch="O"))
@@ -122,24 +122,25 @@ if(exists("ZCWeight.df"))
     with(ZCWeight.df,plot(ZCWeight.df$Year,male.environ.mean.fall,pch="M",type="b",ylim=c(12,26)))
     with(ZCWeight.df,points(ZCWeight.df$Year,male.observed.mean.fall,pch="O"))
     with(ZCWeight.df,lines(ZCWeight.df$Year,male.observed.mean.fall,lty=2))
-
+    dev.off()
 
      # Plot residuals of predictions based on fixed effects only versus mixed effects
-     win.graph()
+	 jpeg("ZCEnvironFixedEffectResiduals.jpg",height=600,width=600,quality=100,pointsize=12)
+	 par(mfrow=c(2,1))
      plot(ZCWeight.df$Year,male.averages$fit-expected.male.averages$fit,pch="M",type="b")
      abline(0,0)
- 
-     win.graph()
      plot(ZCWeight.df$Year,female.averages$fit-expected.female.averages$fit,pch="F",type="b",xlab="Year",ylab="Observed- model predicted weight")
      abline(0,0)
+	 dev.off()
 
-     win.graph()
+	 jpeg("ZCEnvironFixedEffectFemalePredictions&Observed.jpg",height=600,width=600,quality=100,pointsize=12)
      plot(ZCWeight.df$Year,female.averages$fit,type="b",ylim=c(12,22),xlab="Year",ylab="Female pup weight (kg)")
      lines(ZCWeight.df$Year,expected.female.averages$fit,type="b",lty=2,pch=2) 
      points(2000,14,pch=1)
      points(2000,13,pch=2)
      text(2000,14,"1 Oct mean weight",pos=4)
      text(2000,13,"Model predicted mean weight",pos=4)
+	 dev.off()
 }
 
 #################  1 Feb Predictions ####################
