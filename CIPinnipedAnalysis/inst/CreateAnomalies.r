@@ -10,7 +10,7 @@ if(!exists("locations"))locations=2:5
 # SST data
 #####################################################
 # Create SST Anomalies
-anomalies=create.SST.anomalies(1975:lastyear,fdir="")
+anomalies=create.SST.anomalies(1975:lastyear,fdir=fdir)
 
 # Use Locations 2-5 (WSB,PtArg,PtSM,PtSL) for pup weight predictions
 SSTAnomalies=t(apply(anomalies[,,locations],c(2,1),mean,na.rm=TRUE))
@@ -46,7 +46,7 @@ SSTAnomalyBySeason=SSTAnomalyBySeason[order(SSTAnomalyBySeason$Year,SSTAnomalyBy
 # Upwelling index
 #####################################################
 # Extract UWI data
-UWI=getCalcurData("Environ","UWIAnomaly",dir="")
+UWI=getCalcurData("Environ","UWIAnomaly",dir=fdir)
 UWI=UWI[order(UWI$Year,UWI$Month),]
 UWImeansJunetoSept=with(UWI[UWI$Month%in%6:9,], tapply(UWIAnomaly,list(Location,Year),mean,na.rm=TRUE))
 UWIJunetoSept=with(UWI[UWI$Month%in%6:9,], tapply(UWIAnomaly,list(Month,Year,Location),mean,na.rm=TRUE))
@@ -66,7 +66,7 @@ for(i in 1:2)
 # Multivariate ENSO Index
 ####################################################
 # Extract MEI data
-MEI=getCalcurData("Environ","MEI",dir="")
+MEI=getCalcurData("Environ","MEI",dir=fdir)
 # Compute correlations between MEI and SST to find the best lag to use for MEI
 SSTAnomalies.db=data.frame(SSTAnomaly=as.vector(t(SSTAnomalies[-(1:2),])))
 MEIcor=vector("numeric",8)
@@ -111,7 +111,7 @@ abline(h=0)
 dev.off()
 
 pdf("MultivariateENSOIndex.pdf",pointsize=10)
-MEI=getCalcurData("Environ","MEI")
+MEI=getCalcurData("Environ","MEI",dir=fdir)
 meiminyear=min(MEI$Year)
 meimaxyear=max(MEI$Year)
 meinumyears=meimaxyear-meiminyear+1
@@ -124,7 +124,7 @@ dev.off()
 
 pdf("UWIAnomaly.pdf",pointsize=10)
 par(mfrow=c(2,1))
-UWI=getCalcurData("Environ","UWIAnomaly")
+UWI=getCalcurData("Environ","UWIAnomaly",dir=fdir)
 UWI=UWI[order(UWI$Year,UWI$Month),]
 uwiminyear=min(UWI$Year)
 uwimaxyear=max(UWI$Year)

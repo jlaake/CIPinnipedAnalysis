@@ -23,10 +23,7 @@ zcweights$batch=factor(paste(zcweights$cohort,zcweights$days))
 
 # Create dataframe with weights and environmental variables
 # use 1975 and on for weight data; remove 1972-1974
-JunetoSeptAnomalies=JunetoSeptAnomalies[4:numyears]
-OcttoFebAnomalies=OcttoFebAnomalies[4:numyears]
-JunetoFebAnomalies=JunetoFebAnomalies[4:numyears]
-zcweights.environ=merge(zcweights,data.frame(cohort=1975:lastyear,SST=JunetoSeptAnomalies,SST1=OcttoFebAnomalies,SST2=JunetoFebAnomalies,
+zcweights.environ=merge(zcweights,data.frame(cohort=1975:lastyear,SST=JunetoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],SST2=JunetoFebAnomalies[4:numyears],
 				MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansJunetoSept[1,-(1:6)],UWI36=UWImeansJunetoSept[2,-(1:6)],
 				UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],UWI362=UWImeansJunetoFeb[2,-(1:6)]))
 zcweights.environ$cohort.factor=factor(ifelse(zcweights.environ$cohort<1990,0,1),labels=c("<=1989",">=1990"))
