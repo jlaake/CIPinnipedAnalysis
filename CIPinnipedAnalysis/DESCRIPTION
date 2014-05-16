@@ -16,17 +16,3 @@ Depends:
 Imports:
     RODBC
 LazyLoad: yes
-Collate:
-    'check.dead.pup.areas.R'
-    'CIPinnipedAnalysis-package.R'
-    'create.SST.anomalies.R'
-    'do.early.pup.mortality.R'
-    'do.pup.production.R'
-    'get.cu.weights.r'
-    'get.live.dead.R'
-    'get.zc.weights.r'
-    'mortality.stats.R'
-    'production.stats.R'
-    'SST.anomaly.r'
-    'plotweights.r'
-    'mixed.model.r'

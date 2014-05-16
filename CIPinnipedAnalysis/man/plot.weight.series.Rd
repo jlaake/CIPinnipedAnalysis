@@ -2,7 +2,7 @@
 \alias{plot.weight.series}
 \title{Plot weight series with confidence interval}
 \usage{
-  plot.weight.series(time, predictions, date, ...)
+\method{plot}{weight.series}(time, predictions, date, ...)
 }
 \arguments{
   \item{time}{vector of years}
@@ -16,12 +16,12 @@
   \item{...}{other arguments for plot}
 }
 \value{
-  None
+None
 }
 \description{
-  Plots time series of predicted weights and conf intervals
+Plots time series of predicted weights and conf intervals
 }
 \author{
-  Jeff Laake
+Jeff Laake
 }
 

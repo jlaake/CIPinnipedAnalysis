@@ -3,8 +3,8 @@
 \title{Extracts weights for Zc pups
 :from various tables in the BrandMaster.mdb ACCESS database and returns a dataframe with ancillary fields added.}
 \usage{
-  get.zc.weights(fdir = NULL,
-    ENYears = c(1976, 1983, 1984, 1987, 1992, 1997, 1998))
+get.zc.weights(fdir = NULL, ENYears = c(1976, 1983, 1984, 1987, 1992, 1997,
+  1998))
 }
 \arguments{
   \item{fdir}{directory for data files; if NULL uses
@@ -16,18 +16,18 @@
   ENSO years}
 }
 \value{
-  dataframe of weights for Zc
+dataframe of weights for Zc
 }
 \description{
-  Extracts weights for Zc pups :from various tables in the
-  BrandMaster.mdb ACCESS database and returns a dataframe
-  with ancillary fields added.
+Extracts weights for Zc pups :from various tables in the
+BrandMaster.mdb ACCESS database and returns a dataframe
+with ancillary fields added.
 }
 \examples{
 fdir=system.file(package="CIPinnipedAnalysis")
 source(file.path(fdir,"ZcWeightAnalysis.r"))
 }
 \author{
-  Jeff Laake
+Jeff Laake
 }
 

@@ -2,8 +2,7 @@
 \alias{create.SST.anomalies}
 \title{Create SST monthly anomaly matrices for each of 8 locations}
 \usage{
-  create.SST.anomalies(average.years, fdir = NULL,
-    store = FALSE)
+create.SST.anomalies(average.years, fdir = NULL, store = FALSE)
 }
 \arguments{
   \item{average.years}{vector of years to be included in
@@ -20,30 +19,29 @@
   tables in the ACCESS database}
 }
 \value{
-  A three dimensional array (year by month by location)
-  with the 8 locations ordered as ESB, WSB, PtArg, PtSM,
-  PtSL, CSM, MB and PtReyes.  Side effect of function is to
-  delete existing anomaly tables in ACCESS and re-write new
-  ones.
+A three dimensional array (year by month by location) with
+the 8 locations ordered as ESB, WSB, PtArg, PtSM, PtSL,
+CSM, MB and PtReyes.  Side effect of function is to delete
+existing anomaly tables in ACCESS and re-write new ones.
 }
 \description{
-  Computes SST anomaly matrix for month and year for each
-  of 8 locations: East Santa Barbara (ESB), West Santa
-  Barbara (WSB), Point Arguello (PtArg), Point Santa Maria
-  (PtSM), Port San Luis (PtSL), Cape San Martin (CSM),
-  Monterey Bay (MB) and Point Reyes (PtReyes).
+Computes SST anomaly matrix for month and year for each of
+8 locations: East Santa Barbara (ESB), West Santa Barbara
+(WSB), Point Arguello (PtArg), Point Santa Maria (PtSM),
+Port San Luis (PtSL), Cape San Martin (CSM), Monterey Bay
+(MB) and Point Reyes (PtReyes).
 }
 \details{
-  Creates daily means from hourly observations.  Averages
-  daily means within month.  Computes average monthly value
-  from a defined set of years (\code{average.years}) and
-  subtracts the monthly means from the observed year-month
-  matrix to produce anomaly matrix.
+Creates daily means from hourly observations.  Averages
+daily means within month.  Computes average monthly value
+from a defined set of years (\code{average.years}) and
+subtracts the monthly means from the observed year-month
+matrix to produce anomaly matrix.
 }
 \author{
-  Jeff Laake
+Jeff Laake
 }
 \seealso{
-  \code{\link{create.anomalies}}
+\code{\link{create.anomalies}}
 }
 

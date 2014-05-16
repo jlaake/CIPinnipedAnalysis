@@ -77,8 +77,8 @@ graphics.off()
 
 pdf("ZcPupLiveCount.pdf")
 par(mfrow=c(2,1))
-plot(ZcProduction$Year[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],ZcProduction$TotalLiveCount[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],xlab="Year",ylab="Live pup count",xaxt="n",main="Mainland SMI California sea lion Live Pup Count")
-lines(ZcProduction$Year[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],ZcProduction$TotalLiveCount[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"])
+plot(ZcProduction$Year[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],ZcProduction$TotalLiveCountByYear[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],xlab="Year",ylab="Live pup count",xaxt="n",main="Mainland SMI California sea lion Live Pup Count")
+lines(ZcProduction$Year[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],ZcProduction$TotalLiveCountByYear[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"])
 axis(1,at=seq(1970,maxyr,2),labels= seq(1970,maxyr,2))
 
 zccr.years=ZcProduction$Year[ZcProduction$Area=="CastleRock"]
@@ -122,8 +122,8 @@ dev.off()
 
 pdf("CuPupLiveCount.pdf")
 par(mfrow=c(2,1))
-plot(CuProduction$Year[CuProduction$Area=="Mainland"],CuProduction$TotalLiveCount[CuProduction$Area=="Mainland"],xlab="Year",ylab="Live pup count",xaxt="n",main="Mainland Northern fur seal Live Pup Count",xlim=c(1970,maxyr),ylim=c(0,2500))
-lines(CuProduction$Year[CuProduction$Area=="Mainland"],CuProduction$TotalLiveCount[CuProduction$Area=="Mainland"])
+plot(CuProduction$Year[CuProduction$Area=="Mainland"],CuProduction$TotalLiveCountByYear[CuProduction$Area=="Mainland"],xlab="Year",ylab="Live pup count",xaxt="n",main="Mainland Northern fur seal Live Pup Count",xlim=c(1970,maxyr),ylim=c(0,2500))
+lines(CuProduction$Year[CuProduction$Area=="Mainland"],CuProduction$TotalLiveCountByYear[CuProduction$Area=="Mainland"])
 axis(1,at=seq(1970,maxyr,2),labels= seq(1970,maxyr,2))
 
 cr.years=CuProduction$Year[CuProduction$Area=="CastleRock"]

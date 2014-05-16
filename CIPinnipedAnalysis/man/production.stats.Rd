@@ -2,9 +2,8 @@
 \alias{production.stats}
 \title{Pup production stats}
 \usage{
-  production.stats(island = "SMI", mainland = TRUE,
-    years = NULL, PreLiveCountCf = 1.33, species = "Zc",
-    dir = NULL)
+production.stats(island = "SMI", mainland = TRUE, years = NULL,
+  PreLiveCountCf = 1.33, species = "Zc", dir = NULL)
 }
 \arguments{
   \item{island}{the character name for the island "SMI" or
@@ -26,40 +25,39 @@
   \item{dir}{database directory for CensusMaster}
 }
 \value{
-  dataframe containing results
-  LiveCountDate,Area,Year,LiveInDeadSampleArea,DeadInDeadSampleArea,AdjustedDeadInDeadSampleArea,
-  MortalityRateAtLiveCount,TotalLiveCountByYear,PupProduction
+dataframe containing results
+LiveCountDate,Area,Year,LiveInDeadSampleArea,DeadInDeadSampleArea,AdjustedDeadInDeadSampleArea,
+MortalityRateAtLiveCount,TotalLiveCountByYear,PupProduction
 }
 \description{
-  Computes pup production stats for Zalophus or Callorhinus
-  at San Miguel or Castle Rock and creates production
-  tables in the ACCESS database.
+Computes pup production stats for Zalophus or Callorhinus
+at San Miguel or Castle Rock and creates production tables
+in the ACCESS database.
 }
 \details{
-  Dead pup surveys are conducted typically on 3 occasions
-  during July.  Dead pups are either stacked or tagged so
-  they are not recounted.  A live count is also conducted
-  in late July and it often occurs between two of the dead
-  pup surveys.  This function totals up the dead pups,
-  applies an average multiplicative correction factor to
-  account for pups that died and were never counted, and
-  then interpolates the number that died up to the time of
-  the live count.  The dead pup surveys are only conducted
-  in a portion of the rookery at SMI so the estimated
-  number of dead pups in the dead pup sample area and the
-  live count in that same area are used to create a
-  pre-census mortality rate.  That rate is then used to
-  scale the total live count to compute the number of pups
-  produced (born). The computed values are output in the
-  production table for each species.
+Dead pup surveys are conducted typically on 3 occasions
+during July.  Dead pups are either stacked or tagged so
+they are not recounted.  A live count is also conducted in
+late July and it often occurs between two of the dead pup
+surveys.  This function totals up the dead pups, applies an
+average multiplicative correction factor to account for
+pups that died and were never counted, and then
+interpolates the number that died up to the time of the
+live count.  The dead pup surveys are only conducted in a
+portion of the rookery at SMI so the estimated number of
+dead pups in the dead pup sample area and the live count in
+that same area are used to create a pre-census mortality
+rate.  That rate is then used to scale the total live count
+to compute the number of pups produced (born). The computed
+values are output in the production table for each species.
 
-  \code{\link{do.pup.production}} is the driver function
-  which calls this function for Zc for SMI and Castle Rock
-  and then combines the result in the table ZcProduction
-  which is stored in CIPinnipedCensusQuery.mdb.  Then it
-  does the same thing for Cu and creates CuProduction.
+\code{\link{do.pup.production}} is the driver function
+which calls this function for Zc for SMI and Castle Rock
+and then combines the result in the table ZcProduction
+which is stored in CIPinnipedCensusQuery.mdb.  Then it does
+the same thing for Cu and creates CuProduction.
 }
 \author{
-  Jeff Laake
+Jeff Laake
 }
 

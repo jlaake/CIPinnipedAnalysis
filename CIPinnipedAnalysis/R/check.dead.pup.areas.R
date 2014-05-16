@@ -1,7 +1,10 @@
-#' Checks for errors in the assigned dead pup sample areas
+#' Checks for errors in the assigned dead pup sample areas and CU Survey dates
 #' 
 #' Checks to make sure that each table in CIPinnipedCensusMaster.mdb has a
 #' matching record in DeadPupSampleAreas table for SMI for species=Zc and Cu.
+#' 
+#' Also reports any CU survey dates in dead file that are more than 5 days from
+#' assigned CU Survey Date for that survey number in that year.  Typically the error is 
 #' 
 #' \preformatted{ If there are no missing records the output should look as
 #' follows:
@@ -35,9 +38,29 @@ sink("MissingDeadPupArea.txt")
 areas=getCalcurData("CIPCensus","DeadPupSampleAreas",dir=fdir)
 areas$YearArea=as.character(areas$YearArea)
 dead=getCalcurData("CIPCensus","Zc Cu dead pup census",dir=fdir)
+dead$key=paste(dead$Year,dead[,"Survey number"])
+cusurvey=getCalcurData("CIPCensus","CU Survey Dates",dir=fdir)
+cusurvey$key=paste(cusurvey$Year,cusurvey[,"Survey number"])
 live=getCalcurData("CIPCensus","Zc Cu live pup census",dir=fdir)
 taginitial=getCalcurData("CIPCensus","Zc dead tag initial",dir=fdir)
 tagresight=getCalcurData("CIPCensus","Zc dead tag resight",dir=fdir)
+dead_withdates=merge(dead[dead$Species=="Cu"&!dead[,"Area code"]%in%c("WCR","ECR"),],cusurvey,by="key",all.x=TRUE)
+cat("\n\n ***Checking CU Survey Dates against CU survey dates for SMI mainland\n")
+if(any(is.na(dead_withdates$Date)))
+{
+  cat("\nMissing survey numbers in CU Survey Dates for the following: \n")
+  print(dead_withdates[is.na(dead_withdates$Date),])  
+}
+dead_withdates=dead_withdates[!is.na(dead_withdates[,"Survey date"]),]
+date_gaps=(dead_withdates[,"Survey date"]-dead_withdates$Date)/(24*3600)
+if(any(abs(date_gaps)>5))
+{
+	cat("\nDate gap between survey date in dead file and date in CU Survey > 5 days \n")
+	dead_withdates=dead_withdates[abs(date_gaps)>5,c(4,6,21)]
+	names(dead_withdates)[1]=c("Survey date in dead file")
+	names(dead_withdates)[3]=c("Survey date in CU Survey Date file")
+	print(dead_withdates) 
+}
 cat("\n\n ***Checking Zc CU dead pup census for Zc at SMI\n")
 x=dead[dead$Species=="Zc"&dead$Island=="SMI",]
 x$YearArea=paste(x$Year,x[,"Area code"],sep="")

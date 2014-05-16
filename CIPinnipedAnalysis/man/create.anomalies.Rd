@@ -3,7 +3,7 @@
 \alias{create.anomaly.table}
 \title{Create SST monthly anomaly matrices and dataframes}
 \usage{
-  create.anomalies(x, yrange, average.years)
+create.anomalies(x, yrange, average.years)
 }
 \arguments{
   \item{x}{for \code{create.anomalies} a dataframe
@@ -21,24 +21,24 @@
   the anomaly}
 }
 \value{
-  for \code{create.anomalies} a matrix of monthly anomalies
-  with years as rows and months as columns
+for \code{create.anomalies} a matrix of monthly anomalies
+with years as rows and months as columns
 
-  for \code{create.anomaly.table } a dataframe with fields:
-  Year - 4 digit numeric, Month - character, midDate - date
-  15th of the month, and SSTAnomaly - SST anomaly value.
+for \code{create.anomaly.table } a dataframe with fields:
+Year - 4 digit numeric, Month - character, midDate - date
+15th of the month, and SSTAnomaly - SST anomaly value.
 }
 \description{
-  \code{create.anomalies} computes a matrix of year-month
-  anomalies and \code{create.anomaly.table} converts the
-  matrix into a dataframe of anomalies.
+\code{create.anomalies} computes a matrix of year-month
+anomalies and \code{create.anomaly.table} converts the
+matrix into a dataframe of anomalies.
 }
 \details{
-  Creates daily means from hourly observations.  Averages
-  daily means within month.  Computes average monthly value
-  from a defined set of years (\code{average.years}) and
-  subtracts the monthly means from the observed year-month
-  matrix to produce anomaly matrix.
+Creates daily means from hourly observations.  Averages
+daily means within month.  Computes average monthly value
+from a defined set of years (\code{average.years}) and
+subtracts the monthly means from the observed year-month
+matrix to produce anomaly matrix.
 }
 \examples{
 fdir=system.file(package="CIPinnipedAnalysis")
@@ -47,9 +47,9 @@ source(file.path(fdir,"CreateAnomalies.r"))
 source("CreateAnomalies.r")
 }
 \author{
-  Jeff Laake
+Jeff Laake
 }
 \seealso{
-  \code{\link{create.SST.anomalies}}
+\code{\link{create.SST.anomalies}}
 }
 
