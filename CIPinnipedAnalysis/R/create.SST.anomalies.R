@@ -44,7 +44,8 @@ create.SST.anomalies=function(average.years,fdir=NULL,store=FALSE)
 #
 # Open a connection to the ACCESS database, attach the data tables and
 # modify some fieldnames and values to make uniform
-    if(fdir=="")fdir=system.file(package="CalcurData")
+    if(!is.null(fdir))
+		if(fdir=="")fdir=system.file(package="CalcurData")
     PtArg=getCalcurData("Environ","PtArguelloBuoyData",dir=fdir)
 	PtSm=getCalcurData("Environ","PtSantaMariaBuoyData",dir=fdir)
 	ESB=getCalcurData("Environ","EastSantaBarbaraChannelBuoyData",dir=fdir)
