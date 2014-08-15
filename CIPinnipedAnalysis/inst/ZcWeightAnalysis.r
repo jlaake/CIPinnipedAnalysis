@@ -1,10 +1,11 @@
+# use "" to use databases in Calcur installed package directory; 
+# use NULL to use default Databases directory J:/Master  
+# or specify directory
+if(!exists("fdir"))fdir=NULL
 require(CIPinnipedAnalysis)
 sdir=system.file(package="CIPinnipedAnalysis")
-fdir=""
 if(!exists("nboot"))nboot=100
 lastyear=2013
-# use "" to use databases in package directory; use NULL to use default Databases directory J:/Master  or specify directory
-#fdir=NULL
 
 source(file.path(sdir,"CreateAnomalies.r"))
 source(file.path(sdir,"ZC Weight Adjustment Model.r"))

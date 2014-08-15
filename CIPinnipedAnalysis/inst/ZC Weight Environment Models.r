@@ -1,8 +1,9 @@
+# use "" to use databases in Calcur installed package directory; 
+# use NULL to use default Databases directory J:/Master  
+# or specify directory
+if(!exists("fdir"))fdir=NULL
 require(CIPinnipedAnalysis)
-if(!exists("fdir"))fdir=""
 if(!exists("nboot"))nboot=100
-# use "" to use databases in Calcur installed package directory; use NULL to use default Databases directory J:/Master  or specify directory
-#fdir=NULL
 if(!exists("anomalies"))
 {
 	sdir=system.file(package="CIPinnipedAnalysis")

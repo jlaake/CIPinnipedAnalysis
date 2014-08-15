@@ -1,5 +1,9 @@
+# use "" to use databases in Calcur installed package directory; 
+# use NULL to use default Databases directory J:/Master  
+# or specify directory
+#fdir=NULL
+if(!exists("fdir"))fdir=NULL
 require(CIPinnipedAnalysis)
-if(!exists("fdir"))fdir=""
 if(!exists("lastyear"))lastyear=2013
 if(!exists("locations"))locations=2:5
 # use "" to use databases in Calcur installed package directory; use NULL to use default Databases directory J:/Master  or specify directory

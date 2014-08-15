@@ -1,3 +1,8 @@
+# use "" to use databases in Calcur installed package directory; 
+# use NULL to use default Databases directory J:/Master  
+# or specify directory
+#fdir=NULL
+if(!exists("fdir"))fdir=NULL
 plot.weight.series=function (time, predictions, ...)
 {
 	plotCI(time, predictions$fit,  1.96 * predictions$se,
@@ -6,11 +11,6 @@ plot.weight.series=function (time, predictions, ...)
 	lines(time, predictions$fit)
 	invisible()
 }
-fdir=NULL
-dir=NULL
-# use "" to use databases in package directory
-#fdir=""
-#dir=""
 #################################################################################
 # Cross-sectional analysis
 #################################################################################
@@ -109,8 +109,8 @@ x=rbind(data.frame(Year=minyear:maxyear,Season=rep("Spring",numyears),SSTAnomaly
 		data.frame(Year=minyear:maxyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies) )
 x$Season=factor(x$Season,levels=c("Spring","Summer","Fall"))
 x=x[order(x$Year,x$Season),]
-MEI=getCalcurData("Environ","MEI",dir=dir)
-UWI=getCalcurData("Environ","UWIAnomaly",dir=dir)
+MEI=getCalcurData("Environ","MEI",dir=fdir)
+UWI=getCalcurData("Environ","UWIAnomaly",dir=fdir)
 UWI=UWI[order(UWI$Year,UWI$Month),]
 UWImeansJunetoSept=with(UWI[UWI$Month%in%6:9&UWI$Year>=1975,], tapply(UWIAnomaly,list(Location,Year),mean))
 
