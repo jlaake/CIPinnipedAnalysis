@@ -1,12 +1,16 @@
-# use "" to use databases in Calcur installed package directory; 
-# use NULL to use default Databases directory J:/Master  
-# or specify directory
+#if fdir="" it looks for data files in the CalcurData package directory of your R library.
+#if fdir=NULL it looks in databases.txt in CalcurData package directory to get the database location
+#if fdir is anything else it uses the value of fdir as the directory for database.  
+#The scripts check for the value of fdir and if it exists the script will not change the value; otherwise it sets it to NULL
 if(!exists("fdir"))fdir=NULL
 require(CIPinnipedAnalysis)
 sdir=system.file(package="CIPinnipedAnalysis")
 if(!exists("nboot"))nboot=100
+####################################
+# Set this value; be aware that all of the environmental data has to be entered through Feb of lastyear+1 
+# for the growth script to work properly
 lastyear=2013
-
+####################################
 source(file.path(sdir,"CreateAnomalies.r"))
 source(file.path(sdir,"ZC Weight Adjustment Model.r"))
 source(file.path(sdir,"ZC Weight Environment Models.r"))
@@ -21,6 +25,7 @@ zcweights.be=get.zc.weights(fdir=fdir)
 #
 zcweights.be=zcweights.be[zcweights.be$days>60&zcweights.be$days<150&zcweights.be$sitecode=="SMI"&zcweights.be$tag.type!="Tag",]
 zcweights.be$tag.type=factor(zcweights.be$tag.type)
+zcweights.be$cohort=factor(zcweights.be$cohort)
 # lme model of tag.type effect
 mod=lme(weight~tag.type*sex,random=~1|cohort,data=zcweights.be,method="ML")
 summary(mod)
@@ -29,10 +34,16 @@ summary(mod0)
 mod1=lme(weight~tag.type+sex,random=~1|cohort,data=zcweights.be,method="ML")
 summary(mod1)
 anova(mod0,mod1,mod)
-# kruskal test by sex
-kruskal.test(weight~tag.type*cohort,data=zcweights.be[zcweights.be$sex=="F",])
-kruskal.test(weight~tag.type*cohort,data=zcweights.be[zcweights.be$sex=="M",])
-# paired t-test
+# wilcox test by sex
+female_vecs=tapply(zcweights.be$weight[zcweights.be$sex=="F"],list(zcweights.be$cohort[zcweights.be$sex=="F"],zcweights.be$tag.type[zcweights.be$sex=="F"]),mean)
+wilcox.test(female_vecs[,1],female_vecs[,2],paired=TRUE)
+male_vecs=tapply(zcweights.be$weight[zcweights.be$sex=="M"],list(zcweights.be$cohort[zcweights.be$sex=="M"],zcweights.be$tag.type[zcweights.be$sex=="M"]),mean)
+wilcox.test(male_vecs[,1],male_vecs[,2],paired=TRUE)
+# combined wilcox
+all_vecs=rbind(female_vecs,male_vecs)
+wilcox.test(all_vecs[,1],all_vecs[,2],paired=TRUE)
+
+# all paired t-test
 be.fem=with(zcweights.be,tapply(weight,list(cohort,tag.type,sex),mean))[,,"F"]
 be.m=with(zcweights.be,tapply(weight,list(cohort,tag.type,sex),mean))[,,"M"]
 t.test(x=c(be.fem[,1],be.m[,1]),y=c(be.fem[,2],be.m[,2]),paired=TRUE)

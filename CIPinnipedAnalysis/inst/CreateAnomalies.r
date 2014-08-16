@@ -1,7 +1,7 @@
-# use "" to use databases in Calcur installed package directory; 
-# use NULL to use default Databases directory J:/Master  
-# or specify directory
-#fdir=NULL
+#if fdir="" it looks for data files in the CalcurData package directory of your R library.
+#if fdir=NULL it looks in databases.txt in CalcurData package directory to get the database location
+#if fdir is anything else it uses the value of fdir as the directory for database.  
+#The scripts check for the value of fdir and if it exists the script will not change the value; otherwise it sets it to NULL
 if(!exists("fdir"))fdir=NULL
 require(CIPinnipedAnalysis)
 if(!exists("lastyear"))lastyear=2013
@@ -133,10 +133,10 @@ UWI=UWI[order(UWI$Year,UWI$Month),]
 uwiminyear=min(UWI$Year)
 uwimaxyear=max(UWI$Year)
 uwinumyears=uwimaxyear-uwiminyear+1
-plot(UWI$UWI[UWI$Location=="36N122W"],type="l",lwd=2,xaxt="n",ylab="UWI",xlab="Year",main="36N122W")
+plot(UWI$UWIAnomaly[UWI$Location=="36N122W"],type="l",lwd=2,xaxt="n",ylab="UWI",xlab="Year",main="36N122W")
 axis(1,at=12*(0:(uwinumyears-1))+1,labels=as.character(uwiminyear:uwimaxyear))
 abline(h=0)
-plot(UWI$UWI[UWI$Location=="33N119W"],type="l",lwd=2,xaxt="n",ylab="UWI",xlab="Year",main="33N119W")
+plot(UWI$UWIAnomaly[UWI$Location=="33N119W"],type="l",lwd=2,xaxt="n",ylab="UWI",xlab="Year",main="33N119W")
 axis(1,at=12*(0:(uwinumyears-1))+1,labels=as.character(uwiminyear:uwimaxyear))
 abline(h=0)
 dev.off()

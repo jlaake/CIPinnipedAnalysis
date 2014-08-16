@@ -1,16 +1,14 @@
-# use "" to use databases in Calcur installed package directory; 
-# use NULL to use default Databases directory J:/Master  
-# or specify directory
-#fdir=NULL
+#if fdir="" it looks for data files in the CalcurData package directory of your R library.
+#if fdir=NULL it looks in databases.txt in CalcurData package directory to get the database location
+#if fdir is anything else it uses the value of fdir as the directory for database.  
+#The scripts check for the value of fdir and if it exists the script will not change the value; otherwise it sets it to NULL
 if(!exists("fdir"))fdir=NULL
-plot.weight.series=function (time, predictions, ...)
-{
-	plotCI(time, predictions$fit,  1.96 * predictions$se,
-			1.96 * predictions$se, xlab = "Year",
-			ylab = "Predicted average weight (kg) 1 Oct", ...)
-	lines(time, predictions$fit)
-	invisible()
-}
+if(!exists("nboot"))nboot=100
+####################################
+# Set this value; be aware that all of the environmental data has to be entered through Feb of lastyear+1 
+# for the growth script to work properly
+lastyear=2013
+####################################
 #################################################################################
 # Cross-sectional analysis
 #################################################################################
@@ -56,7 +54,7 @@ bootstrap.se=function(x,nreps)
 	return(sqrt(apply(pmat,2,var)))
 }
 # use 100 reps to compute std error
-stderrors=bootstrap.se(cuweights,100)
+stderrors=bootstrap.se(cuweights,nboot)
 # Compute predictions and construct dataframes for female and male averages with std errors
 pp=data.frame(days=0,cohort=rep(sort(unique(cuweights$cohort)),2),sex=rep(c("F","M"),each=length(unique(cuweights$cohort))))
 pp$predict=predict(cu.weight.model,newdata=pp,level=1)
@@ -75,78 +73,22 @@ options(width=150)
 print(CUWeight.df)
 pdf("CUPredictedWeights.pdf",pointsize=10)
 par(mfrow=c(2,1))
-maxyear=max(cuweights$cohort)
-plot.weight.series(1975:maxyear,female.averages,main="Fur Seal Female Pups",ylim=c(ymin,ymax))
-plot.weight.series(1975:maxyear,male.averages,main="Fur Seal Male Pups",ylim=c(ymin,ymax))
+plot_weight.series(1975:lastyear,female.averages,main="Fur Seal Female Pups",ylim=c(ymin,ymax),date="1 Oct")
+plot_weight.series(1975:lastyear,male.averages,main="Fur Seal Male Pups",ylim=c(ymin,ymax),date="1 Oct")
 dev.off()
 ################################################################################
 # Construct environmental values for models
 ################################################################################
-# Get SST Anomalies at 8 locations using 1994:1996 and 1998:2008 for averages
-anomalies=create.SST.anomalies(c(1994:1996,1998:2008),fdir=fdir)
-# Use Locations 1-5 (ESB,WSB,PtArg,PtSM,PtSL) for pup weight predictions
-SSTAnomalies=t(apply(anomalies[,,1:5],c(2,1),mean,na.rm=TRUE))
-maxyear= max(as.numeric(row.names(SSTAnomalies)))
-minyear= min(as.numeric(row.names(SSTAnomalies)))
-numyears=maxyear-minyear+1
-# Compute averages across month grouping so use with period specific growth rate
-JantoMayAnomalies=rowMeans(SSTAnomalies[,c("Jan","Feb","Mar","Apr","May")])
-OcttoFebAnomalies=as.matrix(cbind(SSTAnomalies[,c("Oct","Nov","Dec")],rbind(SSTAnomalies[2:nrow(SSTAnomalies),c("Jan","Feb")],data.frame(Jan=NA,Feb=NA))))
-OcttoFebAnomalies[is.nan(OcttoFebAnomalies)]=NA
-OcttoFebAnomalies=rowMeans(OcttoFebAnomalies,na.rm=TRUE)
-JunetoSeptAnomalies=SSTAnomalies[,c("June","July","Aug","Sept")]
-JunetoSeptAnomalies[is.nan(JunetoSeptAnomalies)]=NA
-JunetoSeptAnomalies=rowMeans(JunetoSeptAnomalies,na.rm=TRUE)
-OcttoDecAnomalies=SSTAnomalies[,c("Oct","Nov","Dec")]
-OcttoDecAnomalies[is.nan(OcttoDecAnomalies)]=NA
-OcttoDecAnomalies=rowMeans(OcttoDecAnomalies,na.rm=TRUE)
-JunetoFebAnomalies=as.matrix(cbind(SSTAnomalies[,c("June","July","Aug","Sept","Oct","Nov","Dec")],rbind(SSTAnomalies[2:nrow(SSTAnomalies),c("Jan","Feb")],data.frame(Jan=NA,Feb=NA))))
-JunetoFebAnomalies[is.nan(JunetoFebAnomalies)]=NA
-JunetoFebAnomalies=rowMeans(JunetoFebAnomalies,na.rm=TRUE)
-
-x=rbind(data.frame(Year=minyear:maxyear,Season=rep("Spring",numyears),SSTAnomaly=JantoMayAnomalies),
-		data.frame(Year=minyear:maxyear,Season=rep("Summer",numyears),SSTAnomaly=JunetoSeptAnomalies),
-		data.frame(Year=minyear:maxyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies) )
-x$Season=factor(x$Season,levels=c("Spring","Summer","Fall"))
-x=x[order(x$Year,x$Season),]
-MEI=getCalcurData("Environ","MEI",dir=fdir)
-UWI=getCalcurData("Environ","UWIAnomaly",dir=fdir)
-UWI=UWI[order(UWI$Year,UWI$Month),]
-UWImeansJunetoSept=with(UWI[UWI$Month%in%6:9&UWI$Year>=1975,], tapply(UWIAnomaly,list(Location,Year),mean))
-
-UWIOcttoDec=with(UWI[UWI$Month%in%10:12,], tapply(UWIAnomaly,list(Month,Year,Location),mean))
-UWIJantoFeb=with(UWI[UWI$Month%in%1:2,], tapply(UWIAnomaly,list(Month,Year,Location),mean))
-
-UWImeansOcttoFeb=NULL
-for(i in 1:2)
-	UWImeansOcttoFeb=rbind(UWImeansOcttoFeb,colMeans(rbind(UWIOcttoDec[,,i],UWIJantoFeb[,,i]),na.rm=TRUE))
-
-#
-# Fit some models to predicted averages
-#
-#
-# Compute correlations between MEI and SST to find the best lag
-SSTAnomalies.db=data.frame(SSTAnomaly=as.vector(t(SSTAnomalies[-(1:2),])))
-MEIcor=vector("numeric",8)
-for(lag in 0:7)
+if(!exists("anomalies"))
 {
-	MEIcor[lag+1]=cor(MEI$MEI[1:(length(MEI$MEI)-lag)],SSTAnomalies.db$SSTAnomaly[(lag+1):length(MEI$MEI)],use="complete.obs")
-	cat("\nlag = ",lag,"cor = ",MEIcor[lag+1])
+	sdir=system.file(package="CIPinnipedAnalysis")
+	source(file.path(sdir,"CreateAnomalies.r"))
 }
-lag=which(MEIcor==max(MEIcor))-1
-#
-# This MEI is comparable to JunetoSeptSST with defined lag
-#
-average.MEI=function(x,months)return(tapply(x$MEI[x$Month%in%months],x$Year[x$Month%in%months],mean))
-LaggedMEIJunetoSept=average.MEI(MEI,(6:9-lag))
-LaggedMEIOcttoFeb=average.MEI(MEI,8:12) # assumes 2 month lag to avoid Dec/Jan break
 
-JunetoSeptAnomalies=JunetoSeptAnomalies[4:numyears]
-OcttoFebAnomalies=OcttoFebAnomalies[4:numyears]
-JunetoFebAnomalies=JunetoFebAnomalies[4:numyears]
-cuweights.environ=merge(cuweights,data.frame(cohort=1975:maxyear,SST1=JunetoSeptAnomalies,SST2=OcttoFebAnomalies,SST3=JunetoFebAnomalies,
-				MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],UWI33=UWImeansJunetoSept[1,],UWI36=UWImeansJunetoSept[2,],
-				UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)]))
+
+cuweights.environ=merge(cuweights,data.frame(cohort=1975:lastyear,SST=JunetoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],SST2=JunetoFebAnomalies[4:numyears],
+				MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansJunetoSept[1,-(1:6)],UWI36=UWImeansJunetoSept[2,-(1:6)],
+				UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],UWI362=UWImeansJunetoFeb[2,-(1:6)]))
 cuweights.environ$cohort.factor=factor(ifelse(cuweights.environ$cohort<1990,0,1),labels=c("<=1989",">=1990"))
 cuweights.environ$SST=cuweights.environ$SST1
 cuweights.environ$SST[cuweights.environ$days>90]=cuweights.environ$SST3[cuweights.environ$days>90]
@@ -157,73 +99,37 @@ cuweights.environ$UWI36[cuweights.environ$days>90]=cuweights.environ$UWI361[cuwe
 #############################################################################################################
 # Environmental Cross-sectional analysis of weights
 #
-# Evaluate best random effect model with most complex fixed-effect model
-cu.weight.model=lme(weight~sex*days*SST+UWI33+cohort+MEI,random=~days|cohort,data=cuweights.environ)
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days*SST+UWI33+cohort+MEI,random=list(~1|cohort),data=cuweights.environ)
-summary(cu.weight.model)$AIC
-#
-# Next evaluate sequence of fixed-effect models with the chosen random effect model
-#
-# SST
-cu.weight.model=lme(weight~sex*days*SST+cohort,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days*SST+cohort.factor,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days*SST,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days+days*SST+sex*SST+cohort,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days+days*SST+sex*SST,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*SST+days+cohort,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*SST+days+cohort.factor,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*SST+days,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex+days+SST+cohort,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex+days+SST+cohort.factor,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex+days+SST,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-# UWI
-cu.weight.model=lme(weight~sex*days*UWI33+cohort,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days*UWI33+cohort.factor,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days*UWI33,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days+days*UWI33+sex*UWI33+cohort,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days+days*UWI33+sex*UWI33+cohort.factor,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days+days*UWI33+sex*UWI33,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex+days+UWI33,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex+days+UWI33,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-# MEI
-cu.weight.model=lme(weight~sex*days*MEI+cohort,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days*MEI+cohort.factor,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days*MEI,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days+days*MEI+sex*MEI+cohort,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days+days*MEI+sex*MEI+cohort.factor,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex*days+days*MEI+sex*MEI,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-cu.weight.model=lme(weight~sex+days+MEI,random=~days|cohort,data=cuweights.environ,method="ML")
-summary(cu.weight.model)$AIC
-# Get predicted means and compute std errors and add to CUWeight.df table
-best.cu.weight.model=lme(weight~sex*SST+days+cohort.factor,random=~days|cohort,data=cuweights.environ)
-summary(best.cu.weight.model)
-cu.weight.model=best.cu.weight.model
+# First fit a sequence of random effect models with REML to assess best random model with same fixed model
+random.f=list(list(~1|cohort),list(~days|cohort),list(~sex:days|cohort),list(~sex*days|cohort),list(~-1+sex+days|cohort))
+fixed.f=list(weight~sex*SST+sex:days+SST1:days+sex:SST1:days+UWI33+cohort+MEI)
+res.environ=fitmixed(fixed.f,random.f,data=cuweights.environ) 
+
+# Using that random model, fit a sequence of fixed effect models with ML and use AIC to assess best fixed model
+random.f=list(res.environ$best.r)
+fixed.f=list(weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort.factor,
+		weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort,
+		weight~sex*SST+sex:days+SST1:days+sex:SST1:days,
+		weight~sex*SST+sex:days+SST1:days+cohort.factor,
+		weight~sex*SST+sex:days+SST1:days+cohort,
+		weight~sex*SST+sex:days+SST1:days,
+		weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort.factor,
+		weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort,
+		weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days,
+		weight~sex*UWI36+sex:days+UWI361:days+cohort.factor,
+		weight~sex*UWI36+sex:days+UWI361:days+cohort,
+		weight~sex*UWI36+sex:days+UWI361:days,
+		weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort.factor,
+		weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort,
+		weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days,
+		weight~sex*MEI+sex:days+MEI1:days+cohort.factor,
+		weight~sex*MEI+sex:days+MEI1:days+cohort,
+		weight~sex*MEI+sex:days)
+res.environ=fitmixed(fixed.f,random.f,data=cuweights.environ) 
+
+# Finally fit best fixed/random model with REML
+cu.weight.model=lme(fixed=res.environ$best.f,random=res.environ$best.r,data=cuweights.environ,method="REML",control=lmeControl(opt="optim"))
+print(summary(cu.weight.model))
+
 bootstrap.se=function(x,nreps)
 {
 	pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))
@@ -244,7 +150,7 @@ bootstrap.se=function(x,nreps)
 	return(sqrt(apply(pmat,2,var)))
 }
 # use 100 reps to compute std error
-stderrors=bootstrap.se(cuweights.environ,100)
+stderrors=bootstrap.se(cuweights.environ,nboot)
 # Compute predictions and construct dataframes for female and male averages with std errors
 pp=cuweights.environ
 pp$days=0

@@ -20,8 +20,7 @@ Extracts weights for Zc pups
 :from various tables in the BrandMaster.mdb ACCESS database and returns a dataframe with ancillary fields added.
 }
 \examples{
-fdir=system.file(package="CIPinnipedAnalysis")
-source(file.path(fdir,"ZcWeightAnalysis.r"))
+source(file.path(system.file(package="CIPinnipedAnalysis"),"ZcWeightAnalysis.r"))
 }
 \author{
 Jeff Laake

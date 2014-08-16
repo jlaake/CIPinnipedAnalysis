@@ -1,6 +1,7 @@
-# use "" to use databases in Calcur installed package directory; 
-# use NULL to use default Databases directory J:/Master  
-# or specify directory
+#if fdir="" it looks for data files in the CalcurData package directory of your R library.
+#if fdir=NULL it looks in databases.txt in CalcurData package directory to get the database location
+#if fdir is anything else it uses the value of fdir as the directory for database.  
+#The scripts check for the value of fdir and if it exists the script will not change the value; otherwise it sets it to NULL
 if(!exists("fdir"))fdir=NULL
 require(CIPinnipedAnalysis)
 if(!exists("nboot"))nboot=100
@@ -109,17 +110,17 @@ par(mfrow=c(2,1))
 maxyear=max(zcweights$cohort)
 ymin=min(c(female.averages$fit-1.96*female.averages$se, male.averages$fit-1.96*male.averages$se))*.9
 ymax=max(c(female.averages$fit+1.96*female.averages$se, male.averages$fit+1.96*male.averages$se))*1.1
-plot.weight.series(1975:maxyear,female.averages,main="California sea lion Female Pups",ylim=c(ymin,ymax),date="1 Oct")
-plot.weight.series(1975:maxyear,male.averages,main="California sea lion Male Pups",ylim=c(ymin,ymax),date="1 Oct")
+plot_weight.series(1975:maxyear,female.averages,main="California sea lion Female Pups",ylim=c(ymin,ymax),date="1 Oct")
+plot_weight.series(1975:maxyear,male.averages,main="California sea lion Male Pups",ylim=c(ymin,ymax),date="1 Oct")
 dev.off()
 
 jpeg("ZCPredictedWeightsCalcofi.jpg",,height=600,width=600,quality=100,pointsize=12)
 maxyear=max(zcweights$cohort)
 par(lty=1)
-plot.weight.series(1997:maxyear,female.averages[23:(maxyear-1974),],ylim=c(ymin,ymax),xaxp=c(1998,2012,7),date="1 Oct")
+plot_weight.series(1997:maxyear,female.averages[23:(maxyear-1974),],ylim=c(ymin,ymax),xaxp=c(1998,2012,7),date="1 Oct")
 abline(h=mean(female.averages$fit[23:(maxyear-1974)]))
 par(lty=2)
-plot.weight.series(1997:maxyear,male.averages[23:(maxyear-1974),],pch=2,add=TRUE,slty=1,date="1 Oct")
+plot_weight.series(1997:maxyear,male.averages[23:(maxyear-1974),],pch=2,add=TRUE,slty=1,date="1 Oct")
 abline(h=mean(male.averages$fit[23:(maxyear-1974)]))
 points(2009,25,pch=2)
 lines(x=c(2008.75,2009.25),y=c(25,25),pch=2,lty=2)
@@ -151,10 +152,10 @@ ZCWeight.df$winter.avg.day=winter.avg.day
 jpeg("ZCPredictedWeightsFebCalcofi.jpg",height=600,width=600,quality=100,pointsize=12)
 maxyear=max(zcweights$cohort)
 par(lty=1)
-plot.weight.series(1997:maxyear,female.averages[23:(maxyear-1974),],ylim=c(ymin,ymax),xaxp=c(1998,2012,7),date="1 Feb")
+plot_weight.series(1997:maxyear,female.averages[23:(maxyear-1974),],ylim=c(ymin,ymax),xaxp=c(1998,2012,7),date="1 Feb")
 abline(h=mean(female.averages$fit[23:(maxyear-1974)]))
 par(lty=2)
-plot.weight.series(1997:maxyear,male.averages[23:(maxyear-1974),],pch=2,add=TRUE,slty=1,date="1 Feb")
+plot_weight.series(1997:maxyear,male.averages[23:(maxyear-1974),],pch=2,add=TRUE,slty=1,date="1 Feb")
 abline(h=mean(male.averages$fit[23:(maxyear-1974)]))
 points(2009,40,pch=2)
 lines(x=c(2008.75,2009.25),y=c(40,40),pch=2,lty=2)

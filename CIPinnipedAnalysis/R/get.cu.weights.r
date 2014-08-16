@@ -11,8 +11,7 @@
 #' @export
 #' @author Jeff Laake
 #' @examples 
-#' fdir=system.file(package="CIPinnipedAnalysis")
-#' source(file.path(fdir,"CuWeightAnalysis.r"))
+#' source(file.path(system.file(package="CIPinnipedAnalysis"),"CuWeightAnalysis.r"))
 #' 
 get.cu.weights=function(fdir=NULL,ENYears=c(1976,1983,1984,1987,1992,1997,1998))
 {
