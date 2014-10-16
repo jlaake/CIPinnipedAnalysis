@@ -32,6 +32,9 @@ construct.live=function(island,species,dir=NULL)
 # also be used for SNI counts.
 #
 	livepups=getCalcurData("CIPCensus","Zc Cu live pup census",dir=dir)
+	spaces=grep(" ",livepups[,"Area code"])
+	if(length(spaces)>0)
+		stop("Following area codes contain spaces",livepups[,"Area code"][spaces])
 	livepups=livepups[!is.na(livepups$Count),]
 	livepups$Observer=as.character(livepups$Observer)
 	livepups$Observer[is.na(livepups$Observer)]="Unknown"
@@ -80,9 +83,12 @@ construct.dead=function(island,species,dir=NULL)
 #   Get dead stacked pups and filter to island and species and only use fullterm pups
 #   and exclude any NA survey number
     dead.stack=getCalcurData("CIPCensus","Zc Cu dead pup census",dir=dir)
+	spaces=grep(" ",dead.stack[,"Area code"])
+	if(length(spaces)>0)
+		stop("Following area codes contain spaces",dead.stack[,"Area code"][spaces])
+	dead.stack$Development=tolower(dead.stack$Development)
 	dead.stack=dead.stack[dead.stack$Island==island&dead.stack$Species==species&
-                                  dead.stack$Development%in%c("fullterm","Fullterm")
-                                  &!is.na(dead.stack[,"Survey number"])&dead.stack$Disposition!="Tagged",]
+					dead.stack$Development=="fullterm"&!is.na(dead.stack[,"Survey number"])&dead.stack$Disposition!="Tagged",]
     dead.stack[is.na(dead.stack[,"Survey date"]),"Survey date"]=as.Date(paste("08-01-",dead.stack$Year[is.na(dead.stack[,"Survey date"])],sep=""),"%m-%d-%Y")
     dead.stack[,"Area code"]=factor(dead.stack[,"Area code"])
 #   Make sure that there is only one survey number per survey date in each area

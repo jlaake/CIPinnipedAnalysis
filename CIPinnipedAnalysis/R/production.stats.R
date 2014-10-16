@@ -242,7 +242,12 @@ for (i in 1:length(livenames))
                   cat(paste("\nWarning: For ",livenames[i]," length of average survey dates and counts do not match"))
                 if(length(x)!=length(unique(x)))
                   cat(paste("\nWarning: For ",livenames[i]," some average survey dates are not unique"))
-                dead.at.livecount=approx(x=x,y=y,xout=LiveByYearandArea$Days[i])$y
+			    if(LiveByYearandArea$Days[i]>x[length(x)])
+			    {
+				    cat(paste("For",livenames[i],"shifting time of livecount from day ",LiveByYearandArea$Days[i],"to ",x[length(x)]))
+				    LiveByYearandArea$Days[i]=x[length(x)]
+			    }
+			    dead.at.livecount=approx(x=x,y=y,xout=LiveByYearandArea$Days[i])$y
               }
            }
            else
@@ -258,10 +263,17 @@ for (i in 1:length(livenames))
                    cat(paste("\nWarning: For ",livenames[i]," length of average survey dates and counts do not match"))
                  if(length(xdays)!=length(unique(xdays)))
                    cat(paste("\nWarning: For ",livenames[i]," some average survey dates are not unique"))
+			     if(LiveByYearandArea$Days[i]>xdays[length(xdays)])
+				 {
+					 cat(paste("For",livenames[i],"shifting time of livecount from day ",LiveByYearandArea$Days[i],"to ",xdays[length(xdays)]))
+					 LiveByYearandArea$Days[i]=xdays[length(xdays)]
+				 }
                  dead.at.livecount=approx(x=xdays,y=y,xout=LiveByYearandArea$Days[i])$y
               }
            } 
      }
+	 if(is.na(dead.at.livecount))
+           cat(paste("\nProblem with computation of dead at livecount for ",livenames[i]))
      LiveByYearandArea$Dead.at.live.count[i]=dead.at.livecount
 }
 TotalLiveCountByYear=round(sapply(split(live$AvgCount,live$Year),sum))
