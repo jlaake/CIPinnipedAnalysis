@@ -62,7 +62,7 @@ for (i in 1:ceiling(numyears/6))
      x=c(as.POSIXct(paste(year,"-06-15",sep="")),cu.mort$SurveyDate[cu.mort$Year==year])
      xlim=c(as.POSIXct(paste(year,"-06-15",sep="")),as.POSIXct(paste(year,"-10-15",sep="")))
      y=c(1,cu.mort$CumS[cu.mort$Year==year])
-     plot(x,y,main=year,xlab="Date",ylab="Cumulative Survival",ylim=c(min(cu.mort$CumS),1),type="b",xlim=xlim)
+     plot(x,y,main=year,xlab="Date",ylab="Cumulative Survival",ylim=c(min(cu.mort$CumS,na.rm=TRUE),1),type="b",xlim=xlim)
   }
 }
 dev.off()
@@ -80,7 +80,7 @@ for (i in 1:ceiling(numyears/6))
      x=c(as.POSIXct(paste(year,"-06-15",sep="")),zc.mort$SurveyDate[zc.mort$Year==year])
      y=c(1,zc.mort$CumS[zc.mort$Year==year])
      xlim=c(as.POSIXct(paste(year,"-06-15",sep="")),as.POSIXct(paste(year,"-10-15",sep="")))
-     plot(x,y,main=year,xlab="Date",ylab="Cumulative Survival",ylim=c(min(zc.mort$CumS),1),type="b",xlim=xlim)
+     plot(x,y,main=year,xlab="Date",ylab="Cumulative Survival",ylim=c(min(zc.mort$CumS,na.rm=TRUE),1),type="b",xlim=xlim)
      }
 }
 dev.off()
