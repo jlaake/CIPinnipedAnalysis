@@ -165,12 +165,13 @@ CUWeight.df$male.environ.mean.se=male.averages$se
 # Plot predictions and observed
 win.graph()
 par(mfrow=c(2,1))
-with(CUWeight.df,plot(1975:maxyear,female.eviron.mean,pch="F",type="b",ylim=c(4,16)))
-with(CUWeight.df,points(1975:maxyear,female.observed.mean,pch="O"))
-with(CUWeight.df,lines(1975:maxyear,female.observed.mean,lty=2))
-with(CUWeight.df,plot(1975:maxyear,male.environ.mean,pch="M",type="b",ylim=c(4,16)))
-with(CUWeight.df,points(1975:maxyear,male.observed.mean,pch="O"))
-with(CUWeight.df,lines(1975:maxyear,male.observed.mean,lty=2))
+year.seq=1975:max(as.numeric(row.names(CUWeight.df)))
+with(CUWeight.df,plot(year.seq,female.eviron.mean,pch="F",type="b",ylim=c(4,16)))
+with(CUWeight.df,points(year.seq,female.observed.mean,pch="O"))
+with(CUWeight.df,lines(v,female.observed.mean,lty=2))
+with(CUWeight.df,plot(year.seq,male.environ.mean,pch="M",type="b",ylim=c(4,16)))
+with(CUWeight.df,points(year.seq,male.observed.mean,pch="O"))
+with(CUWeight.df,lines(year.seq,male.observed.mean,lty=2))
 
 # Plot predictions and predictions at SST=0
 pp=cuweights.environ
@@ -190,7 +191,6 @@ expected.male.averages=data.frame(fit=pp0[,2],se=stderrors[(length(pp0[,1])+1):(
 
 win.graph()
 par(mfrow=c(2,1))
-year.seq=1975:max(as.numeric(row.names(CUWeight.df)))
 with(CUWeight.df,plot(year.seq,female.eviron.mean,pch="F",type="b",ylim=c(4,16),xlab="Year"))
 points(year.seq,female.averages$fit,pch="S")
 lines(year.seq,female.averages$fit,pch="S",lty=2)
@@ -201,7 +201,12 @@ lines(year.seq,male.averages$fit,pch="S",lty=2)
 # Plot residuals of predictions based on fixed effects only versus mixed effects
 
 win.graph()
-plot(1975:maxyear,female.averages$fit-expected.female.averages$fit,pch="F",type="b")
+plot(year.seq,female.averages$fit-expected.female.averages$fit,pch="F",type="b")
 win.graph()
-plot(1975:maxyear,male.averages$fit-expected.male.averages$fit,pch="M",type="b")
+plot(year.seq,male.averages$fit-expected.male.averages$fit,pch="M",type="b")
 
+# Export to CIPinnipedCensusQuery
+years=as.numeric(rownames(CUWeight.df))
+xx=apply(CUWeight.df,2,function(x) as.numeric(sprintf("%.3f",x)))
+CUWeight.df=data.frame(Year=years,cbind(as.data.frame(xx)))
+xx=saveCalcurData(CUWeight.df,db="CIPquery",tbl="CuWeights",dir=fdir)

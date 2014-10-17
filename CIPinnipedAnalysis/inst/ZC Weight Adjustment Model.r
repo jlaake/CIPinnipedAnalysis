@@ -179,6 +179,10 @@ with(ZCWeight.df,points(female.observed.mean.winter[winter.avg.day >= 130],femal
 with(ZCWeight.df,points(female.observed.mean.winter[winter.avg.day >= 116 &winter.avg.day< 130],female.adjusted.mean.winter[winter.avg.day>= 116 &winter.avg.day< 130],col="black"))
 abline(0,1)
 dev.off()
-# write out file for export to CIPinnipedCensusQuery
-write.csv(ZCWeight.df,file="Zc weights.csv")
+# Export to CIPinnipedCensusQuery
+years=as.numeric(rownames(ZCWeight.df))
+xx=apply(ZCWeight.df[,-1],2,function(x) as.numeric(sprintf("%.3f", x)))
+ZCWeight.df=data.frame(Year=years,cbind(as.data.frame(xx)))
+xx=saveCalcurData(ZCWeight.df,db="CIPquery",tbl="ZcWeights",dir=fdir)
+
 
