@@ -13,6 +13,8 @@
 #' 
 get.zc.weights=function(fdir=NULL,ENYears=c(1976,1983,1984,1987,1992,1997,1998))
 {
+# read in area codes from Zc database
+areas=getCalcurData("Zc","areacodes",dir=fdir)
 #
 # read in weights from ZcBrand table of the Access database
 #
@@ -38,6 +40,7 @@ zcweights.unmarked$sex=factor(zcweights.unmarked$sex)
 zcTagOnly=getCalcurData("Zc","TagInitial",dir=fdir)
 zcTagOnly=zcTagOnly[zcTagOnly$age=="P"&!zcTagOnly$sex=="U" & !is.na(zcTagOnly$weight)& !is.na(zcTagOnly$sex),]
 zcTagOnly$sex=factor(zcTagOnly$sex)
+zcTagOnly=merge(zcTagOnly,subset(areas,select=c("region","sitecode")),by="region",all.x=TRUE)
 #
 #  read in the brand recaptures
 #
@@ -68,7 +71,7 @@ zcweights.unmarked=subset(zcweights.unmarked,select=c("AnimalID","sitecode","coh
 zcweights.unmarked=zcweights.unmarked[!is.na(zcweights.unmarked$weight),]
 zcweights$sitecode="SMI"
 zcweights=subset(zcweights,select=c("AnimalID","sitecode","cohort","sex","weight","length","girth","days"))
-zcTagOnly$sitecode="SMI"
+#zcTagOnly$sitecode="SMI"
 zcTagOnly=subset(zcTagOnly,select=c("AnimalID","sitecode","cohort","sex","weight","length","girth","days"))
 zcRecap=subset(zcRecap,select=c("AnimalID","sitecode","cohort","sex","weight","length","girth","days"))
 #zcTagRecap$sitecode="SMI"
