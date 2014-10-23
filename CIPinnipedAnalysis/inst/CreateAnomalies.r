@@ -57,14 +57,27 @@ UWIJunetoSept=with(UWI[UWI$Month%in%6:9,], tapply(UWIAnomaly,list(Month,Year,Loc
 UWIOcttoDec=with(UWI[UWI$Month%in%10:12,], tapply(UWIAnomaly,list(Month,Year,Location),mean,na.rm=TRUE))
 UWIJantoFeb=with(UWI[UWI$Month%in%1:2,], tapply(UWIAnomaly,list(Month,Year,Location),mean,na.rm=TRUE))
 
+minyr=min(dim(UWIJunetoSept)[2],dim(UWIOcttoDec)[2],dim(UWIJantoFeb)[2])
+
 UWImeansOcttoFeb=NULL
 for(i in 1:2)
-	UWImeansOcttoFeb=rbind(UWImeansOcttoFeb,colMeans(rbind(UWIOcttoDec[,,i],UWIJantoFeb[,-1,i]),na.rm=TRUE))
-
+{
+	if(dim(UWIOcttoDec)[2]>dim(UWIJantoFeb)[2])
+		UWImeansOcttoFeb=rbind(UWImeansOcttoFeb,colMeans(rbind(UWIOcttoDec[,-dim(UWIOcttoDec)[2],i],UWIJantoFeb[,-1,i]),na.rm=TRUE))
+	else
+		UWImeansOcttoFeb=rbind(UWImeansOcttoFeb,colMeans(rbind(UWIOcttoDec[,,i],UWIJantoFeb[,-1,i]),na.rm=TRUE))
+}
 UWImeansJunetoFeb=NULL
 for(i in 1:2)
-	UWImeansJunetoFeb=rbind(UWImeansJunetoFeb,colMeans(rbind(UWIJunetoSept[,,i],UWIOcttoDec[,,i],UWIJantoFeb[,-1,i]),na.rm=TRUE))
-
+{
+	if(dim(UWIJunetoSept)[2]<=dim(UWIOcttoDec)[2])
+		UWImeansJunetoFeb=rbind(UWImeansJunetoFeb,colMeans(rbind(UWIJunetoSept[,,i],UWIOcttoDec[,,i],UWIJantoFeb[,-1,i]),na.rm=TRUE))
+    else
+		if(dim(UWIOcttoDec)[2]>dim(UWIJantoFeb)[2])
+			UWImeansJunetoFeb=rbind(UWImeansJunetoFeb,colMeans(rbind(UWIJunetoSept[,-dim(UWIJunetoSept)[2],i],UWIOcttoDec[,-dim(UWIOcttoDec)[2],i],UWIJantoFeb[,-1,i]),na.rm=TRUE))
+        else
+			UWImeansJunetoFeb=rbind(UWImeansJunetoFeb,colMeans(rbind(UWIJunetoSept[,-dim(UWIJunetoSept)[2],i],UWIOcttoDec[,,i],UWIJantoFeb[,-1,i]),na.rm=TRUE))
+}
 
 ####################################################
 # Multivariate ENSO Index
