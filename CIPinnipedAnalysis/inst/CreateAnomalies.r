@@ -84,6 +84,7 @@ for(i in 1:2)
 ####################################################
 # Extract MEI data
 MEI=getCalcurData("Environ","MEI",dir=fdir)
+MEI=MEI[order(MEI$Year,MEI$Month),]
 # Compute correlations between MEI and SST to find the best lag to use for MEI
 SSTAnomalies.db=data.frame(SSTAnomaly=as.vector(t(SSTAnomalies[-(1:2),])))
 MEIcor=vector("numeric",8)
