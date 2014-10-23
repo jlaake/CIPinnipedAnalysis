@@ -1,5 +1,3 @@
-
-
 #' Extracts weights for Zc pups
 #' :from various tables in the BrandMaster.mdb ACCESS database and returns a dataframe with ancillary fields added.
 #' 
@@ -11,7 +9,7 @@
 #' @examples 
 #' source(file.path(system.file(package="CIPinnipedAnalysis"),"ZcWeightAnalysis.r"))
 #' 
-get.zc.weights=function(fdir=NULL,ENYears=c(1976,1983,1984,1987,1992,1997,1998))
+get.zc.weights=function(fdir=NULL,ENYears=c(1976,1983,1984,1986,1987,1992,1997,1998,2002,2009))
 {
 # read in area codes from Zc database
 areas=getCalcurData("Zc","areacodes",dir=fdir)
@@ -31,8 +29,6 @@ zcweights$sex=factor(zcweights$sex)
 	
 zcweights.unmarked=getCalcurData("Zc","UnmarkedPupWeights",dir=fdir)
 zcweights.unmarked=zcweights.unmarked[!zcweights.unmarked$sex=="U"& !is.na(zcweights.unmarked$sex),]
-#zcweights.unmarked=zcweights.unmarked[!zcweights.unmarked$sitecode=="SNI"& !is.na(zcweights.unmarked$sitecode),]
-#zcweights.unmarked=zcweights.unmarked[!zcweights.unmarked$sitecode=="SCI"& !is.na(zcweights.unmarked$sitecode),]
 zcweights.unmarked$sex=factor(zcweights.unmarked$sex)
 #
 #  read in the tag only pup weights but exclude those with missing sex or weight

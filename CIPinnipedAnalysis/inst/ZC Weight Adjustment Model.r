@@ -181,7 +181,8 @@ abline(0,1)
 dev.off()
 # Export to CIPinnipedCensusQuery
 years=as.numeric(rownames(ZCWeight.df))
-xx=apply(ZCWeight.df[,-1],2,function(x) as.numeric(sprintf("%.3f", x)))
+suppressWarnings(
+xx<-apply(ZCWeight.df[,-1],2,function(x) as.numeric(sprintf("%.3f", x))))
 ZCWeight.df=data.frame(Year=years,cbind(as.data.frame(xx)))
 xx=saveCalcurData(ZCWeight.df,db="CIPquery",tbl="ZcWeights",dir=fdir)
 

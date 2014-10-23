@@ -1,5 +1,3 @@
-
-
 #' Extracts weights for Cu pups
 #' : from various tables in the cutagnew.mdb ACCESS
 #' database and returns a dataframe with ancillary fields added.
@@ -13,9 +11,8 @@
 #' @examples 
 #' source(file.path(system.file(package="CIPinnipedAnalysis"),"CuWeightAnalysis.r"))
 #' 
-get.cu.weights=function(fdir=NULL,ENYears=c(1976,1983,1984,1987,1992,1997,1998))
+get.cu.weights=function(fdir=NULL,ENYears=c(1976,1983,1984,1986,1987,1992,1997,1998,2002,2009))
 {
-ENIndices=ENYears-1975+1
 #
 # read in weights from cutags table of the Access database
 #
@@ -41,9 +38,11 @@ cuweights.acv=cuweights.acv[cuweights.acv$sitedate>as.POSIXct(paste(as.character
 #  read in the discard weights from the UnmarkedPupWeights table and exclude any > maxyear
 #
 cuweights.unmark=getCalcurData("Cu","UnmarkedPupWeights",dir=fdir)
+cuweights.unmark=cuweights.unmark[!cuweights.unmark$sex=="U" & !is.na(cuweights.unmark$weight),]
 cuweights.unmark=cuweights.unmark[cuweights.unmark$cohort<=maxyear,]
 # Read duplicate tag table
 cuweights.dup=getCalcurData("Cu","DuplicateTags0708",dir=fdir)
+cuweights.dup=cuweights.dup[!cuweights.dup$sex=="U" & !is.na(cuweights.dup$weight),]
 #
 #   Add a days field which is the number of days from 1 Oct of the year
 #

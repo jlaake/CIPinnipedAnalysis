@@ -8,8 +8,10 @@ sdir=system.file(package="CIPinnipedAnalysis")
 if(!exists("nboot"))nboot=100
 ####################################
 # Set this value; be aware that all of the environmental data has to be entered through Feb of lastyear+1 
-# for the growth script to work properly
-lastyear=2013
+# for the growth script to work properly; script CreateAnaomalies.r uses lastyear;
+# change value of lastyear prior to running scripts and it will override the
+# setting below.
+if(!exists("lastyear"))lastyear=2013
 ####################################
 source(file.path(sdir,"CreateAnomalies.r"))
 source(file.path(sdir,"ZC Weight Adjustment Model.r"))

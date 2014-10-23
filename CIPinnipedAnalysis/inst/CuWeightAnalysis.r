@@ -7,7 +7,7 @@ if(!exists("nboot"))nboot=100
 ####################################
 # Set this value; be aware that all of the environmental data has to be entered through Feb of lastyear+1 
 # for the growth script to work properly
-lastyear=2013
+if(!exists("lastyear"))lastyear=2013
 ####################################
 #################################################################################
 # Cross-sectional analysis
@@ -85,7 +85,6 @@ if(!exists("anomalies"))
 	source(file.path(sdir,"CreateAnomalies.r"))
 }
 
-
 cuweights.environ=merge(cuweights,data.frame(cohort=1975:lastyear,SST=JunetoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],SST2=JunetoFebAnomalies[4:numyears],
 				MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansJunetoSept[1,-(1:6)],UWI36=UWImeansJunetoSept[2,-(1:6)],
 				UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],UWI362=UWImeansJunetoFeb[2,-(1:6)]))
@@ -138,7 +137,7 @@ bootstrap.se=function(x,nreps)
 	{
 		xsamp=lapply(split(x,list(x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
 		xsamp=do.call("rbind",xsamp)
-		mod=try(lme(formula(cu.weight.model),random=as.formula(cu.weight.model$call$random),data=as.data.frame(xsamp)))
+		mod=try(lme(formula(cu.weight.model),random=as.formula(cu.weight.model$call$random),data=as.data.frame(xsamp),control=lmeControl(opt="optim")))
 		if(class(mod)!="try-error")
 		{
 			i=i+1
@@ -168,7 +167,7 @@ par(mfrow=c(2,1))
 year.seq=1975:max(as.numeric(row.names(CUWeight.df)))
 with(CUWeight.df,plot(year.seq,female.eviron.mean,pch="F",type="b",ylim=c(4,16)))
 with(CUWeight.df,points(year.seq,female.observed.mean,pch="O"))
-with(CUWeight.df,lines(v,female.observed.mean,lty=2))
+with(CUWeight.df,lines(year.seq,female.observed.mean,lty=2))
 with(CUWeight.df,plot(year.seq,male.environ.mean,pch="M",type="b",ylim=c(4,16)))
 with(CUWeight.df,points(year.seq,male.observed.mean,pch="O"))
 with(CUWeight.df,lines(year.seq,male.observed.mean,lty=2))
