@@ -62,16 +62,9 @@ female.averages=data.frame(fit=pp$predict[pp$sex=="F"],se=stderrors[as.numeric(r
 male.averages=data.frame(fit=pp$predict[pp$sex=="M"],se=stderrors[as.numeric(row.names(pp[pp$sex=="M",]))])
 # create dataframe with normal conf interval
 cu.female.averages=female.averages
-ymin=min(c(female.averages$fit-1.96*female.averages$se, male.averages$fit-1.96*male.averages$se))*.9
-ymax=max(c(female.averages$fit+1.96*female.averages$se, male.averages$fit+1.96*male.averages$se))*1.1
 cu.male.averages=male.averages
 CUWeight.df=data.frame(female.observed.mean=female.observed,
 		female.adjusted.mean=cu.female.averages$fit,female.adjusted.mean.se=cu.female.averages$se,
 		male.observed.mean=male.observed,
 		male.adjusted.mean=cu.male.averages$fit,male.adjusted.mean.se=cu.male.averages$se)
 
-jpeg("CUPredictedWeights.jpg",height=600,width=600,quality=100,pointsize=12)
-par(mfrow=c(2,1))
-plot_weight.series(1975:lastyear,female.averages,main="Fur Seal Female Pups",ylim=c(ymin,ymax),date="1 Oct")
-plot_weight.series(1975:lastyear,male.averages,main="Fur Seal Male Pups",ylim=c(ymin,ymax),date="1 Oct")
-dev.off()
