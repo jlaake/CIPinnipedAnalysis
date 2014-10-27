@@ -5,8 +5,8 @@
 : from various tables in the cutagnew.mdb ACCESS
 database and returns a dataframe with ancillary fields added.}
 \usage{
-get.cu.weights(fdir = NULL, ENYears = c(1976, 1983, 1984, 1987, 1992, 1997,
-  1998))
+get.cu.weights(fdir = NULL, ENYears = c(1976, 1983, 1984, 1986, 1987, 1992,
+  1997, 1998, 2002, 2009))
 }
 \arguments{
 \item{fdir}{directory for cutagnew.mdb}

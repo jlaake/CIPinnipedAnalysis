@@ -59,6 +59,7 @@ barplot(batches,xlab="Days from 1 Oct",ylab="Frequency",space=0)
 abline(v=which(as.numeric(names(batches))==0),lwd=2)
 
 
+jpeg("ZCWeightsByBatch.jpg",height=600,width=600,quality=100,pointsize=12)
 par(mfrow=c(2,1))
 batches=with(zcweights.all[zcweights.all$sex=="M",],aggregate(weight,list(cohort,days),mean))
 names(batches)=c("Year","Days","Weight")
@@ -66,4 +67,4 @@ plot(batches$Year,batches$Weight,xlab="Year",ylab="Average male weight in batch"
 batches=with(zcweights.all[zcweights.all$sex=="F",],aggregate(weight,list(cohort,days),mean))
 names(batches)=c("Year","Days","Weight")
 plot(batches$Year,batches$Weight,xlab="Year",ylab="Average female weight in batch")
-
+dev.off()

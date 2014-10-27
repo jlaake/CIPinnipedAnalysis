@@ -86,7 +86,6 @@ bootstrap.se=function(x,nreps,days)
 
 
 ################# 1 Oct Predictions #####################
-# use nboot reps to compute std error
 stderrors=bootstrap.se(zcweights,nboot,days=0)
 # Compute predictions and construct dataframes for female and male averages with bootstrap std errors
 pp=data.frame(days=0,cohort=rep(sort(unique(zcweights$cohort)),2),sex=rep(c("F","M"),each=length(unique(zcweights$cohort))))
@@ -100,90 +99,20 @@ ZCWeight.df=data.frame(female.observed.mean.fall=female.observed,
 		male.adjusted.mean.fall=male.averages$fit,male.adjusted.mean.fall.se=male.averages$se,fall.avg.day=fall.avg.day)
 ZCWeight.df=cbind(Year=as.numeric(rownames(ZCWeight.df)),ZCWeight.df)
 
-options(width=150)
-print(ZCWeight.df)
-#
-# Plot predicted female and male averages
-#
-pdf("ZCPredictedWeights.pdf",pointsize=10)
-par(mfrow=c(2,1))
-maxyear=max(zcweights$cohort)
-ymin=min(c(female.averages$fit-1.96*female.averages$se, male.averages$fit-1.96*male.averages$se))*.9
-ymax=max(c(female.averages$fit+1.96*female.averages$se, male.averages$fit+1.96*male.averages$se))*1.1
-plot_weight.series(1975:maxyear,female.averages,main="California sea lion Female Pups",ylim=c(ymin,ymax),date="1 Oct")
-plot_weight.series(1975:maxyear,male.averages,main="California sea lion Male Pups",ylim=c(ymin,ymax),date="1 Oct")
-dev.off()
-
-jpeg("ZCPredictedWeightsCalcofi.jpg",,height=600,width=600,quality=100,pointsize=12)
-maxyear=max(zcweights$cohort)
-par(lty=1)
-plot_weight.series(1997:maxyear,female.averages[23:(maxyear-1974),],ylim=c(ymin,ymax),xaxp=c(1998,2012,7),date="1 Oct")
-abline(h=mean(female.averages$fit[23:(maxyear-1974)]))
-par(lty=2)
-plot_weight.series(1997:maxyear,male.averages[23:(maxyear-1974),],pch=2,add=TRUE,slty=1,date="1 Oct")
-abline(h=mean(male.averages$fit[23:(maxyear-1974)]))
-points(2009,25,pch=2)
-lines(x=c(2008.75,2009.25),y=c(25,25),pch=2,lty=2)
-points(2009,23,pch=1)
-lines(x=c(2008.75,2009.25),y=c(23,23),pch=1,lty=1)
-text(2009.4,25,"Males",pos=4)
-text(2009.4,23,"Females",pos=4)
-par(lty=1)
-dev.off()
 
 ################# 1 Feb Predictions #####################
 pp=data.frame(days=123,cohort=rep(sort(unique(zcweights$cohort)),2),sex=rep(c("F","M"),each=length(unique(zcweights$cohort))))
 pp$predict=predict(zc.weight.model,newdata=pp,level=1)
 stderrors=bootstrap.se(zcweights,nboot,days=123)
-female.averages=data.frame(fit=pp$predict[pp$sex=="F"],se=stderrors[as.numeric(row.names(pp[pp$sex=="F",]))])
-male.averages=data.frame(fit=pp$predict[pp$sex=="M"],se=stderrors[as.numeric(row.names(pp[pp$sex=="M",]))])
-ymin=min(c(female.averages$fit-1.96*female.averages$se, male.averages$fit-1.96*male.averages$se))*.9
-ymax=max(c(female.averages$fit+1.96*female.averages$se, male.averages$fit+1.96*male.averages$se))*1.1
+winter.female.averages=data.frame(fit=pp$predict[pp$sex=="F"],se=stderrors[as.numeric(row.names(pp[pp$sex=="F",]))])
+winter.male.averages=data.frame(fit=pp$predict[pp$sex=="M"],se=stderrors[as.numeric(row.names(pp[pp$sex=="M",]))])
 
 # add to dataframe
 ZCWeight.df$female.observed.mean.winter=female.winter.observed
-ZCWeight.df$female.adjusted.mean.winter=female.averages$fit
-ZCWeight.df$female.adjusted.mean.se.winter=female.averages$se
+ZCWeight.df$female.adjusted.mean.winter=winter.female.averages$fit
+ZCWeight.df$female.adjusted.mean.se.winter=winter.female.averages$se
 ZCWeight.df$male.observed.mean.winter=male.winter.observed
-ZCWeight.df$male.adjusted.mean.winter=male.averages$fit
-ZCWeight.df$male.adjusted.mean.se.winter=male.averages$se
+ZCWeight.df$male.adjusted.mean.winter=winter.male.averages$fit
+ZCWeight.df$male.adjusted.mean.se.winter=winter.male.averages$se
 ZCWeight.df$winter.avg.day=winter.avg.day
-
-jpeg("ZCPredictedWeightsFebCalcofi.jpg",height=600,width=600,quality=100,pointsize=12)
-maxyear=max(zcweights$cohort)
-par(lty=1)
-plot_weight.series(1997:maxyear,female.averages[23:(maxyear-1974),],ylim=c(ymin,ymax),xaxp=c(1998,2012,7),date="1 Feb")
-abline(h=mean(female.averages$fit[23:(maxyear-1974)]))
-par(lty=2)
-plot_weight.series(1997:maxyear,male.averages[23:(maxyear-1974),],pch=2,add=TRUE,slty=1,date="1 Feb")
-abline(h=mean(male.averages$fit[23:(maxyear-1974)]))
-points(2009,40,pch=2)
-lines(x=c(2008.75,2009.25),y=c(40,40),pch=2,lty=2)
-points(2009,38,pch=1)
-lines(x=c(2008.75,2009.25),y=c(38,38),pch=1,lty=1)
-text(2009.4,40,"Males",pos=4)
-text(2009.4,38,"Females",pos=4)
-par(lty=1)
-dev.off()
-
-# show plot of observed and predicted from adjustment mean for fall
-jpeg("ZCAdjustment-ObservedComparison.jpg",height=600,width=600,quality=100,pointsize=12)
-par(mfrow=c(2,1))
-with(ZCWeight.df,plot(female.observed.mean.fall[fall.avg.day< -7],female.adjusted.mean.fall[fall.avg.day< -7],col="blue",ylim=c(12,23),xlim=c(12,23),xlab="Fall observed mean",ylab="Fall adjusted mean"))
-with(ZCWeight.df,points(female.observed.mean.fall[fall.avg.day >= 7],female.adjusted.mean.fall[fall.avg.day>= 7],col="red"))
-with(ZCWeight.df,points(female.observed.mean.fall[fall.avg.day >= -7 &fall.avg.day< 7],female.adjusted.mean.fall[fall.avg.day>= -7 &fall.avg.day<7],col="black"))
-abline(0,1)
-# show plot of observed and predicted from adjustment mean for fall
-with(ZCWeight.df,plot(female.observed.mean.winter[winter.avg.day< 116],female.adjusted.mean.winter[winter.avg.day< 116],col="blue",ylim=c(14,32),xlim=c(14,32),xlab="Winter observed mean",ylab="Winter adjusted mean"))
-with(ZCWeight.df,points(female.observed.mean.winter[winter.avg.day >= 130],female.adjusted.mean.winter[winter.avg.day>= 130],col="red"))
-with(ZCWeight.df,points(female.observed.mean.winter[winter.avg.day >= 116 &winter.avg.day< 130],female.adjusted.mean.winter[winter.avg.day>= 116 &winter.avg.day< 130],col="black"))
-abline(0,1)
-dev.off()
-# Export to CIPinnipedCensusQuery
-years=as.numeric(rownames(ZCWeight.df))
-suppressWarnings(
-xx<-apply(ZCWeight.df[,-1],2,function(x) as.numeric(sprintf("%.3f", x))))
-ZCWeight.df=data.frame(Year=years,cbind(as.data.frame(xx)))
-xx=saveCalcurData(ZCWeight.df,db="CIPquery",tbl="ZcWeights",dir=fdir)
-
 

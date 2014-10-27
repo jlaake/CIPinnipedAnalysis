@@ -78,6 +78,10 @@ for(i in 1:2)
         else
 			UWImeansJunetoFeb=rbind(UWImeansJunetoFeb,colMeans(rbind(UWIJunetoSept[,-dim(UWIJunetoSept)[2],i],UWIOcttoDec[,,i],UWIJantoFeb[,-1,i]),na.rm=TRUE))
 }
+UWImeansJunetoSept=UWImeansJunetoSept[,as.numeric(colnames(UWImeansJunetoSept))<=lastyear]
+UWImeansOcttoFeb=UWImeansOcttoFeb[,as.numeric(colnames(UWImeansOcttoFeb))<=lastyear]
+UWImeansJunetoFeb=UWImeansJunetoFeb[,as.numeric(colnames(UWImeansJunetoFeb))<=lastyear]
+
 
 ####################################################
 # Multivariate ENSO Index
@@ -96,9 +100,14 @@ lag=which(MEIcor==max(MEIcor))-1
 # lag is 2 months - calculation for OcttoFeb assumes 2 month lag
 average.MEI=function(x,months)return(tapply(x$MEI[x$Month%in%months],x$Year[x$Month%in%months],mean))
 LaggedMEIJunetoSept=average.MEI(MEI,(6:9-lag))
+LaggedMEIJunetoSept=LaggedMEIJunetoSept[as.numeric(names(LaggedMEIJunetoSept))<=lastyear]
+
 # next assume 2 month lag to avoid Dec/Jan break
 LaggedMEIOcttoFeb=average.MEI(MEI,8:12) 
+LaggedMEIOcttoFeb=LaggedMEIOcttoFeb[as.numeric(names(LaggedMEIOcttoFeb))<=lastyear]
+
 LaggedMEIJunetoFeb=average.MEI(MEI,4:12)
+LaggedMEIJunetoFeb=LaggedMEIJunetoFeb[as.numeric(names(LaggedMEIJunetoFeb))<=lastyear]
 
 
 
@@ -115,45 +124,5 @@ x=rbind(data.frame(Year=minyear:lastyear,Season=rep("Spring",numyears),SSTAnomal
 		data.frame(Year=minyear:lastyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies[1:numyears]) )
 x$Season=factor(x$Season,levels=c("Spring","Summer","Fall"))
 x=x[order(x$Year,x$Season),]
-pdf("SSTAnomaly.pdf",pointsize=10)
-par(mfrow=c(3,1))
-plot(minyear:lastyear,x$SSTAnomaly[x$Season=="Spring"],ylab="SST Anomaly",main="Winter/Spring (Jan-May)",xlab="")
-lines(minyear:lastyear,x$SSTAnomaly[x$Season=="Spring"])
-abline(h=0)
-plot(minyear:lastyear,x$SSTAnomaly[x$Season=="Summer"],ylab="SST Anomaly",main="Summer (June-Sept)",xlab="")
-lines(minyear:lastyear,x$SSTAnomaly[x$Season=="Summer"])
-abline(h=0)
-plot(minyear:lastyear,x$SSTAnomaly[x$Season=="Fall"],ylab="SST Anomaly",main="Fall (Oct-Dec)",xlab="")
-lines(minyear:lastyear,x$SSTAnomaly[x$Season=="Fall"])
-abline(h=0)
-dev.off()
-
-pdf("MultivariateENSOIndex.pdf",pointsize=10)
-MEI=getCalcurData("Environ","MEI",dir=fdir)
-meiminyear=min(MEI$Year)
-meimaxyear=max(MEI$Year)
-meinumyears=meimaxyear-meiminyear+1
-plot(MEI$MEI,type="l",lwd=2,xaxt="n",ylab="MEI",xlab="Year")
-axis(1,at=12*(0:(meinumyears-1))+1,labels=as.character(meiminyear:meimaxyear))
-abline(h=0)
-abline(h=1)
-abline(h=-1)
-dev.off()
-
-pdf("UWIAnomaly.pdf",pointsize=10)
-par(mfrow=c(2,1))
-UWI=getCalcurData("Environ","UWIAnomaly",dir=fdir)
-UWI=UWI[order(UWI$Year,UWI$Month),]
-uwiminyear=min(UWI$Year)
-uwimaxyear=max(UWI$Year)
-uwinumyears=uwimaxyear-uwiminyear+1
-plot(UWI$UWIAnomaly[UWI$Location=="36N122W"],type="l",lwd=2,xaxt="n",ylab="UWI",xlab="Year",main="36N122W")
-axis(1,at=12*(0:(uwinumyears-1))+1,labels=as.character(uwiminyear:uwimaxyear))
-abline(h=0)
-plot(UWI$UWIAnomaly[UWI$Location=="33N119W"],type="l",lwd=2,xaxt="n",ylab="UWI",xlab="Year",main="33N119W")
-axis(1,at=12*(0:(uwinumyears-1))+1,labels=as.character(uwiminyear:uwimaxyear))
-abline(h=0)
-dev.off()
-
 
 
