@@ -34,7 +34,7 @@ zcweights.unmarked$sex=factor(zcweights.unmarked$sex)
 #  read in the tag only pup weights but exclude those with missing sex or weight
 #
 zcTagOnly=getCalcurData("Zc","TagInitial",dir=fdir)
-zcTagOnly=zcTagOnly[zcTagOnly$age=="P"&!zcTagOnly$sex=="U" & !is.na(zcTagOnly$weight)& !is.na(zcTagOnly$sex),]
+zcTagOnly=zcTagOnly[zcTagOnly$age=="P"&!is.na(zcTagOnly$age)&!zcTagOnly$sex=="U" & !is.na(zcTagOnly$weight)& !is.na(zcTagOnly$sex),]
 zcTagOnly$sex=factor(zcTagOnly$sex)
 zcTagOnly=merge(zcTagOnly,subset(areas,select=c("region","sitecode")),by="region",all.x=TRUE)
 #
@@ -97,6 +97,16 @@ zcweights$tag.type=factor(zcweights$tag.type)
 #
 zcweights$EN=0
 zcweights$EN[zcweights$cohort%in%ENYears]=1
+#
+# check for any NA weights
+#
+if(any(is.na(zcweights$weight)))
+{
+	warning("\n Problem with data extraction. Following records are missing a weight. They have been removed.\n")
+	for(w in which(is.na(zcweights$weight)))
+		message("Animal ID = ",zcweights$AnimalID[w],"\n")
+	zcweights=zcweights[!is.na(zcweights$weight),]
+}
 return(zcweights)
 }
 

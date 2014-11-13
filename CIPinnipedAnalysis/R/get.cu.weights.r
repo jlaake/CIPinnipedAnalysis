@@ -61,5 +61,13 @@ cuweights=rbind(cuweights,cuweights.unmark,cuweights.dup)
 #
 cuweights$EN=0
 cuweights$EN[cuweights$cohort%in%ENYears]=1
+if(any(is.na(cuweights$weight)))
+{
+	warning("\n Problem with data extraction. Following records are missing a weight. They have been removed.\n")
+	for(w in which(is.na(cuweights$weight)))
+		message("Animal ID = ",cuweights$AnimalID[w],"\n")
+	cuweights=cuweights[!is.na(cuweights$weight),]
+}
+
 return(cuweights)
 }

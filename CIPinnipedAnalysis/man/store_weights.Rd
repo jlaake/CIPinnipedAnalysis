@@ -3,12 +3,14 @@
 \alias{store_weights}
 \title{Store weights in CIPinnipedCensusQuery}
 \usage{
-store_weights(x, species = "Zc")
+store_weights(x, species = "Zc", fdir = NULL)
 }
 \arguments{
 \item{x}{dataframe containing weights to be stored in table}
 
 \item{species}{species code; either Zc or Cu}
+
+\item{fdir}{directory for databases; if NULL uses location from databases.txt in CalcurData package; if "" uses databases stored in package directory; if neither you can specify the location}
 }
 \value{
 None
