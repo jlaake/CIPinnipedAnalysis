@@ -41,12 +41,6 @@ getdead_ch=function(island,year,development="fullterm")
 	deadstacked=deadstacked[deadstacked$Location=="Mainland"&deadstacked["Dead pup sample area"]=="Y",]
 	deadstacked=deadstacked[deadstacked$Species=="Zc"&deadstacked$Island==island & deadstacked$Year==year & tolower(deadstacked$Development)==development,]
 	deadstacked=deadstacked[!is.na(deadstacked[,"Survey number"]),]
-#	maxnum=max(deadstacked[,"Survey number"])
-	# batch mark used with 1992; they are listed as counted but are effectively stacked because they cannot be recounted
-#	if(island=="SMI" & year==1992)
-#		deadstacked=deadstacked[deadstacked$Disposition=="Counted" & !is.na(deadstacked[,"Survey number"]),]
-#	else
-#		deadstacked=deadstacked[deadstacked$Disposition%in%c("Necropsy","Stacked")|(deadstacked$Disposition=="Counted" & deadstacked[,"Survey number"]==maxnum),]
     if(tags)
 	{
 		if(any(is.na(initial[,"Survey date"]))) cat(paste(initial$ID[is.na(initial[,"Survey date"])],collapse="\n"))

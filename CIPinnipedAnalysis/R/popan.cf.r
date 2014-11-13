@@ -1,13 +1,13 @@
 #' Construct correction factor data from dead pup tagging studies
 #' 
-#' For a given island (SMI or SNI) and year, the dead pup tagging data is analyzed with a POPAN 
-#' model to create correction factors for the observed dead pup counts to estimate the total number that died.
+#' For a given island (SMI or SNI) and year, the dead pup tagging data is analyzed with a set of POPAN 
+#' models to create correction factors for the observed dead pup counts to estimate the total number that died.
 #' 
 #' The function getdead_ch is used to extract the data from the CIPinnipedCensusMaster database and 
-#' create capture histories for tagged and untagged pups. This is then analyzed with the POPAN model in MARK using
+#' create capture histories for tagged and untagged (stacked) pups. This is then analyzed with the POPAN model in MARK using
 #' the RMark package.  A set of models is examined that depends on the year because the number of sampling occasions
 #' and the data collected has varied.  Prior to 1998, the position on the beach and substrate were not recorded for
-#' dead pups when they were stacked.  However, the area was recorded and the substrate is largely similar in each area. Thuse
+#' dead pups when they were stacked.  However, the area was recorded and the substrate is largely similar in each area. Thus
 #' for years prior to 1998 the area was used as a grouping factor and in 1998 and beyond, substrate and position were used as
 #' grouping factors. In POPAN models, p on the first and last occasion are not separately estimable in a time model
 #' so these have been restricted such that p for occasion 1 is the same as occasion 2 and p for the last occasion is the same as p for the 
@@ -17,12 +17,22 @@
 #' model convergence which can fail for POPAN models.  To see which models are failing set silent=FALSE. Once the models have been
 #' run, the function popan.derived is called with the list of model results which computes the abundances and related statistics (immigration BiGross) by model averaging
 #' over the set of models.  These are then stored in the list cfdata which is returned with the correction factors by occasion (cfbyocc) and the marklist of final model results.
+#' The cfdata is used by correct_dead and average_cf functions to create estimates of total number of pups that died in years with no tagging data.
 #' @export  
 #' @param island ("SMI" or "SNI")
 #' @param year four digit numeric year
 #' @param silent if TRUE shows each model as it is run and any problems that occur; if FALSE this is hidden each survey date (occasion); if non-null provides correction at that date
 #' @return a list containing a marlist of the final model results, a list with the correction factor data (cfdata) and correction factors by occasion (cfbyocc). 
-#' @author Jeff Laake 
+#' @author Jeff Laake
+#' @seealso correct_dead 
+#' @examples 
+#' #note this will construct all of the correction factor data; it will take awhile
+#' smi1994.popan.results=popan.cf("SMI",1994)
+#' smi1995.popan.results=popan.cf("SMI",1995)
+#' smi1998.popan.results=popan.cf("SMI",1998)
+#' smi2002.popan.results=popan.cf("SMI",2002)
+#' sni2006.popan.results=popan.cf("SNI",2006)
+#'
 popan.cf=function(island,year,silent=TRUE)
 {
 	
@@ -121,7 +131,7 @@ popan.cf=function(island,year,silent=TRUE)
 		
 	cfdata$BiGross$daysfrom1July=rep(x.popan$daysfrom1July,nrow(x.proc$group.covariates))
 	cfdata$BiGross$cumdead=as.vector(apply(t(numdead), 1, cumsum))
-	cfdata$BiGross$cf=max(1,cfdata$BiGross$estimate/cfdata$BiGross$cumdead)
+	cfdata$BiGross$cf=sapply(cfdata$BiGross$estimate/cfdata$BiGross$cumdead,function(x) max(1,x))
 	cfdata$BiGross$cf.se=cfdata$BiGross$se/cfdata$BiGross$cumdead
 	cfbyocc=with(cfdata$BiGross,tapply(estimate,occasion,sum)/tapply(cumdead,occasion,sum))
 	cfbyocc=data.frame(occasion=names(cfbyocc),daysfrom1July=x.popan$daysfrom1July,cfbyocc)

@@ -33,9 +33,12 @@ survey occasion. If ndays, number of days from 1 July, is not null then it compu
 its correction factor.
 
 The function average_cf computes an average correction factor for a set of years with tagging data. This is only useful at present with SMI becuse SNI has only
-one year of tagging data.
+one year of tagging data but it can be used with SNI as well.
 }
 \author{
 Jeff Laake
+}
+\seealso{
+popan.cf getdead_ch
 }
 

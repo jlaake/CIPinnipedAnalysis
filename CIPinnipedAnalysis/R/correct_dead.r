@@ -12,7 +12,8 @@
 #' its correction factor.  
 #' 
 #' The function average_cf computes an average correction factor for a set of years with tagging data. This is only useful at present with SMI becuse SNI has only 
-#' one year of tagging data.
+#' one year of tagging data but it can be used with SNI as well. 
+#' 
 #' @export correct_dead average_cf 
 #' @param island ("SMI" or "SNI")
 #' @param year four digit numeric year
@@ -21,6 +22,7 @@
 #' @param ndays ndays is number of days past 1 July; if NULL provides a corrected value for each survey date (occasion); if non-null provides correction at that date
 #' @return a list containing a dataframe with corrections by strata (eg group - area or substrate/position) and a dataframe with a total across strata. 
 #' @author Jeff Laake 
+#' @seealso popan.cf getdead_ch
 correct_dead=function(island,year,cfyear,cfdata,ndays=NULL)
 {
 	x.popan=suppressMessages(getdead_ch(island,year))
@@ -117,6 +119,8 @@ average_cf=function(island,year,ndays=NULL,cfyears)
 	df=NULL
 	for(y in cfyears)
 	{
+		if(!eval(parse(text=paste("exists('",tolower(island),y,".popan.results$cfdata')",sep=""))))
+			eval(parse(text=paste("data(",tolower(island),y,".popan.results)",sep="")))
 		cd=correct_dead(island,year,y,eval(parse(text=paste(tolower(island),y,".popan.results$cfdata",sep=""))),ndays)$total
 		df=rbind(df,data.frame(year=y,observed.dead=cd$cumdead,estimate.dead=cd$estimate.dead,cf=cd$cf))
 	}
