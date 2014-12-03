@@ -17,14 +17,18 @@
 #' model convergence which can fail for POPAN models.  To see which models are failing set silent=FALSE. Once the models have been
 #' run, the function popan.derived is called with the list of model results which computes the abundances and related statistics (immigration BiGross) by model averaging
 #' over the set of models.  These are then stored in the list cfdata which is returned with the correction factors by occasion (cfbyocc) and the marklist of final model results.
-#' The cfdata is used by correct_dead and average_cf functions to create estimates of total number of pups that died in years with no tagging data.
+#' The cfdata is used by correct_dead and get_cf functions to create estimates of total number of pups that died in years with no tagging data.
+#'
+#' Note: In 1994 the number of untagged and stacked was not recorded on the last occasion; thus the correction factor for the last occasion is not useful.  
 #' @export  
 #' @param island ("SMI" or "SNI")
 #' @param year four digit numeric year
 #' @param silent if TRUE shows each model as it is run and any problems that occur; if FALSE this is hidden each survey date (occasion); if non-null provides correction at that date
+#' @param area if TRUE, uses area in place of position and substrate to fit models for tagging data >1997
 #' @return a list containing a marlist of the final model results, a list with the correction factor data (cfdata) and correction factors by occasion (cfbyocc). 
 #' @author Jeff Laake
 #' @seealso correct_dead 
+#' @import RMark
 #' @examples 
 #' #note this will construct all of the correction factor data; it will take awhile
 #' smi1994.popan.results=popan.cf("SMI",1994)
@@ -32,8 +36,10 @@
 #' smi1998.popan.results=popan.cf("SMI",1998)
 #' smi2002.popan.results=popan.cf("SMI",2002)
 #' sni2006.popan.results=popan.cf("SNI",2006)
+#' smi1998a.popan.results=popan.cf("SMI",1998,area=TRUE)
+#' smi2002a.popan.results=popan.cf("SMI",2002,area=TRUE)
 #'
-popan.cf=function(island,year,silent=TRUE)
+popan.cf=function(island,year,silent=TRUE,area=FALSE)
 {
 	
 	x.popan=getdead_ch(island,year)
@@ -42,7 +48,7 @@ popan.cf=function(island,year,silent=TRUE)
 	
 	times=x.popan$days
 	time.intervals=as.numeric(diff(times))
-	if(year>1997)
+	if(year>1997 & !area)
 		x.proc=process.data(x.popan$df,model="POPAN",time.intervals=time.intervals,groups=c("Position","Substrate"),begin.time=0)
 	else
 		x.proc=process.data(x.popan$df,model="POPAN",time.intervals=time.intervals,groups=c("Area code"),begin.time=0)
@@ -70,7 +76,7 @@ popan.cf=function(island,year,silent=TRUE)
 	}
 	
 	
-	if(year>1997)
+	if(year>1997 & !area)
 	{
 		do.cf=function(initial=NULL)
 		{
@@ -99,7 +105,7 @@ popan.cf=function(island,year,silent=TRUE)
 			return(results)
 		}
 	}else
-	if(year<1997)
+	if(year<1997 | area)
 	{
 		do.cf=function(initial=NULL)
 		{
@@ -129,12 +135,13 @@ popan.cf=function(island,year,silent=TRUE)
 		
 	cfdata=suppressMessages(popan.derived(x.proc,popan.results))
 		
-	cfdata$BiGross$daysfrom1July=rep(x.popan$daysfrom1July,nrow(x.proc$group.covariates))
+	daysfrom1July=floor(tapply(x.popan$daysfrom1July$daysfrom1July,x.popan$daysfrom1July$Occasion,mean,na.rm=T)+.5)
+	cfdata$BiGross$daysfrom1July=rep(daysfrom1July,nrow(x.proc$group.covariates))
 	cfdata$BiGross$cumdead=as.vector(apply(t(numdead), 1, cumsum))
 	cfdata$BiGross$cf=sapply(cfdata$BiGross$estimate/cfdata$BiGross$cumdead,function(x) max(1,x))
 	cfdata$BiGross$cf.se=cfdata$BiGross$se/cfdata$BiGross$cumdead
 	cfbyocc=with(cfdata$BiGross,tapply(estimate,occasion,sum)/tapply(cumdead,occasion,sum))
-	cfbyocc=data.frame(occasion=names(cfbyocc),daysfrom1July=x.popan$daysfrom1July,cfbyocc)
+	cfbyocc=data.frame(occasion=names(cfbyocc),daysfrom1July=daysfrom1July,cfbyocc)
 		
 	k=length(times)
 	vcmat=cbind(1:nrow(x.proc$group.covariates),rep(1:k,each=nrow(cfdata$BiGross.vcv)),as.vector(cfdata$BiGross.vcv))

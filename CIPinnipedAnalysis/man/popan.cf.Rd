@@ -3,7 +3,7 @@
 \alias{popan.cf}
 \title{Construct correction factor data from dead pup tagging studies}
 \usage{
-popan.cf(island, year, silent = TRUE)
+popan.cf(island, year, silent = TRUE, area = FALSE)
 }
 \arguments{
 \item{island}{("SMI" or "SNI")}
@@ -11,6 +11,8 @@ popan.cf(island, year, silent = TRUE)
 \item{year}{four digit numeric year}
 
 \item{silent}{if TRUE shows each model as it is run and any problems that occur; if FALSE this is hidden each survey date (occasion); if non-null provides correction at that date}
+
+\item{area}{if TRUE, uses area in place of position and substrate to fit models for tagging data >1997}
 }
 \value{
 a list containing a marlist of the final model results, a list with the correction factor data (cfdata) and correction factors by occasion (cfbyocc).
@@ -34,7 +36,9 @@ Each set of models is run and then they are re-run using the initial values from
 model convergence which can fail for POPAN models.  To see which models are failing set silent=FALSE. Once the models have been
 run, the function popan.derived is called with the list of model results which computes the abundances and related statistics (immigration BiGross) by model averaging
 over the set of models.  These are then stored in the list cfdata which is returned with the correction factors by occasion (cfbyocc) and the marklist of final model results.
-The cfdata is used by correct_dead and average_cf functions to create estimates of total number of pups that died in years with no tagging data.
+The cfdata is used by correct_dead and get_cf functions to create estimates of total number of pups that died in years with no tagging data.
+
+Note: In 1994 the number of untagged and stacked was not recorded on the last occasion; thus the correction factor for the last occasion is not useful.
 }
 \examples{
 #note this will construct all of the correction factor data; it will take awhile
@@ -43,6 +47,8 @@ smi1995.popan.results=popan.cf("SMI",1995)
 smi1998.popan.results=popan.cf("SMI",1998)
 smi2002.popan.results=popan.cf("SMI",2002)
 sni2006.popan.results=popan.cf("SNI",2006)
+smi1998a.popan.results=popan.cf("SMI",1998,area=TRUE)
+smi2002a.popan.results=popan.cf("SMI",2002,area=TRUE)
 }
 \author{
 Jeff Laake

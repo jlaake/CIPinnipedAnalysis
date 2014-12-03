@@ -15,16 +15,26 @@
 #' @param island ("SMI" or "SNI")
 #' @param year four digit numeric year
 #' @param development either "premie" or "fullterm"
-#' @return dataframe containing ch(capture history), Carcass condition: F-fresh, D- decomposing, P- pancake, 
-#' Position: A or B, and Substrate: N (non-consolidated - sandy), C (consolidated - rocky)
+#' @param merge if TRUE, merges disparate area codes into "PTS","SCV","WCV","NWC"
+#' @return \preformatted{dataframe containing 
+#' ch(capture history), 
+#' Carcass condition: F-fresh, D- decomposing, P- pancake, 
+#' Position: A (Above) or B (Below)
+#' Substrate: N (non-consolidated - sandy), C (consolidated - rocky)}
 #' @author Jeff Laake 
-getdead_ch=function(island,year,development="fullterm")
+getdead_ch=function(island,year,development="fullterm",merge=TRUE)
 {
 	development=tolower(development)
 	island=toupper(island)
 	initial=getCalcurData("CIPCensus","Zc dead tag initial")
+	month=as.POSIXlt(initial[,"Survey date"])[[5]]+1
+	initial=initial[month>=6,]
 	resight=getCalcurData("CIPCensus","Zc dead tag resight")
+	month=as.POSIXlt(resight[,"Survey date"])[[5]]+1
+	resight=resight[month>=6,]
 	deadstacked=getCalcurData("CIPCensus","Zc Cu dead pup census")
+	month=as.POSIXlt(deadstacked[,"Survey date"])[[5]]+1
+	deadstacked=deadstacked[month>=6,]
 	deadpupareas=subset(getCalcurData("CIPCensus","DeadPupSampleAreas"),subset=YearAreaSpecies=="Zc",select=c("YearArea","Dead pup sample area","Location"))
 	initial=initial[initial$Island==island & initial$Year==year & tolower(initial$Development)==development,]
 	if(nrow(initial)==0) 
@@ -49,19 +59,20 @@ getdead_ch=function(island,year,development="fullterm")
 	if(any(is.na(deadstacked[,"Survey date"]))) cat(paste(deadstacked$ID[is.na(deadstacked[,"Survey date"])],collapse="\n"))
 	if(tags)
 	{
-		dates=rbind(initial[,c("Survey number","Survey date")],resight[,c("Survey number","Survey date")],deadstacked[,c("Survey number","Survey date")])
+		dates=rbind(initial[,c("Survey number","Survey date","Area code")],resight[,c("Survey number","Survey date","Area code")],deadstacked[,c("Survey number","Survey date","Area code")])
 		surveynumbers=unique(c(deadstacked[,"Survey number"],initial[,"Survey number"],resight[,"Survey number"]))
 	}
     else
 	{
-		dates=deadstacked[,c("Survey number","Survey date")]
+		dates=deadstacked[,c("Survey number","Survey date","Area code")]
 		surveynumbers=unique(c(deadstacked[,"Survey number"]))
 	}
 	surveynumbers=surveynumbers[order(surveynumbers)]
+	dates[,"Area code"]=factor(substr(as.character(dates[,"Area code"]),1,3))
 	dates$days=(dates[,"Survey date"]-min(dates[,"Survey date"]))/(60*60*24)
 	daysfrom1July=(as.Date(dates[,"Survey date"])- as.Date(paste(year,"-07-01",sep="")))
-	daysfrom1July=floor(tapply(daysfrom1July,dates[,"Survey number"],mean)+.5)
-	days=floor(tapply(dates$days,dates[,"Survey number"],mean)+.5)
+	daysfrom1July=floor(sapply(split(daysfrom1July,list(dates[,"Survey number"],dates[,"Area code"])),mean,na.rm=TRUE)+.5)
+	days=floor(tapply(dates$days,dates[,"Survey number"],mean,na.rm=TRUE)+.5)
 	days=days-min(days)
 	if(tags)
 	{
@@ -78,10 +89,13 @@ getdead_ch=function(island,year,development="fullterm")
 		freq=1-2*with(bind,table(list(SpecimenID,Disposition))) [,2]
 		df=data.frame(ch=ch,freq=freq,stringsAsFactors=FALSE)
 		init=subset(initial[order(initial$SpecimenID),],select=c("SpecimenID","Carcass condition","Position","Substrate","Area code"))
-		init[,"Area code"]=as.character(substr(init[,"Area code"],1,3))
-		init[,"Area code"][init[,"Area code"]%in%c("EAC","WAC","ACV","PBS")]="SCV"
-		init[,"Area code"][init[,"Area code"]%in%c("NEP","NWP","PBP")]="PTS"
-		init[,"Area code"]=factor(init[,"Area code"])
+		if(merge)
+		{
+		    init[,"Area code"]=as.character(substr(init[,"Area code"],1,3))
+		    init[,"Area code"][init[,"Area code"]%in%c("EAC","WAC","ACV","PBS")]="SCV"
+		    init[,"Area code"][init[,"Area code"]%in%c("NEP","NWP","PBP")]="PTS"
+	 	    init[,"Area code"]=factor(init[,"Area code"])
+	    }
 		if(any(!rownames(df)%in%init$SpecimenID)) cat("\nResights without matching ID\n",paste(rownames(df)[!rownames(df)%in%init$SpecimenID],collapse="\n"))
 		if(any(!init$SpecimenID%in%rownames(df))) cat("\nInitial",paste(rownames(init)[!init$SpecimenID%in%rownames(df)],collapse="\n"))
 		tt=table(init$SpecimenID)
@@ -104,9 +118,9 @@ getdead_ch=function(island,year,development="fullterm")
 		df1=NULL
 	if(any(is.na(deadstacked[,"Number dead"])))
 	{
-		cat("\n Following records have no value for Number dead and have been removed.\n")
+		message("\n Following records have no value for Number dead and have been removed.\n")
 		for(w in which(is.na(deadstacked[,"Number dead"])))
-			cat("ID =",deadstacked$ID[w],"\n")
+			message("ID =",deadstacked$ID[w],"\n")
 		deadstacked=deadstacked[!is.na(deadstacked[,"Number dead"]),]
 	}
 	deadstacked$ID=factor(as.character(deadstacked$ID))
@@ -117,14 +131,26 @@ getdead_ch=function(island,year,development="fullterm")
 	df=cbind(df,subset(deadstacked[order(deadstacked$ID),],select=c("Carcass condition","Position","Substrate","Number dead","Area code")))
 	df$freq=-df[,"Number dead"]
 	df=rbind(df1,subset(df,select=c("ch","freq","Carcass condition","Position","Substrate","Area code")))
-	df[,"Area code"]=as.character(substr(df[,"Area code"],1,3))
-	df[,"Area code"][df[,"Area code"]%in%c("EAC","WAC","ACV","PBS")]="SCV"
-	df[,"Area code"][df[,"Area code"]%in%c("NEP","NWP","PBP")]="PTS"
-	df[,"Area code"]=factor(df[,"Area code"])
+	if(merge)
+	{
+		df[,"Area code"]=as.character(substr(df[,"Area code"],1,3))
+	    df[,"Area code"][df[,"Area code"]%in%c("EAC","WAC","ACV","PBS")]="SCV"
+	    df[,"Area code"][df[,"Area code"]%in%c("NEP","NWP","PBP")]="PTS"
+	    df[,"Area code"]=factor(df[,"Area code"])
+	}
 	df$Position[df$Position=="FP"]="A"
 	df$Substrate[df$Substrate%in%c("K","F")]="N"
 	df$Position=factor(as.character(df$Position))
 	df$Substrate=factor(as.character(df$Substrate))
 	df[,"Carcass condition"]=factor(as.character(df[,"Carcass condition"]),levels=c("F","D","P"))
+	daysfrom1July=cbind(data.frame(do.call("rbind",strsplit(names(daysfrom1July),"\\."))),daysfrom1July=daysfrom1July)
+	rownames(daysfrom1July)=NULL
+	colnames(daysfrom1July)[1:2]=c("Occasion","Area")
+#   if an area was not surveyed on an occasion assume mortality is 0 and use average dates from other areas
+	for(i in 1:nrow(daysfrom1July))
+	{
+		if(is.nan(daysfrom1July$daysfrom1July[i])) 
+			daysfrom1July$daysfrom1July[i]=mean(daysfrom1July$daysfrom1July[daysfrom1July$Occasion==daysfrom1July$Occasion[i]],na.rm=TRUE)
+	}
 	return(list(df=df,days=days,daysfrom1July=daysfrom1July))
 }

@@ -222,7 +222,40 @@ if(length(missing.live.areas)!=0)
 # this is an error and should not happen.
 #
 livenames=paste(LiveByYearandArea$Year,LiveByYearandArea$Area,sep=".")
+cfvalues=NULL
+for(y in sort(unique(LiveByYearandArea$Year)))
+{
+	if(species=="Zc"& mainland)
+	{
+	   xx=suppressMessages(getdead_ch(island,y,merge=FALSE))
+	   xx$df$survey=CIPinnipedAnalysis:::process_ch(xx$df$ch,xx$df$freq)$first
+	   names(xx$df)[6]="Area"
+    }
+	for(a in sort(unique(substr(LiveByYearandArea$Area[LiveByYearandArea$Year==y],1,3))))
+    {
+        if(species=="Zc"& mainland)
+        {
+	      if(y>1997)
+	      {
+			counts=as.vector(with(xx$df[xx$df$survey<=3 & substr(xx$df$Area,1,3)== a,],tapply(abs(freq),list(Position,Substrate),sum,na.rm=T)))
+			counts[is.na(counts)]=0
+			prop=counts/sum(counts)
+			cf=vector("numeric",4)
+		    strata=c("AC","BC","AN","BN")
+		    for(i in 1:4)
+			    cf[i]=average_cf(island,y,ndays2=LiveByYearandArea$Days[LiveByYearandArea$Year==y&substr(LiveByYearandArea$Area,1,3)==a]-16,lev=strata[i])
+		    cf=sum(prop*cf)
+	      }else
+	      {
+		    cf=average_cf(island,y,ndays2=LiveByYearandArea$Days[LiveByYearandArea$Year==y&substr(LiveByYearandArea$Area,1,3)==a]-16,area=a)	 
+	      }
+      } else
+	     cf=PreLiveCountCf
+	 cfvalues=rbind(cfvalues,data.frame(Year=y,Area=a,cf=cf))
+   }
+}
 LiveByYearandArea$Dead.at.live.count=0
+LiveByYearandArea$adjDead.at.live.count=0
 for (i in 1:length(livenames))
 {        
      if(is.null(DeadByYearandArea[[livenames[i]]]$Days))
@@ -275,11 +308,11 @@ for (i in 1:length(livenames))
 	 if(is.na(dead.at.livecount))
            cat(paste("\nProblem with computation of dead at livecount for ",livenames[i]))
      LiveByYearandArea$Dead.at.live.count[i]=dead.at.livecount
+     LiveByYearandArea$adjDead.at.live.count[i]=dead.at.livecount*cfvalues$cf[cfvalues$Year==LiveByYearandArea$Year[i]&cfvalues$Area==LiveByYearandArea$Area[i]] 
 }
 TotalLiveCountByYear=round(sapply(split(live$AvgCount,live$Year),sum))
 Years=as.numeric(names(TotalLiveCountByYear))
 mc=getCalcurData("CIPCensus","MissingCounts",dir=dir)
-#mc=sqlFetch(connection,"MissingCounts")
 mc$Year=factor(mc$Year,levels=Years)
 mc=mc[mc$Island==island & mc$Species==species,]
 if(island=="SMI")
@@ -294,7 +327,8 @@ if(nrow(mc)>0)
 }	
 LiveInDeadSampleArea=round(sapply(split(LiveByYearandArea$Count,LiveByYearandArea$Year),sum))
 DeadInDeadSampleArea=round(sapply(split(LiveByYearandArea$Dead.at.live.count,LiveByYearandArea$Year),sum))
-AdjustedDeadInDeadSampleArea=round(PreLiveCountCf*DeadInDeadSampleArea)
+AdjustedDeadInDeadSampleArea=round(sapply(split(LiveByYearandArea$adjDead.at.live.count,LiveByYearandArea$Year),sum))
+#AdjustedDeadInDeadSampleArea=round(PreLiveCountCf*DeadInDeadSampleArea)
 MortalityRateAtLiveCount=AdjustedDeadInDeadSampleArea/(AdjustedDeadInDeadSampleArea+LiveInDeadSampleArea)
 if(mainland | island=="SNI")
    Area = "Mainland"

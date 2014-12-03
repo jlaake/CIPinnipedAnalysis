@@ -3,7 +3,7 @@
 \alias{getdead_ch}
 \title{Dead pup capture histories}
 \usage{
-getdead_ch(island, year, development = "fullterm")
+getdead_ch(island, year, development = "fullterm", merge = TRUE)
 }
 \arguments{
 \item{island}{("SMI" or "SNI")}
@@ -11,10 +11,15 @@ getdead_ch(island, year, development = "fullterm")
 \item{year}{four digit numeric year}
 
 \item{development}{either "premie" or "fullterm"}
+
+\item{merge}{if TRUE, merges disparate area codes into "PTS","SCV","WCV","NWC"}
 }
 \value{
-dataframe containing ch(capture history), Carcass condition: F-fresh, D- decomposing, P- pancake,
-Position: A or B, and Substrate: N (non-consolidated - sandy), C (consolidated - rocky)
+\preformatted{dataframe containing
+ch(capture history),
+Carcass condition: F-fresh, D- decomposing, P- pancake,
+Position: A (Above) or B (Below)
+Substrate: N (non-consolidated - sandy), C (consolidated - rocky)}
 }
 \description{
 Creates capture histories for tagged and untagged dead pups for POPAN analysis
