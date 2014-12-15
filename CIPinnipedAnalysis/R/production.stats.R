@@ -16,7 +16,7 @@
 #' compute the number of pups produced (born). The computed values are output
 #' in the production table for each species.
 #' 
-#' \code{\link{do.pup.production}} is the driver function which calls this
+#' See code PupProduction.r which calls this
 #' function for Zc for SMI and Castle Rock and then combines the result in the
 #' table ZcProduction which is stored in CIPinnipedCensusQuery.mdb.  Then it
 #' does the same thing for Cu and creates CuProduction.
@@ -229,7 +229,7 @@ for(y in sort(unique(LiveByYearandArea$Year)))
 	if(species=="Zc"& mainland)
 	{
 	   xx=suppressMessages(getdead_ch(island,y,merge=FALSE))
-	   xx$df$survey=CIPinnipedAnalysis:::process_ch(xx$df$ch,xx$df$freq)$first
+	   xx$df$survey=CIPinnipedAnalysis::process_ch(xx$df$ch,xx$df$freq)$first
 	   names(xx$df)[6]="Area"
     }
 	for(a in sort(unique(substr(LiveByYearandArea$Area[LiveByYearandArea$Year==y],1,3))))

@@ -3,14 +3,20 @@
 \alias{average_cf}
 \alias{compute_cf}
 \alias{correct_dead}
+\alias{process_ch}
 \title{Correction factors for dead pup counts}
 \usage{
-correct_dead(island, year)
+correct_dead(island,year)
+       average_cf(island,year,ndays1=Inf,ndays2,area=NULL,lev=NULL)
+       compute_cf(BiGross,ndays1=Inf,ndays2)
+       process_ch(ch,freq=NULL,all=FALSE)
 }
 \arguments{
 \item{island}{("SMI" or "SNI")}
 
 \item{year}{four digit numeric year}
+
+\item{BiGross}{is the estimates of gross immigration into the population of dead pups; it is a list with results from fitted models}
 
 \item{ndays1}{number of days from 1 July for beginning of interval; -Inf default which starts at beginning}
 
@@ -19,6 +25,12 @@ correct_dead(island, year)
 \item{area}{for computing correction factor with tagging data prior to 1998}
 
 \item{lev}{position on beach and substrate (AC,AN,BC,BN) for computing correction factor with data in 1998 and later}
+
+\item{ch}{vector of capture histories}
+
+\item{freq}{frequency of capture history}
+
+\item{all}{logical indicating whether all quantities should be computed from capture history}
 }
 \value{
 correct_dead returns a list containing a dataframe with corrected dead pup counts by occasion and strata (eg group - area or substrate/position) and a dataframe with a total across strata by occasion.

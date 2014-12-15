@@ -14,9 +14,9 @@ if(!exists("nboot"))nboot=100
 if(!exists("lastyear"))lastyear=2013
 ####################################
 source(file.path(sdir,"CreateAnomalies.r"))
-source(file.path(sdir,"ZC Weight Adjustment Model.r"))
-source(file.path(sdir,"ZC Weight Environment Models.r"))
-source(file.path(sdir,"ZC Growth.r"))
+source(file.path(sdir,"ZC_Weight_Adjustment_Model.r"))
+source(file.path(sdir,"ZC_Weight_Environment_Models.r"))
+source(file.path(sdir,"ZC_Growth.r"))
 
 ################################################################################
 #  Brand vs control at brand eval

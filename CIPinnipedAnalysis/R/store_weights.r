@@ -24,6 +24,6 @@ store_weights=function(x,species="Zc",fdir=NULL)
 	if(species=="Zc")
 	   xx=saveCalcurData(x,db="CIPquery",tbl="ZcWeights",dir=fdir)
 	else
-	xx=saveCalcurData(CUWeight.df,db="CIPquery",tbl="CuWeights",dir=fdir)
+	xx=saveCalcurData(x,db="CIPquery",tbl="CuWeights",dir=fdir)
     return(NULL)	
 }

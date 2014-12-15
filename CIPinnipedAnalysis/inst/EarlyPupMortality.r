@@ -39,7 +39,7 @@ for(y in 1991:2014)
 {
 	dead=correct_dead("SMI",y)$bystrata
 	pups=Production$AdjustedDeadInDeadSampleArea[Production$Year==y]+Production$LiveInDeadSampleArea[Production$Year==y]
-	zcsmi.mort=rbind(zcsmi.mort,ZcMortalityStats(dead,pups))
+	zcsmi.mort=rbind(zcsmi.mort,ZcMortalityStats(year=y,dead,pups))
 }	
 zcsmi.mort$Island="SMI"
 

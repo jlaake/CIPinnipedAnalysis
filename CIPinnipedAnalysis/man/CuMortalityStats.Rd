@@ -4,8 +4,8 @@
 \alias{ZcMortalityStats}
 \title{Early pup mortality estimation}
 \usage{
-CuMortalityStats(PreLiveCountCf = 1.33, PostLiveCountCf = 1.25, fdir1,
-  fdir2, years = NULL)
+CuMortalityStats(PreLiveCountCf=1.33,PostLiveCountCf=1.25,fdir1,fdir2,years=NULL)
+       ZcMortalityStats(year,dead,pups)
 }
 \arguments{
 \item{PreLiveCountCf}{Multiplicative correction factor for observed
@@ -20,6 +20,8 @@ mortality after live count}
 \item{fdir2}{database directory for CIPinnipedCensusMaster}
 
 \item{years}{vector of years that should be selected if not all years}
+
+\item{year}{year for mortality stats}
 
 \item{dead}{is a dataframe of corrected dead pup counts across occasions}
 

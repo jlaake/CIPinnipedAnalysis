@@ -10,9 +10,10 @@ Description: Channel Islands Pinniped Analysis functions:
     enviromental measurement computations
 License: GPL-2
 Depends:
+    RMark,
     CalcurData,
-    nlme,
-    plotrix
+    plotrix,
+    nlme
 Imports:
     RODBC
 LazyLoad: yes

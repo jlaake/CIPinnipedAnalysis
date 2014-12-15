@@ -17,14 +17,22 @@
 #' 
 #' Note: In 1994 the number of untagged and stacked was not recorded on the last occasion; thus the correction factor for the last occasion is not useful.  
 #' 
-#' @aliases correct_dead average_cf compute_cf
-#' @export correct_dead average_cf compute_cf
+#' @usage correct_dead(island,year)
+#'        average_cf(island,year,ndays1=Inf,ndays2,area=NULL,lev=NULL)
+#'        compute_cf(BiGross,ndays1=Inf,ndays2)
+#'        process_ch(ch,freq=NULL,all=FALSE)
+#' @aliases correct_dead average_cf compute_cf process_ch
+#' @export correct_dead average_cf compute_cf process_ch
 #' @param island ("SMI" or "SNI")
 #' @param year four digit numeric year
+#' @param BiGross is the estimates of gross immigration into the population of dead pups; it is a list with results from fitted models
 #' @param ndays1 number of days from 1 July for beginning of interval; -Inf default which starts at beginning
 #' @param ndays2 number of days from 1 July at end of interval (time of pup count)
 #' @param area for computing correction factor with tagging data prior to 1998
 #' @param lev position on beach and substrate (AC,AN,BC,BN) for computing correction factor with data in 1998 and later
+#' @param ch vector of capture histories
+#' @param freq frequency of capture history
+#' @param all logical indicating whether all quantities should be computed from capture history
 #' @return correct_dead returns a list containing a dataframe with corrected dead pup counts by occasion and strata (eg group - area or substrate/position) and a dataframe with a total across strata by occasion. 
 #' average_cf returns an average correction factor for a particular range of dates by interpolation and then averaging over years (cfyears) for a particular area code or postion-substrate strata.  
 #' @author Jeff Laake 
@@ -38,7 +46,7 @@ correct_dead=function(island,year)
 #   ignore any 0 records
 	x.popan$df=x.popan$df[!x.popan$df$freq==0,]
 #   get first capture occasion from the capture history
-	chlist=CIPinnipedAnalysis:::process_ch(x.popan$df$ch,x.popan$df$freq)
+	chlist=CIPinnipedAnalysis::process_ch(x.popan$df$ch,x.popan$df$freq)
 	times=x.popan$days
 	time.intervals=as.numeric(diff(times))
 #   use RMark code to process the capture history 

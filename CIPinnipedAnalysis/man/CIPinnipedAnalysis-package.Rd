@@ -22,8 +22,6 @@ source(file.path(system.file(package="CIPinnipedAnalysis"),"EarlyPupMortality.r"
 }
 \author{
 Jeff Laake
-
-Maintainer: <jeff.laake@noaa.gov>
 }
 \keyword{package}
 

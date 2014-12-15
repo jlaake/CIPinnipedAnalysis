@@ -8,10 +8,9 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ```{r,results="hide",echo=FALSE}
   suppressPackageStartupMessages(library(CIPinnipedAnalysis))
   lastyear=2013
-  nboot=2
   sdir=system.file(package="CIPinnipedAnalysis")
-  source(file.path(sdir,"ZC Weight Adjustment Model.r"))
-  source(file.path(sdir,"ZC Growth.r"))
+  source(file.path(sdir,"ZC_Weight_Adjustment_Model.r"))
+  source(file.path(sdir,"ZC_Growth.r"))
 ```
 
 

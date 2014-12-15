@@ -45,7 +45,7 @@ mortality rate.  That rate is then used to scale the total live count to
 compute the number of pups produced (born). The computed values are output
 in the production table for each species.
 
-\code{\link{do.pup.production}} is the driver function which calls this
+See code PupProduction.r which calls this
 function for Zc for SMI and Castle Rock and then combines the result in the
 table ZcProduction which is stored in CIPinnipedCensusQuery.mdb.  Then it
 does the same thing for Cu and creates CuProduction.

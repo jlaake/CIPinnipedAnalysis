@@ -7,6 +7,7 @@
 #' @param date string for title for date weights are predicted
 #' @param ... other arguments for plot
 #' @return None
+#' @aliases plot_weight.series plot_growth.series
 #' @export plot_weight.series plot_growth.series
 #' @author Jeff Laake
 plot_weight.series=function (time, predictions, date,...)

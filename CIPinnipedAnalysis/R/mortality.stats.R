@@ -11,6 +11,8 @@
 #' run after it is updated with any new data. The CU values use pre-defined correction factors
 #' whereas the ZC values use correction factor constructed from tagging data on dead pups. (see popan.cf)
 #' 
+#' @usage CuMortalityStats(PreLiveCountCf=1.33,PostLiveCountCf=1.25,fdir1,fdir2,years=NULL)
+#'        ZcMortalityStats(year,dead,pups)
 #' @param PreLiveCountCf Multiplicative correction factor for observed
 #'   mortality prior to live count to account for dead pups that were missed
 #'   and decomposed or were buried
@@ -19,6 +21,7 @@
 #' @param fdir1 database directory for CIPinnipedCensusQuery
 #' @param fdir2 database directory for CIPinnipedCensusMaster
 #' @param years vector of years that should be selected if not all years
+#' @param year year for mortality stats
 #' @param dead is a dataframe of corrected dead pup counts across occasions
 #' @param pups is the estimated number of pups produced in the mortality count area
 #' @export CuMortalityStats ZcMortalityStats
@@ -103,7 +106,7 @@ Castle.Rock.Areas=c("ECR","WCR","CAS")
  df$SurveyDate=survey.dates+as.POSIXct("2006-11-15")-as.numeric(as.POSIXct("2006-11-15"))
 return(df)
 }
-ZcMortalityStats=function(dead,pups)
+ZcMortalityStats=function(year,dead,pups)
 {
 #   total across occasions
 	cumdead=with(dead,tapply(cumdead,Occasion,sum))
@@ -121,6 +124,6 @@ ZcMortalityStats=function(dead,pups)
 	mr=dead/pups
 	daydiff=diff(c(0,days))
 	dmr=1-(1-mr)^(1/(daydiff))
-	return(data.frame(Year=rep(y,length(estdead)),Numberdead=dead,DaysFrom15June=days,MortalityRate=mr,DailyMortalityRate=dmr,CumS=1-cumsum(mr)))
+	return(data.frame(Year=rep(year,length(estdead)),Numberdead=dead,DaysFrom15June=days,MortalityRate=mr,DailyMortalityRate=dmr,CumS=1-cumsum(mr)))
 }
 

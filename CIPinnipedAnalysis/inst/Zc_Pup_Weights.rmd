@@ -8,9 +8,9 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ```{r,results="hide",echo=FALSE}
   suppressPackageStartupMessages(library(CIPinnipedAnalysis))
 #  doc.type <-knitr::opts_knit$get('rmarkdown.pandoc.to')
-#  cat(doc.type)
+  lastyear=2014
   sdir=system.file(package="CIPinnipedAnalysis")
-  source(file.path(sdir,"ZC Weight Adjustment Model.r"))
+  source(file.path(sdir,"ZC_Weight_Adjustment_Model.r"))
 ```
 
 

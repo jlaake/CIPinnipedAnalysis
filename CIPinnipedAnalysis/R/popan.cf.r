@@ -28,7 +28,6 @@
 #' @return a list containing a marlist of the final model results, a list with the correction factor data (cfdata) and correction factors by occasion (cfbyocc). 
 #' @author Jeff Laake
 #' @seealso correct_dead 
-#' @import RMark
 #' @examples 
 #' #note this will construct all of the correction factor data; it will take awhile
 #' smi1994.popan.results=popan.cf("SMI",1994)
@@ -44,7 +43,7 @@ popan.cf=function(island,year,silent=TRUE,area=FALSE)
 	
 	x.popan=getdead_ch(island,year)
 	
-	chlist=CIPinnipedAnalysis:::process_ch(x.popan$df$ch,x.popan$df$freq)
+	chlist=CIPinnipedAnalysis::process_ch(x.popan$df$ch,x.popan$df$freq)
 	
 	times=x.popan$days
 	time.intervals=as.numeric(diff(times))
@@ -100,7 +99,7 @@ popan.cf=function(island,year,silent=TRUE,area=FALSE)
 			p.3=list(formula=~time2)
 			p.4=list(formula=~1)
 			N.1=list(formula=~group)
-			cml=create.model.list("POPAN")
+			cml=RMark::create.model.list("POPAN")
 			results=mark.wrapper(cml,data=x.proc,ddl=x.ddl,initial=initial,output=FALSE,silent=silent)
 			return(results)
 		}
