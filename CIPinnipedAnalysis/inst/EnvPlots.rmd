@@ -1,0 +1,73 @@
+---
+title: "Environmental Data Plots"
+output: pdf_document
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+
+```{r,results="hide",echo=FALSE}
+  suppressPackageStartupMessages(library(CIPinnipedAnalysis))
+  lastyear=2014
+  sdir=system.file(package="CIPinnipedAnalysis")
+	source(file.path(sdir,"CreateAnomalies.r"))
+	 
+	x=rbind(data.frame(Year=minyear:lastyear,Season=rep("Spring",numyears),SSTAnomaly=JantoMayAnomalies[1:numyears]),
+    data.frame(Year=minyear:lastyear,Season=rep("Summer",numyears),SSTAnomaly=JunetoSeptAnomalies[1:numyears]),
+    data.frame(Year=minyear:lastyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies[1:numyears]) )
+    x$Season=factor(x$Season,levels=c("Spring","Summer","Fall"))
+    x=x[order(x$Year,x$Season),]
+
+```
+
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+par(mfrow=c(3,1))
+plot(minyear:lastyear,x$SSTAnomaly[x$Season=="Spring"],ylab="SST Anomaly",main="Winter/Spring (Jan-May)",xlab="")
+lines(minyear:lastyear,x$SSTAnomaly[x$Season=="Spring"])
+abline(h=0)
+plot(minyear:lastyear,x$SSTAnomaly[x$Season=="Summer"],ylab="SST Anomaly",main="Summer (June-Sept)",xlab="")
+lines(minyear:lastyear,x$SSTAnomaly[x$Season=="Summer"])
+abline(h=0)
+plot(minyear:lastyear,x$SSTAnomaly[x$Season=="Fall"],ylab="SST Anomaly",main="Fall (Oct-Dec)",xlab="")
+lines(minyear:lastyear,x$SSTAnomaly[x$Season=="Fall"])
+abline(h=0)
+```
+
+Figure 1. Seasonal SST Anomalies
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+MEI=getCalcurData("Environ","MEI",dir=fdir)
+MEI=MEI[order(MEI$Year,MEI$Month),]
+meiminyear=min(MEI$Year)
+meimaxyear=max(MEI$Year)
+meinumyears=meimaxyear-meiminyear+1
+plot(MEI$MEI,type="l",lwd=2,xaxt="n",ylab="MEI",xlab="Year")
+axis(1,at=12*(0:(meinumyears-1))+1,labels=as.character(meiminyear:meimaxyear))
+abline(h=0)
+abline(h=1)
+abline(h=-1)
+```
+
+Figure 2. Multivariate ENSO Index
+
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+par(mfrow=c(2,1))
+UWI=getCalcurData("Environ","UWIAnomaly",dir=fdir)
+UWI=UWI[order(UWI$Year,UWI$Month),]
+uwiminyear=min(UWI$Year)
+uwimaxyear=max(UWI$Year)
+uwinumyears=uwimaxyear-uwiminyear+1
+plot(UWI$UWIAnomaly[UWI$Location=="36N122W"],type="l",lwd=2,xaxt="n",ylab="UWI",xlab="Year",main="36N122W")
+axis(1,at=12*(0:(uwinumyears-1))+1,labels=as.character(uwiminyear:uwimaxyear))
+abline(h=0)
+plot(UWI$UWIAnomaly[UWI$Location=="33N119W"],type="l",lwd=2,xaxt="n",ylab="UWI",xlab="Year",main="33N119W")
+axis(1,at=12*(0:(uwinumyears-1))+1,labels=as.character(uwiminyear:uwimaxyear))
+abline(h=0)
+```
+
+Figure 3. Upwelling Index anomalies at 33N and 36N
+

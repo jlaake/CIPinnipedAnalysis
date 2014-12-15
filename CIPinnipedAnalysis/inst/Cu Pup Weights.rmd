@@ -1,0 +1,44 @@
+---
+title: "Callorhinus pup weights"
+output: pdf_document
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+
+```{r,results="hide",echo=FALSE}
+  suppressPackageStartupMessages(library(CIPinnipedAnalysis))
+  lastyear=2014
+  sdir=system.file(package="CIPinnipedAnalysis")
+  source(file.path(sdir,"CU Weight Adjustment Model.r"))
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+par(mfrow=c(2,1))
+maxyear=max(cuweights$cohort)
+ymin=min(c(female.averages$fit-1.96*female.averages$se, male.averages$fit-1.96*male.averages$se))*.9
+ymax=max(c(female.averages$fit+1.96*female.averages$se, male.averages$fit+1.96*male.averages$se))*1.1
+plot_weight.series(1975:maxyear,female.averages,main="Fur Seal Female Pups",ylim=c(ymin,ymax),date="1 Oct")
+plot_weight.series(1975:maxyear,male.averages,main="Fur Seal Male Pups",ylim=c(ymin,ymax),date="1 Oct")
+```
+
+Figure 1. Predicted Callorhinus pup weights on San Miguel Island at 1 Oct. 
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+par(mfrow=c(2,1))
+maxyear=max(cuweights$cohort)
+female.mean=mean(female.averages$fit)
+male.mean=mean(male.averages$fit)
+ymin=min(c(female.averages$fit-1.96*female.averages$se, male.averages$fit-1.96*male.averages$se))*.9
+ymax=max(c(female.averages$fit+1.96*female.averages$se, male.averages$fit+1.96*male.averages$se))*1.1
+female.averages$fit=female.averages$fit-female.mean
+plot_weight.series(1975:maxyear,female.averages,main="Northern fur seal female pups",ylim=c(ymin-female.mean,ymax-female.mean),date="1 Oct")
+abline(h=0)
+male.averages$fit=male.averages$fit-male.mean
+plot_weight.series(1975:maxyear,male.averages,main="Northern fur seal male pups",ylim=c(ymin-male.mean,ymax-male.mean),date="1 Oct")
+abline(h=0)
+```
+
+Figure 2. Predicted Callorhinus pup weights on San Miguel Island at 1 Oct expressed as anomaly from overall mean. 
+

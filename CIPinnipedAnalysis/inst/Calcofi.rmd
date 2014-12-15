@@ -1,0 +1,81 @@
+---
+title: "Calcofi pup weight figures"
+output: pdf_document
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+
+```{r,results="hide",echo=FALSE}
+  suppressPackageStartupMessages(library(CIPinnipedAnalysis))
+  lastyear=2013
+  nboot=2
+  sdir=system.file(package="CIPinnipedAnalysis")
+  source(file.path(sdir,"ZC Weight Adjustment Model.r"))
+  source(file.path(sdir,"ZC Growth.r"))
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+ymin=min(c(female.averages$fit-1.96*female.averages$se, male.averages$fit-1.96*male.averages$se))*.9
+ymax=max(c(female.averages$fit+1.96*female.averages$se, male.averages$fit+1.96*male.averages$se))*1.1
+maxyear=max(zcweights$cohort)
+par(lty=1)
+plot_weight.series(1997:maxyear,female.averages[23:(maxyear-1974),],xlim=c(1997,maxyear),ylim=c(ymin,ymax),xaxp=c(1997,maxyear,maxyear-1997),date="1 Oct")
+abline(h=mean(female.averages$fit[23:(maxyear-1974)]))
+par(lty=2)
+plot_weight.series(1997:maxyear,male.averages[23:(maxyear-1974),],pch=2,add=TRUE,slty=1,date="1 Oct")
+abline(h=mean(male.averages$fit[23:(maxyear-1974)]))
+points(2009,25,pch=2)
+lines(x=c(2008.75,2009.25),y=c(25,25),pch=2,lty=2)
+points(2009,24,pch=1)
+lines(x=c(2008.75,2009.25),y=c(24,24),pch=1,lty=1)
+text(2009.4,25,"Males",pos=4)
+text(2009.4,24,"Females",pos=4)
+par(lty=1)
+```
+
+Figure 1. Predicted Zalophus pup weights on San Miguel Island at 1 Oct using adjustment model 
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+maxyear=max(zcweights$cohort)
+ymin=min(c(winter.female.averages$fit-1.96*winter.female.averages$se, winter.male.averages$fit-1.96*winter.male.averages$se))*.9
+ymax=max(c(winter.female.averages$fit+1.96*winter.female.averages$se, winter.male.averages$fit+1.96*winter.male.averages$se))*1.1
+par(lty=1)
+plot_weight.series(1997:maxyear,winter.female.averages[23:(maxyear-1974),],xlim=c(1997,maxyear),ylim=c(ymin,ymax),xaxp=c(1997,maxyear,maxyear-1997),date="1 Feb")
+abline(h=mean(winter.female.averages$fit[23:(maxyear-1974)]))
+par(lty=2)
+plot_weight.series(1997:maxyear,winter.male.averages[23:(maxyear-1974),],pch=2,add=TRUE,slty=1,date="1 Feb")
+abline(h=mean(winter.male.averages$fit[23:(maxyear-1974)]))
+points(2009,40,pch=2)
+lines(x=c(2008.75,2009.25),y=c(40,40),pch=2,lty=2)
+points(2009,38,pch=1)
+lines(x=c(2008.75,2009.25),y=c(38,38),pch=1,lty=1)
+text(2009.4,40,"Males",pos=4)
+text(2009.4,38,"Females",pos=4)
+par(lty=1)
+```
+
+Figure 2. Predicted Zalophus pup weights on San Miguel Island at 1 Feb using adjustment model.
+
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+female.averages=data.frame(fit=pp$gr[pp$sex=="F"&pp$cohort>=1997],se=stderrors[as.numeric(row.names(pp[pp$sex=="F"&pp$cohort>=1997,]))])
+male.averages=data.frame(fit=pp$gr[pp$sex=="M"&pp$cohort>=1997],se=stderrors[as.numeric(row.names(pp[pp$sex=="M"&pp$cohort>=1997,]))])
+par(lty=1)
+plot_growth.series(sort(unique(pp$cohort[pp$cohort>=1997])),female.averages,ylim=c(0,.12),xaxp=c(1998,2014,8))
+par(lty=2)
+plot_growth.series(sort(unique(pp$cohort[pp$cohort>=1997]))+.2,male.averages,pch=2,add=TRUE,slty=1)
+points(2005,0.04,pch=2)
+lines(x=c(2004.75,2005.25),y=c(.040,.040),pch=2,lty=2)
+points(2005,0.03,pch=1)
+lines(x=c(2004.75,2005.25),y=c(0.03,0.03),pch=1,lty=1)
+text(2005.4,0.04,"Males",pos=4)
+text(2005.4,0.03,"Females",pos=4)
+```
+
+Figure 3. Daily growth rate of Zalophus pup weights on San Miguel Island.
+
+
+

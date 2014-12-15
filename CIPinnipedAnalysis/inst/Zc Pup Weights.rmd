@@ -1,0 +1,88 @@
+---
+title: "Zalophus pup weights"
+output: pdf_document
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+
+```{r,results="hide",echo=FALSE}
+  suppressPackageStartupMessages(library(CIPinnipedAnalysis))
+#  doc.type <-knitr::opts_knit$get('rmarkdown.pandoc.to')
+#  cat(doc.type)
+  sdir=system.file(package="CIPinnipedAnalysis")
+  source(file.path(sdir,"ZC Weight Adjustment Model.r"))
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+par(mfrow=c(2,1))
+maxyear=max(zcweights$cohort)
+ymin=min(c(female.averages$fit-1.96*female.averages$se, male.averages$fit-1.96*male.averages$se))*.9
+ymax=max(c(female.averages$fit+1.96*female.averages$se, male.averages$fit+1.96*male.averages$se))*1.1
+plot_weight.series(1975:maxyear,female.averages,main="California sea lion Female Pups",ylim=c(ymin,ymax),date="1 Oct")
+plot_weight.series(1975:maxyear,male.averages,main="California sea lion Male Pups",ylim=c(ymin,ymax),date="1 Oct")
+```
+
+Figure 1. Predicted Zalophus pup weights on San Miguel Island at 1 Oct. 
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+par(mfrow=c(2,1))
+maxyear=max(zcweights$cohort)
+female.mean=mean(female.averages$fit)
+male.mean=mean(male.averages$fit)
+ymin=min(c(female.averages$fit-1.96*female.averages$se, male.averages$fit-1.96*male.averages$se))*.9
+ymax=max(c(female.averages$fit+1.96*female.averages$se, male.averages$fit+1.96*male.averages$se))*1.1
+female.averages$fit=female.averages$fit-female.mean
+plot_weight.series(1975:maxyear,female.averages,main="California sea lion Female Pups",ylim=c(ymin-female.mean,ymax-female.mean),date="1 Oct")
+abline(h=0)
+male.averages$fit=male.averages$fit-male.mean
+plot_weight.series(1975:maxyear,male.averages,main="California sea lion Male Pups",ylim=c(ymin-male.mean,ymax-male.mean),date="1 Oct")
+abline(h=0)
+```
+
+Figure 2. Predicted Zalophus pup weights on San Miguel Island at 1 Oct expressed as anomaly from overall mean. 
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+par(mfrow=c(2,1))
+maxyear=max(zcweights$cohort)
+ymin=min(c(winter.female.averages$fit-1.96*winter.female.averages$se, winter.male.averages$fit-1.96*winter.male.averages$se))*.9
+ymax=max(c(winter.female.averages$fit+1.96*winter.female.averages$se, winter.male.averages$fit+1.96*winter.male.averages$se))*1.1
+plot_weight.series(1975:maxyear,winter.female.averages,main="California sea lion Female Pups",ylim=c(ymin,ymax),date="1 Feb")
+plot_weight.series(1975:maxyear,winter.male.averages,main="California sea lion Male Pups",ylim=c(ymin,ymax),date="1 Feb")
+```
+
+Figure 3. Predicted Zalophus pup weights on San Miguel Island at 1 Feb. 
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+par(mfrow=c(2,1))
+maxyear=max(zcweights$cohort)
+female.mean=mean(winter.female.averages$fit)
+male.mean=mean(winter.male.averages$fit)
+ymin=min(c(winter.female.averages$fit-female.mean-1.96*winter.female.averages$se, winter.male.averages$fit-male.mean-1.96*winter.male.averages$se))*.9
+ymax=max(c(winter.female.averages$fit-female.mean+1.96*winter.female.averages$se, winter.male.averages$fit-male.mean+1.96*winter.male.averages$se))*1.1
+plot_weight.series(1975:maxyear,winter.female.averages-female.mean,main="California sea lion Female Pups",ylim=c(ymin,ymax),date="1 Feb")
+abline(h=0)
+plot_weight.series(1975:maxyear,winter.male.averages-male.mean,main="California sea lion Male Pups",ylim=c(ymin,ymax),date="1 Feb")
+abline(h=0)
+```
+
+Figure 4. Predicted Zalophus pup weights on San Miguel Island at 1 Feb expressed as anomaly from overall mean. 
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+par(mfrow=c(2,1))
+with(ZCWeight.df,plot(female.observed.mean.fall[fall.avg.day< -7],female.adjusted.mean.fall[fall.avg.day< -7],col="blue",ylim=c(12,23),xlim=c(12,23),xlab="Fall observed mean",ylab="Fall adjusted mean"))
+with(ZCWeight.df,points(female.observed.mean.fall[fall.avg.day >= 7],female.adjusted.mean.fall[fall.avg.day>= 7],col="red"))
+with(ZCWeight.df,points(female.observed.mean.fall[fall.avg.day >= -7 &fall.avg.day< 7],female.adjusted.mean.fall[fall.avg.day>= -7 &fall.avg.day<7],col="black"))
+abline(0,1)
+# show plot of observed and predicted from adjustment mean for fall
+with(ZCWeight.df,plot(female.observed.mean.winter[winter.avg.day< 116],female.adjusted.mean.winter[winter.avg.day< 116],col="blue",ylim=c(14,32),xlim=c(14,32),xlab="Winter observed mean",ylab="Winter adjusted mean"))
+with(ZCWeight.df,points(female.observed.mean.winter[winter.avg.day >= 130],female.adjusted.mean.winter[winter.avg.day>= 130],col="red"))
+with(ZCWeight.df,points(female.observed.mean.winter[winter.avg.day >= 116 &winter.avg.day< 130],female.adjusted.mean.winter[winter.avg.day>= 116 &winter.avg.day< 130],col="black"))
+abline(0,1)
+```
+
+Figure 5. Predicted and observed Zalophus pup weights on San Miguel Island at 1 Oct (Fall) and 1 Feb (winter) using adjustment model. Blue values are 7 days or after the standardized date. Red values are less than 7 days before the standardized date.  Black values are within 7 days of the standardized date.
+
