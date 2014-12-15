@@ -4,11 +4,14 @@
 \alias{smi1994.popan.results}
 \alias{smi1995.popan.results}
 \alias{smi1998.popan.results}
+\alias{smi1998a.popan.results}
 \alias{smi2002.popan.results}
+\alias{smi2002a.popan.results}
 \alias{sni2006.popan.results}
 \title{POPAN model results and correction factors from dead pup tagging data}
 \format{A list with elements: popan.results - a marklist of fitted POPAN models, cfdata - list of correction factor data used to correct
-dead pup counts for years without tagging data, and cfbyocc - dataframe of correction factors for each occasion.}
+dead pup counts for years without tagging data, and cfbyocc - dataframe of correction factors for each occasion.  The smi1998a.popan.results and smi2002a.popan.results
+use areas for predictions instead of covariates to enable corrections for years <1997.}
 \description{
 POPAN results and correction factor data (estimates) that are used to correct dead
 pup counts for years without tagging data.

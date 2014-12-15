@@ -18,8 +18,8 @@
 #' # Note this uses default argument value of NULL for dir which
 #' # means that the locations for the databases is specified by databases.txt in CalcurData package
 #' check.dead.pup.areas()
-#' prod=do.pup.production()
-#' do.early.pup.mortality()
+#' source(file.path(system.file(package="CIPinnipedAnalysis"),"PupProduction.r"))
+#' source(file.path(system.file(package="CIPinnipedAnalysis"),"EarlyPupMortality.r"))
 #' 
 
 NULL
@@ -30,10 +30,11 @@ NULL
 #' pup counts for years without tagging data.
 #' 
 #' @name smi1994.popan.results
-#' @aliases smi1994.popan.results smi1995.popan.results smi1998.popan.results smi2002.popan.results sni2006.popan.results
+#' @aliases smi1994.popan.results smi1995.popan.results smi1998.popan.results smi2002.popan.results smi1998a.popan.results smi2002a.popan.results sni2006.popan.results
 #' @docType data
 #' @format A list with elements: popan.results - a marklist of fitted POPAN models, cfdata - list of correction factor data used to correct
-#' dead pup counts for years without tagging data, and cfbyocc - dataframe of correction factors for each occasion. 
+#' dead pup counts for years without tagging data, and cfbyocc - dataframe of correction factors for each occasion.  The smi1998a.popan.results and smi2002a.popan.results
+#' use areas for predictions instead of covariates to enable corrections for years <1997.
 #' @keywords datasets
 
 NULL

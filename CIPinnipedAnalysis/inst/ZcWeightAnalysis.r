@@ -22,6 +22,8 @@ source(file.path(sdir,"ZC Growth.r"))
 #  Brand vs control at brand eval
 ################################################################################
 zcweights.be=get.zc.weights(fdir=fdir)
+zcweights.be=zcweights[zcweights.be$cohort<=lastyear,]
+
 #
 #  Use SMI from 1 Dec to end of Feb; use brand and unmarked only
 #

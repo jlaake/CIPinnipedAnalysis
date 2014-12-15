@@ -8,7 +8,8 @@
 #' ZcEarlPupMortality and CuEarlyPupMortality tables in
 #' CIPinnipedCensusQuery.mdb.  This function uses the ZcProduction and
 #' CuProduction tables created by PupProduction scrupt and should be
-#' run after it is updated with any new data.
+#' run after it is updated with any new data. The CU values use pre-defined correction factors
+#' whereas the ZC values use correction factor constructed from tagging data on dead pups. (see popan.cf)
 #' 
 #' @param PreLiveCountCf Multiplicative correction factor for observed
 #'   mortality prior to live count to account for dead pups that were missed
@@ -21,6 +22,7 @@
 #' @param dead is a dataframe of corrected dead pup counts across occasions
 #' @param pups is the estimated number of pups produced in the mortality count area
 #' @export CuMortalityStats ZcMortalityStats
+#' @aliases CuMortalityStats ZcMortalityStats
 #' @return dataframe containing year,SurveyDate,Pups(number of pups alive at
 #'   time),ObservedDead (number observed to die in that interval)
 #'   AdjustedDead(corrected count that died),MortalityRate(mortality rate

@@ -11,11 +11,14 @@ if(!exists("anomalies"))
 	sdir=system.file(package="CIPinnipedAnalysis")
 	source(file.path(sdir,"CreateAnomalies.r"))
 }
+if(!exists("use.calcofi"))use.calcofi=FALSE
 #################################################################################
 # Cross-sectional analysis
 #################################################################################
 # get zc weight values from database
 zcweights=get.zc.weights(fdir=fdir)
+zcweights=zcweights[zcweights$cohort<=lastyear,]
+if(use.calcofi)zcweights=zcweights[zcweights$cohort>=1984,]
 #
 #  exclude brand eval weights and captures in April and only use SMI
 #
@@ -23,40 +26,95 @@ zcweights=zcweights[zcweights$days>-30&zcweights$days<150&
 				zcweights$sitecode=="SMI",]
 zcweights$batch=factor(paste(zcweights$cohort,zcweights$days))
 
+if(use.calcofi)
+{
+	data(calcofi)
+#	calcofi=calcofi[as.numeric(calcofi$Station)<=3,]
+	calcofi=sapply(calcofi[,-(1:2)],function(x) tapply(x,calcofi$Year,mean))
+	calcofi=t(t(calcofi)-colMeans(calcofi))
+	zcweights.environ=merge(zcweights,cbind(calcofi,data.frame(cohort=1984:lastyear,SST=JunetoSeptAnomalies[13:numyears],SST1=OcttoFebAnomalies[13:numyears],SST2=JunetoFebAnomalies[13:numyears],
+							MEI=LaggedMEIJunetoSept[-(1:10)],MEI1=LaggedMEIOcttoFeb[-(1:10)],MEI2=LaggedMEIJunetoFeb[-(1:10)],UWI33=UWImeansJunetoSept[1,-(1:15)],UWI36=UWImeansJunetoSept[2,-(1:15)],
+							UWI331=UWImeansOcttoFeb[1,-(1:15)],UWI361=UWImeansOcttoFeb[2,-(1:15)],UWI332=UWImeansJunetoFeb[1,-(1:15)],UWI362=UWImeansJunetoFeb[2,-(1:15)])))
+	fixed.f=list(weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort.factor,
+			weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort,
+			weight~sex*SST+sex:days+SST1:days+sex:SST1:days,
+			weight~sex*SST+sex:days+SST1:days+cohort.factor,
+			weight~sex*SST+sex:days+SST1:days+cohort,
+			weight~sex*SST+sex:days+SST1:days,
+			weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort.factor,
+			weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort,
+			weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days,
+			weight~sex*UWI36+sex:days+UWI361:days+cohort.factor,
+			weight~sex*UWI36+sex:days+UWI361:days+cohort,
+			weight~sex*UWI36+sex:days+UWI361:days,
+			weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort.factor,
+			weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort,
+			weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days,
+			weight~sex*MEI+sex:days+MEI1:days+cohort.factor,
+			weight~sex*MEI+sex:days+MEI1:days+cohort,
+			weight~sex*MEI+sex:days,
+			weight~sex*dynamic_height_0_500m+sex:days+SST1:days+sex:SST1:days+cohort.factor,
+			weight~sex*dynamic_height_0_500m+sex:days+SST1:days+sex:SST1:days+cohort,
+			weight~sex*dynamic_height_0_500m+sex:days+SST1:days+sex:SST1:days,
+			weight~sex*dynamic_height_0_500m+sex:days+SST1:days+cohort.factor,
+			weight~sex*dynamic_height_0_500m+sex:days+SST1:days+cohort,
+			weight~sex*dynamic_height_0_500m+sex:days,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+sex:SST1:days+cohort.factor,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+sex:SST1:days+cohort,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+sex:SST1:days,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort.factor,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort,
+			weight~sex*R_SIGMA_75m+sex:days,
+			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m:days+sex:R_POTEMP_25m:days+cohort.factor,
+			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m:days+sex:R_POTEMP_25m:days+cohort,
+			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m:days+sex:R_POTEMP_25m:days,
+			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m:days+cohort.factor,
+			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m:days+cohort,
+			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m:days,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+stratification,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+pycnocline_depth,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+R_POTEMP_25m,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+R_POTEMP_75m,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+R_SIGMA_25m,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+dynamic_height_0_500m,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+R_O2_25m,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+R_O2_75m,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+R_NO3_25m,
+			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+R_NO3_75m)
+} else {
+	zcweights.environ=merge(zcweights,data.frame(cohort=1975:lastyear,SST=JunetoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],SST2=JunetoFebAnomalies[4:numyears],
+					MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansJunetoSept[1,-(1:6)],UWI36=UWImeansJunetoSept[2,-(1:6)],
+					UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],UWI362=UWImeansJunetoFeb[2,-(1:6)]))
+	fixed.f=list(weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort.factor,
+			weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort,
+			weight~sex*SST+sex:days+SST1:days+sex:SST1:days,
+			weight~sex*SST+sex:days+SST1:days+cohort.factor,
+			weight~sex*SST+sex:days+SST1:days+cohort,
+			weight~sex*SST+sex:days+SST1:days,
+			weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort.factor,
+			weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort,
+			weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days,
+			weight~sex*UWI36+sex:days+UWI361:days+cohort.factor,
+			weight~sex*UWI36+sex:days+UWI361:days+cohort,
+			weight~sex*UWI36+sex:days+UWI361:days,
+			weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort.factor,
+			weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort,
+			weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days,
+			weight~sex*MEI+sex:days+MEI1:days+cohort.factor,
+			weight~sex*MEI+sex:days+MEI1:days+cohort,
+			weight~sex*MEI+sex:days)
+}
 
-# Create dataframe with weights and environmental variables
-# use 1975 and on for weight data; remove 1972-1974
-zcweights.environ=merge(zcweights,data.frame(cohort=1975:lastyear,SST=JunetoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],SST2=JunetoFebAnomalies[4:numyears],
-				MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansJunetoSept[1,-(1:6)],UWI36=UWImeansJunetoSept[2,-(1:6)],
-				UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],UWI362=UWImeansJunetoFeb[2,-(1:6)]))
 zcweights.environ$cohort.factor=factor(ifelse(zcweights.environ$cohort<1990,0,1),labels=c("<=1989",">=1990"))
 zcweights.environ$cohort=zcweights.environ$cohort-min(zcweights.environ$cohort)
 
 # First fit a sequence of random effect models with REML to assess best random model with same fixed model
 random.f=list(list(~1|cohort,~1|batch),list(~days|cohort,~1|batch),list(~sex:days|cohort,~1|batch),list(~sex*days|cohort,~1|batch),list(~-1+sex+days|cohort,~1|batch))
-fixed.f=list(weight~sex*SST+sex:days+SST1:days+sex:SST1:days+UWI33+cohort+MEI)
-res.environ=fitmixed(fixed.f,random.f,data=zcweights.environ) 
+fixed.f1=list(weight~sex*SST+sex:days+SST1:days+sex:SST1:days+UWI33+cohort+MEI)
+res.environ=fitmixed(fixed.f1,random.f,data=zcweights.environ) 
 
 # Using that random model, fit a sequence of fixed effect models with ML and use AIC to assess best fixed model
 random.f=list(res.environ$best.r)
-fixed.f=list(weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort.factor,
-             weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort,
-			 weight~sex*SST+sex:days+SST1:days+sex:SST1:days,
-			 weight~sex*SST+sex:days+SST1:days+cohort.factor,
-			 weight~sex*SST+sex:days+SST1:days+cohort,
-			 weight~sex*SST+sex:days+SST1:days,
-			 weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort.factor,
-			 weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort,
-			 weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days,
-			 weight~sex*UWI36+sex:days+UWI361:days+cohort.factor,
-			 weight~sex*UWI36+sex:days+UWI361:days+cohort,
-	         weight~sex*UWI36+sex:days+UWI361:days,
-			 weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort.factor,
-			 weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort,
-			 weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days,
-			 weight~sex*MEI+sex:days+MEI1:days+cohort.factor,
-			 weight~sex*MEI+sex:days+MEI1:days+cohort,
-			 weight~sex*MEI+sex:days)
 res.environ=fitmixed(fixed.f,random.f,data=zcweights.environ) 
 
 # Finally fit best fixed/random model with REML
@@ -111,40 +169,44 @@ if(exists("ZCWeight.df"))
 	ZCWeight.df$female.environ.mean.fall.se=NA
 	ZCWeight.df$male.environ.mean.fall=NA
 	ZCWeight.df$male.environ.mean.fall.se=NA
-	ZCWeight.df$female.environ.mean.fall[1:length(female.averages$fit)]=female.averages$fit
-	ZCWeight.df$female.environ.mean.fall.se[1:length(female.averages$fit)]=female.averages$se
-	ZCWeight.df$male.environ.mean.fall[1:length(female.averages$fit)]=male.averages$fit
-	ZCWeight.df$male.environ.mean.fall.se[1:length(female.averages$fit)]=male.averages$se
-
-
+	add=0
+	if(use.calcofi)add=9
+	ZCWeight.df$female.environ.mean.fall[add+1:length(female.averages$fit)]=female.averages$fit
+	ZCWeight.df$female.environ.mean.fall.se[add+1:length(female.averages$fit)]=female.averages$se
+	ZCWeight.df$male.environ.mean.fall[add+1:length(female.averages$fit)]=male.averages$fit
+	ZCWeight.df$male.environ.mean.fall.se[add+1:length(female.averages$fit)]=male.averages$se
+	
+	ZCWeight.df$female.environ.mean.fall.fixed[add+1:length(female.averages$fit)]=expected.female.averages$fit
+	ZCWeight.df$male.environ.mean.fall.fixed[add+1:length(female.averages$fit)]=expected.male.averages$fit
+	
     # Plot predictions and observed
 	jpeg("ZCEnvironObserved&Predicted.jpg",height=600,width=600,quality=100,pointsize=12)
-    par(mfrow=c(2,1))
-    with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.mean.fall,pch="F",type="b",ylim=c(12,26)))
-    with(ZCWeight.df,points(ZCWeight.df$Year,female.observed.mean.fall,pch="O"))
-    with(ZCWeight.df,lines(ZCWeight.df$Year,female.observed.mean.fall,lty=2))
-    with(ZCWeight.df,plot(ZCWeight.df$Year,male.environ.mean.fall,pch="M",type="b",ylim=c(12,26)))
-    with(ZCWeight.df,points(ZCWeight.df$Year,male.observed.mean.fall,pch="O"))
-    with(ZCWeight.df,lines(ZCWeight.df$Year,male.observed.mean.fall,lty=2))
-    dev.off()
-
-     # Plot residuals of predictions based on fixed effects only versus mixed effects
-	 jpeg("ZCEnvironFixedEffectResiduals.jpg",height=600,width=600,quality=100,pointsize=12)
-	 par(mfrow=c(2,1))
-     plot(ZCWeight.df$Year[1:length(male.averages$fit)],male.averages$fit-expected.male.averages$fit,pch="M",type="b")
-     abline(0,0)
-     plot(ZCWeight.df$Year[1:length(male.averages$fit)],female.averages$fit-expected.female.averages$fit,pch="F",type="b",xlab="Year",ylab="Observed- model predicted weight")
-     abline(0,0)
-	 dev.off()
-
-	 jpeg("ZCEnvironFixedEffectFemalePredictions&Observed.jpg",height=600,width=600,quality=100,pointsize=12)
-     plot(ZCWeight.df$Year[1:length(male.averages$fit)],female.averages$fit,type="b",ylim=c(12,22),xlab="Year",ylab="Female pup weight (kg)")
-     lines(ZCWeight.df$Year[1:length(male.averages$fit)],expected.female.averages$fit,type="b",lty=2,pch=2) 
-     points(2000,14,pch=1)
-     points(2000,13,pch=2)
-     text(2000,14,"1 Oct mean weight",pos=4)
-     text(2000,13,"Model predicted mean weight",pos=4)
-	 dev.off()
+	par(mfrow=c(2,1))
+	with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.mean.fall,pch="F",type="b",ylim=c(12,26)))
+	with(ZCWeight.df,points(ZCWeight.df$Year,female.observed.mean.fall,pch="O"))
+	with(ZCWeight.df,lines(ZCWeight.df$Year,female.observed.mean.fall,lty=2))
+	with(ZCWeight.df,plot(ZCWeight.df$Year,male.environ.mean.fall,pch="M",type="b",ylim=c(12,26)))
+	with(ZCWeight.df,points(ZCWeight.df$Year,male.observed.mean.fall,pch="O"))
+	with(ZCWeight.df,lines(ZCWeight.df$Year,male.observed.mean.fall,lty=2))
+	dev.off()
+	
+	# Plot residuals of predictions based on fixed effects only versus mixed effects
+	jpeg("ZCEnvironFixedEffectResiduals.jpg",height=600,width=600,quality=100,pointsize=12)
+	par(mfrow=c(2,1))
+	plot(ZCWeight.df$Year[add+1:length(male.averages$fit)],male.averages$fit-expected.male.averages$fit,pch="M",type="b")
+	abline(0,0)
+	plot(ZCWeight.df$Year[add+1:length(male.averages$fit)],female.averages$fit-expected.female.averages$fit,pch="F",type="b",xlab="Year",ylab="Observed- model predicted weight")
+	abline(0,0)
+	dev.off()
+	
+	jpeg("ZCEnvironFixedEffectFemalePredictions&Observed.jpg",height=600,width=600,quality=100,pointsize=12)
+	plot(ZCWeight.df$Year[add+1:length(male.averages$fit)],female.averages$fit,type="b",ylim=c(12,22),xlab="Year",ylab="Female pup weight (kg)")
+	lines(ZCWeight.df$Year[add+1:length(male.averages$fit)],expected.female.averages$fit,type="b",lty=2,pch=2) 
+	points(2000,14,pch=1)
+	points(2000,13,pch=2)
+	text(2000,14,"1 Oct mean weight",pos=4)
+	text(2000,13,"Model predicted mean weight",pos=4)
+	dev.off()
 }
 
 #################  1 Feb Predictions ####################
@@ -173,30 +235,15 @@ if(exists("ZCWeight.df"))
 	ZCWeight.df$male.environ.mean.winter=NA
 	ZCWeight.df$male.environ.mean.winter.se=NA
 	
-	ZCWeight.df$female.environ.mean.winter[1:length(female.averages$fit)]=female.averages$fit
-	ZCWeight.df$female.environ.mean.winter.se[1:length(female.averages$fit)]=female.averages$se
-	ZCWeight.df$male.environ.mean.winter[1:length(female.averages$fit)]=male.averages$fit
-	ZCWeight.df$male.environ.mean.winter.se[1:length(female.averages$fit)]=male.averages$se
+	ZCWeight.df$female.environ.mean.winter[add+1:length(female.averages$fit)]=female.averages$fit
+	ZCWeight.df$female.environ.mean.winter.se[add+1:length(female.averages$fit)]=female.averages$se
+	ZCWeight.df$male.environ.mean.winter[add+1:length(female.averages$fit)]=male.averages$fit
+	ZCWeight.df$male.environ.mean.winter.se[add+1:length(female.averages$fit)]=male.averages$se
 }
 	
 
-# Plot predictions and predictions at SST=0
-#pp=zcweights.environ
-#pp$days=0
-#pp$SST=0
-#pp=predict(zc.weight.model,newdata=pp)
-#pp=tapply(as.vector(pp),list(zcweights.environ$cohort,zcweights.environ$sex),mean)
-#female.averages=data.frame(fit=pp[,1],se=stderrors[1:length(pp[,1])])
-#male.averages=data.frame(fit=pp[,2],se=stderrors[(length(pp[,1])+1):(2*length(pp[,1]))])
-#win.graph()
-#par(mfrow=c(2,1))
-#with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.mean,pch="F",type="b",ylim=c(12,26)))
-#points(ZCWeight.df$Year,female.averages$fit,pch="S")
-#lines(ZCWeight.df$Year,female.averages$fit,pch="S",lty=2)
-#with(ZCWeight.df,plot(ZCWeight.df$Year,male.environ.mean,pch="M",type="b",ylim=c(12,26)))
-#points(ZCWeight.df$Year,male.averages$fit,pch="S")
-#lines(ZCWeight.df$Year,male.averages$fit,pch="S",lty=2)
-
-
-
-
+	
+		
+		
+		
+		

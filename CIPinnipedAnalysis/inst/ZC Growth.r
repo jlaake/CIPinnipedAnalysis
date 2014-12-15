@@ -5,6 +5,7 @@
 require(CIPinnipedAnalysis)
 if(!exists("fdir"))fdir=NULL
 if(!exists("nboot"))nboot=100
+if(!exists("lastyear"))lastyear=2013
 if(!exists("anomalies"))
 {
 	sdir=system.file(package="CIPinnipedAnalysis")
@@ -15,6 +16,8 @@ if(!exists("anomalies"))
 ################################################################################
 # get zc weight values from database
 zcweights.lon=get.zc.weights(fdir=fdir)
+zcweights.lon=zcweights.lon[zcweights.lon$cohort<=lastyear,]
+
 #
 #  Use SMI from 1 Sept to end of Feb
 #

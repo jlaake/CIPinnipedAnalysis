@@ -101,16 +101,21 @@ male.averages=data.frame(fit=pp1[,2],se=stderrors[(length(pp1[,1])+1):(2*length(
 
 if(exists("CUWeight.df"))
 {
-   CUWeight.df$female.eviron.mean=female.averages$fit
-   CUWeight.df$female.environ.mean.se=female.averages$se
-   CUWeight.df$male.environ.mean=male.averages$fit
-   CUWeight.df$male.environ.mean.se=male.averages$se
+   CUWeight.df$female.environ.mean=NA
+   CUWeight.df$female.environ.mean.se=NA
+   CUWeight.df$male.environ.mean=NA
+   CUWeight.df$male.environ.mean.se=NA
+   numrecs=1:length(female.averages$fit)
+   CUWeight.df$female.environ.mean[numrecs]=female.averages$fit
+   CUWeight.df$female.environ.mean.se[numrecs]=female.averages$se
+   CUWeight.df$male.environ.mean[numrecs]=male.averages$fit
+   CUWeight.df$male.environ.mean.se[numrecs]=male.averages$se
   
    # Plot predictions and observed
    jpeg("CUEnvironObserved&Predicted.jpg",height=600,width=600,quality=100,pointsize=12)
    par(mfrow=c(2,1))
    year.seq=1975:max(as.numeric(row.names(CUWeight.df)))
-   with(CUWeight.df,plot(year.seq,female.eviron.mean,pch="F",type="b",ylim=c(4,16),xlab="Year"))
+   with(CUWeight.df,plot(year.seq,female.environ.mean,pch="F",type="b",ylim=c(4,16),xlab="Year"))
    with(CUWeight.df,points(year.seq,female.observed.mean,pch="O"))
    with(CUWeight.df,lines(year.seq,female.observed.mean,lty=2))
    with(CUWeight.df,plot(year.seq,male.environ.mean,pch="M",type="b",ylim=c(4,16),xlab="Year"))
@@ -126,18 +131,18 @@ if(exists("CUWeight.df"))
 
    jpeg("CUEnvironFixedEffectFemalePredictions&Observed.jpg",height=600,width=600,quality=100,pointsize=12)
    par(mfrow=c(2,1))
-   with(CUWeight.df,plot(year.seq,expected.female.averages$fit,pch="F",type="b",ylim=c(4,16),xlab="Year"))
+   with(CUWeight.df,plot(year.seq[numrecs],expected.female.averages$fit,pch="F",type="b",ylim=c(4,16),xlab="Year"))
    points(year.seq,CUWeight.df$female.observed.mean,pch="O")
-   lines(year.seq,expected.female.averages$fit,pch="S",lty=2)
-   with(CUWeight.df,plot(year.seq,expected.male.averages$fit,pch="F",type="b",ylim=c(4,16),xlab="Year"))
+   lines(year.seq[numrecs],expected.female.averages$fit,pch="S",lty=2)
+   with(CUWeight.df,plot(year.seq[numrecs],expected.male.averages$fit,pch="F",type="b",ylim=c(4,16),xlab="Year"))
    points(year.seq,CUWeight.df$male.observed.mean,pch="O")
-   lines(year.seq,expected.male.averages$fit,pch="S",lty=2)
+   lines(year.seq[numrecs],expected.male.averages$fit,pch="S",lty=2)
    dev.off()
 
    # Plot residuals of predictions based on fixed effects only versus mixed effects
    jpeg("CUEnvironFixedEffectResiduals.jpg",height=600,width=600,quality=100,pointsize=12)
    par(mfrow=c(2,1))
-   plot(year.seq,female.averages$fit-expected.female.averages$fit,pch="F",type="b")
-   plot(year.seq,male.averages$fit-expected.male.averages$fit,pch="M",type="b")
+   plot(year.seq[numrecs],female.averages$fit-expected.female.averages$fit,pch="F",type="b")
+   plot(year.seq[numrecs],male.averages$fit-expected.male.averages$fit,pch="M",type="b")
    dev.off()
 }

@@ -33,13 +33,13 @@ OcttoFebAnomalies[is.nan(OcttoFebAnomalies)]=NA
 OcttoFebAnomalies=rowMeans(OcttoFebAnomalies,na.rm=TRUE)
 JunetoSeptAnomalies=SSTAnomalies[1:numyears,c("June","July","Aug","Sept")]
 JunetoSeptAnomalies[is.nan(JunetoSeptAnomalies)]=NA
-JunetoSeptAnomalies=rowMeans(JunetoSeptAnomalies,na.rm=TRUE)
+JunetoSeptAnomalies=rowMeans(JunetoSeptAnomalies,na.rm=TRUE)[1:numyears]
 OcttoDecAnomalies=SSTAnomalies[1:numyears,c("Oct","Nov","Dec")]
 OcttoDecAnomalies[is.nan(OcttoDecAnomalies)]=NA
-OcttoDecAnomalies=rowMeans(OcttoDecAnomalies,na.rm=TRUE)
+OcttoDecAnomalies=rowMeans(OcttoDecAnomalies,na.rm=TRUE)[1:numyears]
 JunetoFebAnomalies=as.matrix(cbind(SSTAnomalies[1:numyears,c("June","July","Aug","Sept","Oct","Nov","Dec")],JantoFeb))
 JunetoFebAnomalies[is.nan(JunetoFebAnomalies)]=NA
-JunetoFebAnomalies=rowMeans(JunetoFebAnomalies,na.rm=TRUE)
+JunetoFebAnomalies=rowMeans(JunetoFebAnomalies,na.rm=TRUE)[1:numyears]
 SSTAnomalyBySeason=rbind(data.frame(Year=minyear:lastyear,Season=rep("Spring",numyears),SSTAnomaly=as.vector(JantoMayAnomalies)),
 		data.frame(Year=minyear:lastyear,Season=rep("Summer",numyears),SSTAnomaly=as.vector(JunetoSeptAnomalies)),
 		data.frame(Year=minyear:lastyear,Season=rep("Fall",numyears),SSTAnomaly=as.vector(OcttoDecAnomalies)) )
@@ -111,18 +111,18 @@ LaggedMEIJunetoFeb=LaggedMEIJunetoFeb[as.numeric(names(LaggedMEIJunetoFeb))<=las
 
 
 
-CentralSSTAnomalies=t(apply(anomalies[,,3:7],c(2,1),mean,na.rm=TRUE))
-SouthSSTAnomalies=t(apply(anomalies[,,1:2],c(2,1),mean,na.rm=TRUE))
-NorthSSTAnomalies=anomalies[,,8]
+#CentralSSTAnomalies=t(apply(anomalies[,,3:7],c(2,1),mean,na.rm=TRUE))
+#SouthSSTAnomalies=t(apply(anomalies[,,1:2],c(2,1),mean,na.rm=TRUE))
+#NorthSSTAnomalies=anomalies[,,8]
 
-JantoMayAnomalies=rowMeans(SSTAnomalies[,c("Jan","Feb","Mar","Apr","May")])
-JunetoSeptAnomalies=rowMeans(SSTAnomalies[,c("June","July","Aug","Sept")])
-OcttoDecAnomalies=rowMeans(SSTAnomalies[,c("Oct","Nov","Dec")])
+#JantoMayAnomalies=rowMeans(SSTAnomalies[,c("Jan","Feb","Mar","Apr","May")])
+#JunetoSeptAnomalies=rowMeans(SSTAnomalies[,c("June","July","Aug","Sept")])
+#OcttoDecAnomalies=rowMeans(SSTAnomalies[,c("Oct","Nov","Dec")])
 
-x=rbind(data.frame(Year=minyear:lastyear,Season=rep("Spring",numyears),SSTAnomaly=JantoMayAnomalies[1:numyears]),
-		data.frame(Year=minyear:lastyear,Season=rep("Summer",numyears),SSTAnomaly=JunetoSeptAnomalies[1:numyears]),
-		data.frame(Year=minyear:lastyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies[1:numyears]) )
-x$Season=factor(x$Season,levels=c("Spring","Summer","Fall"))
-x=x[order(x$Year,x$Season),]
+#x=rbind(data.frame(Year=minyear:lastyear,Season=rep("Spring",numyears),SSTAnomaly=JantoMayAnomalies[1:numyears]),
+#		data.frame(Year=minyear:lastyear,Season=rep("Summer",numyears),SSTAnomaly=JunetoSeptAnomalies[1:numyears]),
+#		data.frame(Year=minyear:lastyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies[1:numyears]) )
+#x$Season=factor(x$Season,levels=c("Spring","Summer","Fall"))
+#x=x[order(x$Year,x$Season),]
 
 

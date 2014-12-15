@@ -5,11 +5,13 @@
 if(!exists("fdir"))fdir=NULL
 require(CIPinnipedAnalysis)
 if(!exists("nboot"))nboot=100
+if(!exists("lastyear"))lastyear=2013
 #################################################################################
 # Cross-sectional analysis
 #################################################################################
 # get zc weight values from database
 zcweights=get.zc.weights(fdir=fdir)
+zcweights=zcweights[zcweights$cohort<=lastyear,]
 #
 #  exclude brand eval weights and captures in April and only use SMI
 #
