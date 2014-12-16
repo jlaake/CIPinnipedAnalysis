@@ -28,10 +28,7 @@
 #' @seealso \code{\link{create.SST.anomalies}}
 #' @export create.anomalies
 #' @examples 
-#' fdir=system.file(package="CIPinnipedAnalysis")
-#' source(file.path(fdir,"CreateAnomalies.r"))
-#' 
-#' source("CreateAnomalies.r")
+#' source(file.path(system.file(package="CIPinnipedAnalysis"),"CreateAnomalies.r"))
 #' 
 create.anomalies=function(x,yrange,average.years)
 {

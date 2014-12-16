@@ -38,10 +38,7 @@ month.  Computes average monthly value from a defined set of years
 year-month matrix to produce anomaly matrix.
 }
 \examples{
-fdir=system.file(package="CIPinnipedAnalysis")
-source(file.path(fdir,"CreateAnomalies.r"))
-
-source("CreateAnomalies.r")
+source(file.path(system.file(package="CIPinnipedAnalysis"),"CreateAnomalies.r"))
 }
 \author{
 Jeff Laake

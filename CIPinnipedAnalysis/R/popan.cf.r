@@ -29,6 +29,7 @@
 #' @author Jeff Laake
 #' @seealso correct_dead 
 #' @examples 
+#' \dontrun{
 #' #note this will construct all of the correction factor data; it will take awhile
 #' smi1994.popan.results=popan.cf("SMI",1994)
 #' smi1995.popan.results=popan.cf("SMI",1995)
@@ -37,7 +38,7 @@
 #' sni2006.popan.results=popan.cf("SNI",2006)
 #' smi1998a.popan.results=popan.cf("SMI",1998,area=TRUE)
 #' smi2002a.popan.results=popan.cf("SMI",2002,area=TRUE)
-#'
+#' }
 popan.cf=function(island,year,silent=TRUE,area=FALSE)
 {
 	

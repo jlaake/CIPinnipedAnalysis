@@ -41,6 +41,7 @@ The cfdata is used by correct_dead and get_cf functions to create estimates of t
 Note: In 1994 the number of untagged and stacked was not recorded on the last occasion; thus the correction factor for the last occasion is not useful.
 }
 \examples{
+\dontrun{
 #note this will construct all of the correction factor data; it will take awhile
 smi1994.popan.results=popan.cf("SMI",1994)
 smi1995.popan.results=popan.cf("SMI",1995)
@@ -49,6 +50,7 @@ smi2002.popan.results=popan.cf("SMI",2002)
 sni2006.popan.results=popan.cf("SNI",2006)
 smi1998a.popan.results=popan.cf("SMI",1998,area=TRUE)
 smi2002a.popan.results=popan.cf("SMI",2002,area=TRUE)
+}
 }
 \author{
 Jeff Laake
