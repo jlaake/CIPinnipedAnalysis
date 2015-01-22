@@ -48,6 +48,7 @@ NULL
 #' @docType data
 #' @format A dataframe with fields 
 #' \preformatted{
+#' Month - either July or October
 #' Year - year of data measurement
 #' Station - station value
 #' dynamic_height_0_500m - dynamic heigth measurement - units unknown; function of temp and salinity
