@@ -29,11 +29,16 @@ zcweights$batch=factor(paste(zcweights$cohort,zcweights$days))
 if(use.calcofi)
 {
 	data(calcofi)
-#	calcofi=calcofi[as.numeric(calcofi$Station)<=3,]
-	calcofi=sapply(calcofi[,-(1:2)],function(x) tapply(x,calcofi$Year,mean))
-	calcofi=t(t(calcofi)-colMeans(calcofi))
-	zcweights.environ=merge(zcweights,cbind(calcofi,data.frame(cohort=1984:lastyear,SST=JunetoSeptAnomalies[13:numyears],SST1=OcttoFebAnomalies[13:numyears],SST2=JunetoFebAnomalies[13:numyears],
-							MEI=LaggedMEIJunetoSept[-(1:10)],MEI1=LaggedMEIOcttoFeb[-(1:10)],MEI2=LaggedMEIJunetoFeb[-(1:10)],UWI33=UWImeansJunetoSept[1,-(1:15)],UWI36=UWImeansJunetoSept[2,-(1:15)],
+    calcofi=calcofi[calcofi$Month=="July",]
+	calcofi=sapply(calcofi[,-(1:3)],function(x) tapply(x,calcofi$Year,mean))
+	july.calcofi=t(t(calcofi)-colMeans(calcofi))
+    data(calcofi)
+    calcofi=calcofi[calcofi$Month=="October",]
+	calcofi=sapply(calcofi[,-(1:3)],function(x) tapply(x,calcofi$Year,mean))
+	oct.calcofi=t(t(calcofi)-colMeans(calcofi))
+    colnames(oct.calcofi)=paste(colnames(oct.calcofi),".oct",sep="")
+	zcweights.environ=merge(zcweights,cbind(july.calcofi,oct.calcofi,data.frame(cohort=1984:lastyear,SST=JunetoSeptAnomalies[13:numyears],SST1=OcttoFebAnomalies[13:numyears],SST2=JunetoFebAnomalies[13:numyears],
+ 							MEI=LaggedMEIJunetoSept[-(1:10)],MEI1=LaggedMEIOcttoFeb[-(1:10)],MEI2=LaggedMEIJunetoFeb[-(1:10)],UWI33=UWImeansJunetoSept[1,-(1:15)],UWI36=UWImeansJunetoSept[2,-(1:15)],
 							UWI331=UWImeansOcttoFeb[1,-(1:15)],UWI361=UWImeansOcttoFeb[2,-(1:15)],UWI332=UWImeansJunetoFeb[1,-(1:15)],UWI362=UWImeansJunetoFeb[2,-(1:15)])))
 	fixed.f=list(weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort.factor,
 			weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort,
@@ -53,34 +58,33 @@ if(use.calcofi)
 			weight~sex*MEI+sex:days+MEI1:days+cohort.factor,
 			weight~sex*MEI+sex:days+MEI1:days+cohort,
 			weight~sex*MEI+sex:days,
-			weight~sex*dynamic_height_0_500m+sex:days+SST1:days+sex:SST1:days+cohort.factor,
-			weight~sex*dynamic_height_0_500m+sex:days+SST1:days+sex:SST1:days+cohort,
-			weight~sex*dynamic_height_0_500m+sex:days+SST1:days+sex:SST1:days,
-			weight~sex*dynamic_height_0_500m+sex:days+SST1:days+cohort.factor,
-			weight~sex*dynamic_height_0_500m+sex:days+SST1:days+cohort,
+			weight~sex*dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+sex:dynamic_height_0_500m.oct:days+cohort.factor,
+			weight~sex*dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+sex:dynamic_height_0_500m.oct:days+cohort,
+			weight~sex*dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+sex:dynamic_height_0_500m.oct:days,
+			weight~sex*dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+cohort.factor,
+			weight~sex*dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+cohort,
 			weight~sex*dynamic_height_0_500m+sex:days,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+sex:SST1:days+cohort.factor,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+sex:SST1:days+cohort,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+sex:SST1:days,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort.factor,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort,
+			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+sex:R_SIGMA_75m.oct:days+cohort.factor,
+			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+sex:R_SIGMA_75m.oct:days+cohort,
+			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+sex:R_SIGMA_75m.oct:days,
+			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort.factor,
+			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort,
 			weight~sex*R_SIGMA_75m+sex:days,
-			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m:days+sex:R_POTEMP_25m:days+cohort.factor,
-			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m:days+sex:R_POTEMP_25m:days+cohort,
-			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m:days+sex:R_POTEMP_25m:days,
-			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m:days+cohort.factor,
-			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m:days+cohort,
-			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m:days,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+stratification,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+pycnocline_depth,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+R_POTEMP_25m,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+R_POTEMP_75m,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+R_SIGMA_25m,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+dynamic_height_0_500m,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+R_O2_25m,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+R_O2_75m,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+R_NO3_25m,
-			weight~sex*R_SIGMA_75m+sex:days+SST1:days+cohort+R_NO3_75m)
+			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m.oct:days+sex:R_POTEMP_25m.oct:days+cohort.factor,
+			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m.oct:days+sex:R_POTEMP_25m.oct:days+cohort,
+			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m.oct:days+sex:R_POTEMP_25m.oct:days,
+			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m.oct:days+cohort.factor,
+			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m.oct:days+cohort,
+			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m.oct:days,
+			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+stratification,
+			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+pycnocline_depth,
+			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+R_POTEMP_25m,
+			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+R_POTEMP_75m,
+			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+dynamic_height_0_500m,
+			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+R_O2_25m,
+			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+R_O2_75m,
+			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+R_NO3_25m,
+			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+R_NO3_75m)
 } else {
 	zcweights.environ=merge(zcweights,data.frame(cohort=1975:lastyear,SST=JunetoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],SST2=JunetoFebAnomalies[4:numyears],
 					MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansJunetoSept[1,-(1:6)],UWI36=UWImeansJunetoSept[2,-(1:6)],

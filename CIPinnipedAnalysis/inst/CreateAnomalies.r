@@ -52,17 +52,21 @@ SSTAnomalyBySeason=SSTAnomalyBySeason[order(SSTAnomalyBySeason$Year,SSTAnomalyBy
 # Extract UWI data
 UWI=getCalcurData("Environ","UWIAnomaly",dir=fdir)
 UWI=UWI[order(UWI$Year,UWI$Month),]
+UWI=UWI[UWI$Year<=lastyear,]
 UWImeansJunetoSept=with(UWI[UWI$Month%in%6:9,], tapply(UWIAnomaly,list(Location,Year),mean,na.rm=TRUE))
 UWIJunetoSept=with(UWI[UWI$Month%in%6:9,], tapply(UWIAnomaly,list(Month,Year,Location),mean,na.rm=TRUE))
 UWIOcttoDec=with(UWI[UWI$Month%in%10:12,], tapply(UWIAnomaly,list(Month,Year,Location),mean,na.rm=TRUE))
 UWIJantoFeb=with(UWI[UWI$Month%in%1:2,], tapply(UWIAnomaly,list(Month,Year,Location),mean,na.rm=TRUE))
 
-minyr=min(dim(UWIJunetoSept)[2],dim(UWIOcttoDec)[2],dim(UWIJantoFeb)[2])
+minyr=min(dim(UWIJunetoSept)[2],dim(UWIOcttoDec)[2],dim(UWIJantoFeb)[2]-1)
+
+UWIJunetoSept=UWIJunetoSept[,1:minyr,]
+UWIOcttoDec=UWIOcttoDec[,1:minyr,]
 
 UWImeansOcttoFeb=NULL
 for(i in 1:2)
 {
-	if(dim(UWIOcttoDec)[2]>dim(UWIJantoFeb)[2])
+	if(dim(UWIOcttoDec)[2]>=dim(UWIJantoFeb)[2])
 		UWImeansOcttoFeb=rbind(UWImeansOcttoFeb,colMeans(rbind(UWIOcttoDec[,-dim(UWIOcttoDec)[2],i],UWIJantoFeb[,-1,i]),na.rm=TRUE))
 	else
 		UWImeansOcttoFeb=rbind(UWImeansOcttoFeb,colMeans(rbind(UWIOcttoDec[,,i],UWIJantoFeb[,-1,i]),na.rm=TRUE))
