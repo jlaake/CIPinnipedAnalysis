@@ -4,13 +4,15 @@
 #The scripts check for the value of fdir and if it exists the script will not change the value; otherwise it sets it to NULL
 if(!exists("fdir"))fdir=NULL
 require(CIPinnipedAnalysis)
+sdir=system.file(package="CIPinnipedAnalysis")
 if(!exists("lastyear"))lastyear=2013
 if(!exists("nboot"))nboot=100
+# If ZC_Weight_Adjustment_model has not been run, run now
+if(!exists("ZCWeight.df"))
+	source(file.path(sdir,"ZC_Weight_Adjustment_Model.r"))
+# If anomalies don't exist create them now to use here
 if(!exists("anomalies"))
-{
-	sdir=system.file(package="CIPinnipedAnalysis")
 	source(file.path(sdir,"CreateAnomalies.r"))
-}
 if(!exists("use.calcofi"))use.calcofi=FALSE
 #################################################################################
 # Cross-sectional analysis
@@ -167,51 +169,20 @@ male.averages=data.frame(fit=pp1[,2],se=stderrors[(length(pp1[,1])+1):(2*length(
 expected.female.averages=data.frame(fit=pp0[,1],se=stderrors[1:length(pp0[,1])])
 expected.male.averages=data.frame(fit=pp0[,2],se=stderrors[(length(pp0[,1])+1):(2*length(pp0[,1]))])
 
-if(exists("ZCWeight.df"))
-{
-	ZCWeight.df$female.environ.mean.fall=NA
-	ZCWeight.df$female.environ.mean.fall.se=NA
-	ZCWeight.df$male.environ.mean.fall=NA
-	ZCWeight.df$male.environ.mean.fall.se=NA
-	add=0
-	if(use.calcofi)add=9
-	ZCWeight.df$female.environ.mean.fall[add+1:length(female.averages$fit)]=female.averages$fit
-	ZCWeight.df$female.environ.mean.fall.se[add+1:length(female.averages$fit)]=female.averages$se
-	ZCWeight.df$male.environ.mean.fall[add+1:length(female.averages$fit)]=male.averages$fit
-	ZCWeight.df$male.environ.mean.fall.se[add+1:length(female.averages$fit)]=male.averages$se
+ZCWeight.df$female.environ.mean.fall=NA
+ZCWeight.df$female.environ.mean.fall.se=NA
+ZCWeight.df$male.environ.mean.fall=NA
+ZCWeight.df$male.environ.mean.fall.se=NA
+add=0
+if(use.calcofi)add=9
+ZCWeight.df$female.environ.mean.fall[add+1:length(female.averages$fit)]=female.averages$fit
+ZCWeight.df$female.environ.mean.fall.se[add+1:length(female.averages$fit)]=female.averages$se
+ZCWeight.df$male.environ.mean.fall[add+1:length(female.averages$fit)]=male.averages$fit
+ZCWeight.df$male.environ.mean.fall.se[add+1:length(female.averages$fit)]=male.averages$se
 	
-	ZCWeight.df$female.environ.mean.fall.fixed[add+1:length(female.averages$fit)]=expected.female.averages$fit
-	ZCWeight.df$male.environ.mean.fall.fixed[add+1:length(female.averages$fit)]=expected.male.averages$fit
+ZCWeight.df$female.environ.mean.fall.fixed[add+1:length(female.averages$fit)]=expected.female.averages$fit
+ZCWeight.df$male.environ.mean.fall.fixed[add+1:length(female.averages$fit)]=expected.male.averages$fit
 	
-    # Plot predictions and observed
-	jpeg("ZCEnvironObserved&Predicted.jpg",height=600,width=600,quality=100,pointsize=12)
-	par(mfrow=c(2,1))
-	with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.mean.fall,pch="F",type="b",ylim=c(12,26)))
-	with(ZCWeight.df,points(ZCWeight.df$Year,female.observed.mean.fall,pch="O"))
-	with(ZCWeight.df,lines(ZCWeight.df$Year,female.observed.mean.fall,lty=2))
-	with(ZCWeight.df,plot(ZCWeight.df$Year,male.environ.mean.fall,pch="M",type="b",ylim=c(12,26)))
-	with(ZCWeight.df,points(ZCWeight.df$Year,male.observed.mean.fall,pch="O"))
-	with(ZCWeight.df,lines(ZCWeight.df$Year,male.observed.mean.fall,lty=2))
-	dev.off()
-	
-	# Plot residuals of predictions based on fixed effects only versus mixed effects
-	jpeg("ZCEnvironFixedEffectResiduals.jpg",height=600,width=600,quality=100,pointsize=12)
-	par(mfrow=c(2,1))
-	plot(ZCWeight.df$Year[add+1:length(male.averages$fit)],male.averages$fit-expected.male.averages$fit,pch="M",type="b")
-	abline(0,0)
-	plot(ZCWeight.df$Year[add+1:length(male.averages$fit)],female.averages$fit-expected.female.averages$fit,pch="F",type="b",xlab="Year",ylab="Observed- model predicted weight")
-	abline(0,0)
-	dev.off()
-	
-	jpeg("ZCEnvironFixedEffectFemalePredictions&Observed.jpg",height=600,width=600,quality=100,pointsize=12)
-	plot(ZCWeight.df$Year[add+1:length(male.averages$fit)],female.averages$fit,type="b",ylim=c(12,22),xlab="Year",ylab="Female pup weight (kg)")
-	lines(ZCWeight.df$Year[add+1:length(male.averages$fit)],expected.female.averages$fit,type="b",lty=2,pch=2) 
-	points(2000,14,pch=1)
-	points(2000,13,pch=2)
-	text(2000,14,"1 Oct mean weight",pos=4)
-	text(2000,13,"Model predicted mean weight",pos=4)
-	dev.off()
-}
 
 #################  1 Feb Predictions ####################
 # use 100 reps to compute std error
@@ -232,18 +203,17 @@ male.averages=data.frame(fit=pp1[,2],se=stderrors[(length(pp1[,1])+1):(2*length(
 # create list with estimates and std errors for expected averages
 expected.female.averages=data.frame(fit=pp0[,1],se=stderrors[1:length(pp0[,1])])
 expected.male.averages=data.frame(fit=pp0[,2],se=stderrors[(length(pp0[,1])+1):(2*length(pp0[,1]))])
-if(exists("ZCWeight.df"))
-{
-	ZCWeight.df$female.environ.mean.winter=NA
-	ZCWeight.df$female.environ.mean.winter.se=NA
-	ZCWeight.df$male.environ.mean.winter=NA
-	ZCWeight.df$male.environ.mean.winter.se=NA
+
+ZCWeight.df$female.environ.mean.winter=NA
+ZCWeight.df$female.environ.mean.winter.se=NA
+ZCWeight.df$male.environ.mean.winter=NA
+ZCWeight.df$male.environ.mean.winter.se=NA
 	
-	ZCWeight.df$female.environ.mean.winter[add+1:length(female.averages$fit)]=female.averages$fit
-	ZCWeight.df$female.environ.mean.winter.se[add+1:length(female.averages$fit)]=female.averages$se
-	ZCWeight.df$male.environ.mean.winter[add+1:length(female.averages$fit)]=male.averages$fit
-	ZCWeight.df$male.environ.mean.winter.se[add+1:length(female.averages$fit)]=male.averages$se
-}
+ZCWeight.df$female.environ.mean.winter[add+1:length(female.averages$fit)]=female.averages$fit
+ZCWeight.df$female.environ.mean.winter.se[add+1:length(female.averages$fit)]=female.averages$se
+ZCWeight.df$male.environ.mean.winter[add+1:length(female.averages$fit)]=male.averages$fit
+ZCWeight.df$male.environ.mean.winter.se[add+1:length(female.averages$fit)]=male.averages$se
+
 	
 
 	

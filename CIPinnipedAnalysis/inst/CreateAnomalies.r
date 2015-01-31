@@ -52,7 +52,7 @@ SSTAnomalyBySeason=SSTAnomalyBySeason[order(SSTAnomalyBySeason$Year,SSTAnomalyBy
 # Extract UWI data
 UWI=getCalcurData("Environ","UWIAnomaly",dir=fdir)
 UWI=UWI[order(UWI$Year,UWI$Month),]
-UWI=UWI[UWI$Year<=lastyear,]
+UWI=UWI[UWI$Year<=lastyear+1,]
 UWImeansJunetoSept=with(UWI[UWI$Month%in%6:9,], tapply(UWIAnomaly,list(Location,Year),mean,na.rm=TRUE))
 UWIJunetoSept=with(UWI[UWI$Month%in%6:9,], tapply(UWIAnomaly,list(Month,Year,Location),mean,na.rm=TRUE))
 UWIOcttoDec=with(UWI[UWI$Month%in%10:12,], tapply(UWIAnomaly,list(Month,Year,Location),mean,na.rm=TRUE))
