@@ -7,7 +7,7 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 
 ```{r,results="hide",echo=FALSE}
   suppressPackageStartupMessages(library(CIPinnipedAnalysis))
-  lastyear=2014
+  lastyear=2015
   sdir=system.file(package="CIPinnipedAnalysis")
 	source(file.path(sdir,"CreateAnomalies.r"))
 	 

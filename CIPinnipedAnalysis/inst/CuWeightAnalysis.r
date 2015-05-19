@@ -14,4 +14,4 @@ if(!exists("nboot"))nboot=100
 if(!exists("lastyear"))lastyear=2013
 ####################################
 source(file.path(sdir,"CU_Weight_Adjustment_Model.r"))
-source(file.path(sdir,"CU_Weight_Environment_Models.r"))
+source(file.path(sdir,"CU_Weight_Environment_Model.r"))
