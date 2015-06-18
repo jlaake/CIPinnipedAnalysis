@@ -109,14 +109,27 @@ if(use.calcofi)
 zcweights.environ.diet$cohort.factor=factor(ifelse(zcweights.environ.diet$cohort<1990,0,1),labels=c("<=1989",">=1990"))
 zcweights.environ.diet$cohort=zcweights.environ.diet$cohort-min(zcweights.environ.diet$cohort)
 
-fo=as.data.frame(dietbyyear)
-names(fo)=c("anchovy","squid","hake","sardine","mackerel","rockfish","pacmac")
-fo$Year=as.numeric(row.names(fo))
-fo$lo.cal=rowSums(dietbyyear[,c(2,3,6)])
-fo$hi.cal=rowSums(dietbyyear[,c(1,4,5,7)])
+data(fo)
+data(scats)
+
+sardine=get_fo(scats,fo,c("SARSAG"))
+anchovy=get_fo(scats,fo,c("ENGMOR"))
+sa=get_fo(scats,fo,c("SARSAG","ENGMOR"))
+rockfish=get_fo(scats,fo,c("SEBSPP","SEBSP1","SEBSP2"))
+hake=get_fo(scats,fo,c("MERPRO"))
+squid=get_fo(scats,fo,c("LOLOPA"))
+mackerel=get_fo(scats,fo,c("SCOJAP","SCOSPP","SCOMAR","TRAYSYM"))
+lo.cal=get_fo(scats,fo,c("SEBSPP","SEBSP1","SEBSP2","MERPRO","LOLOPA"))
+hi.cal=get_fo(scats,fo,c("SARSAG","ENGMOR","SCOJAP","SCOSPP","SCOMAR","TRAYSYM"))
+
+fo=cbind(Year=as.numeric(names(sardine)),sardine=sardine,anchovy=anchovy,
+		rockfish=rockfish,hake=hake,squid=squid,mackerel=mackerel)
+# first and second principal components of 5 primary prey species
+fo=cbind(fo,predict(prcomp(fo[,-1]))[,1:2])
+fo$lo.cal=lo.cal
+fo$hi.cal=hi.cal
 fo$ratio=fo$hi.cal/fo$lo.cal
-fo$sa=fo$anchovy+fo$sardine
-fo=cbind(fo,predict(prcomp(dietbyyear))[,1:2])
+fo$sa=sa
 
 if(use.calcofi)
 {

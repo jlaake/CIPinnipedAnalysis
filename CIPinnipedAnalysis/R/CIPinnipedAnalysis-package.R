@@ -68,3 +68,59 @@ NULL
 NULL
 
 
+#' Scat record data
+#' 
+#' A record for each scat sampled 
+#' 
+#' @name scats
+#' @docType data
+#' @format A dataframe with fields 
+#' \preformatted{
+#' SCATNUM - scat identifier
+#' SPCOD   - code for pinniped species
+#' DATE    - date scat collected
+#' OTO     - yes of TRUE if any otloliths in scat
+#' BKS     - yes or TRUE if any beaks in scat
+#' BNE     - yes or TRUE if any bone in scat
+#' Year     - year of collection
+#' Month    - month of collection
+#' }
+#' Created with scats.txt file and the collowing R code
+#' scats=read.delim("scats.txt",sep="\t",header=TRUE,colClasses=c("factor","factor","character","NULL","NULL","NULL","NULL","character","character","character","numeric","numeric"))
+#' #remove 1994 and 2007 because there is no prey species fo data
+#' scats=scats[!scats$Year%in%c(1994,2007),]
+#' # exclude any with all FALSE or NO for OTO,BKS,BNE except those in include which have prey data
+#' xx=merge(scats,fo)
+#' include=xx[(toupper(xx$BNE)%in%c("FALSE","NO")&toupper(xx$OTO)%in%c("FALSE","NO")&toupper(xx$BKS)%in%c("FALSE","NO"))&!is.na(xx$PREYSP),"SCATNUM"]
+#' rm(xx)
+#' scats=scats[toupper(scats$BNE)%in%c("YES","TRUE")|toupper(scats$BKS)%in%c("YES","TRUE")|toupper(scats$OTO)%in%c("YES","TRUE")|scats$SCATNUM%in%include,]
+#' scats=droplevels(scats)
+#' save(scats,file="scats.rda")
+#' @keywords datasets
+
+NULL
+
+#' Prey species ID data
+#' 
+#' Prey species identified from Zalophus scat data
+#' 
+#' @name fo
+#' @docType data
+#' @format A dataframe with fields 
+#' \preformatted{
+#' SCATNUM - scat identifier
+#' PREYSP  - code for prey species in scat
+#' FO_OT.BK - 1 if identified by beak or otolith
+#' FO_OTHER - 1 if indentified by other structure
+#' Date     - date scat collected
+#' Year     - year of collection
+#' }
+#' Created with FO_DAT.txt file and following R code
+#' fo=read.delim("Fo_DAT.txt",sep="\t",header=TRUE,colClasses=c("factor","factor","character","character","NULL","character","NULL","NULL","numeric","NULL"))
+#' #remove 1994 and 2007 because there is no prey species fo data
+#' fo=droplevels(fo[!fo$Year%in%c(1994,2007),])
+#' save(fo,file="fo.rda")
+#' @keywords datasets
+
+NULL
+
