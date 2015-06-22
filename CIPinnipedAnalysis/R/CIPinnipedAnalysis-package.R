@@ -86,7 +86,7 @@ NULL
 #' Month    - month of collection
 #' }
 #' Created with scats.txt file and the collowing R code
-#' scats=read.delim("scats.txt",sep="\t",header=TRUE,colClasses=c("factor","factor","character","NULL","NULL","NULL","NULL","character","character","character","numeric","numeric"))
+#' scats=read.delim("scats.txt",sep="\\t",header=TRUE,colClasses=c("factor","factor","character","NULL","NULL","NULL","NULL","character","character","character","numeric","numeric"))
 #' #remove 1994 and 2007 because there is no prey species fo data
 #' scats=scats[!scats$Year%in%c(1994,2007),]
 #' # exclude any with all FALSE or NO for OTO,BKS,BNE except those in include which have prey data
@@ -116,7 +116,7 @@ NULL
 #' Year     - year of collection
 #' }
 #' Created with FO_DAT.txt file and following R code
-#' fo=read.delim("Fo_DAT.txt",sep="\t",header=TRUE,colClasses=c("factor","factor","character","character","NULL","character","NULL","NULL","numeric","NULL"))
+#' fo=read.delim("Fo_DAT.txt",sep="\\t",header=TRUE,colClasses=c("factor","factor","character","character","NULL","character","NULL","NULL","numeric","NULL"))
 #' #remove 1994 and 2007 because there is no prey species fo data
 #' fo=droplevels(fo[!fo$Year%in%c(1994,2007),])
 #' save(fo,file="fo.rda")

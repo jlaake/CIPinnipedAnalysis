@@ -16,7 +16,7 @@ Year     - year of collection
 Month    - month of collection
 }
 Created with scats.txt file and the collowing R code
-scats=read.delim("scats.txt",sep="\t",header=TRUE,colClasses=c("factor","factor","character","NULL","NULL","NULL","NULL","character","character","character","numeric","numeric"))
+scats=read.delim("scats.txt",sep="\\t",header=TRUE,colClasses=c("factor","factor","character","NULL","NULL","NULL","NULL","character","character","character","numeric","numeric"))
 #remove 1994 and 2007 because there is no prey species fo data
 scats=scats[!scats$Year%in%c(1994,2007),]
 # exclude any with all FALSE or NO for OTO,BKS,BNE except those in include which have prey data

@@ -4,18 +4,19 @@
 #The scripts check for the value of fdir and if it exists the script will not change the value; otherwise it sets it to NULL
 if(!exists("fdir"))fdir=NULL
 require(CIPinnipedAnalysis)
-if(!exists("lastyear"))lastyear=2013
+if(!exists("lastyear"))lastyear=2014
 if(!exists("nboot"))nboot=100
 if(!exists("anomalies"))
+	source(file.path(system.file(package="CIPinnipedAnalysis"),"CreateAnomalies.r"))
 if(!exists("use.calcofi"))use.calcofi=FALSE
 # if ZC_Weight_Environment_Model has not been run, run it now
 if(!exists("ZCWeight.df"))
 {
-	source(file.path(sdir,"ZC_Weight_Environment_Model.r"))
+	source(file.path(system.file(package="CIPinnipedAnalysis"),"ZC_Weight_Environment_Model.r"))
 } else 
 {
 	if(is.null(ZCWeight.df$female.environ.mean.fall))
-		source(file.path(sdir,"ZC_Weight_Environment_Model.r"))
+		source(file.path(system.file(package="CIPinnipedAnalysis"),"ZC_Weight_Environment_Model.r"))
 }
 # set of models depends on whether calcofi data are used
 if(use.calcofi)
@@ -109,27 +110,8 @@ if(use.calcofi)
 zcweights.environ.diet$cohort.factor=factor(ifelse(zcweights.environ.diet$cohort<1990,0,1),labels=c("<=1989",">=1990"))
 zcweights.environ.diet$cohort=zcweights.environ.diet$cohort-min(zcweights.environ.diet$cohort)
 
-data(fo)
-data(scats)
-
-sardine=get_fo(scats,fo,c("SARSAG"))
-anchovy=get_fo(scats,fo,c("ENGMOR"))
-sa=get_fo(scats,fo,c("SARSAG","ENGMOR"))
-rockfish=get_fo(scats,fo,c("SEBSPP","SEBSP1","SEBSP2"))
-hake=get_fo(scats,fo,c("MERPRO"))
-squid=get_fo(scats,fo,c("LOLOPA"))
-mackerel=get_fo(scats,fo,c("SCOJAP","SCOSPP","SCOMAR","TRAYSYM"))
-lo.cal=get_fo(scats,fo,c("SEBSPP","SEBSP1","SEBSP2","MERPRO","LOLOPA"))
-hi.cal=get_fo(scats,fo,c("SARSAG","ENGMOR","SCOJAP","SCOSPP","SCOMAR","TRAYSYM"))
-
-fo=cbind(Year=as.numeric(names(sardine)),sardine=sardine,anchovy=anchovy,
-		rockfish=rockfish,hake=hake,squid=squid,mackerel=mackerel)
-# first and second principal components of 5 primary prey species
-fo=cbind(fo,predict(prcomp(fo[,-1]))[,1:2])
-fo$lo.cal=lo.cal
-fo$hi.cal=hi.cal
-fo$ratio=fo$hi.cal/fo$lo.cal
-fo$sa=sa
+# create freq of occurence for prey data
+fo=create_fo()
 
 if(use.calcofi)
 {

@@ -11,7 +11,7 @@ if(!exists("nboot"))nboot=100
 # for the growth script to work properly; script CreateAnaomalies.r uses lastyear;
 # change value of lastyear prior to running scripts and it will override the
 # setting below.
-if(!exists("lastyear"))lastyear=2013
+if(!exists("lastyear"))lastyear=2014
 ####################################
 source(file.path(sdir,"CU_Weight_Adjustment_Model.r"))
 source(file.path(sdir,"CU_Weight_Environment_Model.r"))

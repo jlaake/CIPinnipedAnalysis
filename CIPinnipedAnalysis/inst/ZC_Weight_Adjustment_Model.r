@@ -5,7 +5,7 @@
 if(!exists("fdir"))fdir=NULL
 require(CIPinnipedAnalysis)
 if(!exists("nboot"))nboot=100
-if(!exists("lastyear"))lastyear=2013
+if(!exists("lastyear"))lastyear=2014
 #################################################################################
 # Cross-sectional analysis
 #################################################################################

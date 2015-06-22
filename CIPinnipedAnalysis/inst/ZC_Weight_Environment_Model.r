@@ -4,15 +4,14 @@
 #The scripts check for the value of fdir and if it exists the script will not change the value; otherwise it sets it to NULL
 if(!exists("fdir"))fdir=NULL
 require(CIPinnipedAnalysis)
-sdir=system.file(package="CIPinnipedAnalysis")
-if(!exists("lastyear"))lastyear=2013
+if(!exists("lastyear"))lastyear=2014
 if(!exists("nboot"))nboot=100
 # If ZC_Weight_Adjustment_model has not been run, run now
 if(!exists("ZCWeight.df"))
-	source(file.path(sdir,"ZC_Weight_Adjustment_Model.r"))
+	source(file.path(system.file(package="CIPinnipedAnalysis"),"ZC_Weight_Adjustment_Model.r"))
 # If anomalies don't exist create them now to use here
 if(!exists("anomalies"))
-	source(file.path(sdir,"CreateAnomalies.r"))
+	source(file.path(system.file(package="CIPinnipedAnalysis"),"CreateAnomalies.r"))
 if(!exists("use.calcofi"))use.calcofi=FALSE
 #################################################################################
 # Cross-sectional analysis
@@ -20,7 +19,11 @@ if(!exists("use.calcofi"))use.calcofi=FALSE
 # get zc weight values from database
 zcweights=get.zc.weights(fdir=fdir)
 zcweights=zcweights[zcweights$cohort<=lastyear,]
-if(use.calcofi)zcweights=zcweights[zcweights$cohort>=1984,]
+if(use.calcofi)
+{
+	data(calcofi)
+	zcweights=zcweights[zcweights$cohort>=1984&zcweights$cohort<=min(lastyear,max(calcofi$Year)),]
+}
 #
 #  exclude brand eval weights and captures in April and only use SMI
 #
@@ -30,7 +33,6 @@ zcweights$batch=factor(paste(zcweights$cohort,zcweights$days))
 
 if(use.calcofi)
 {
-	data(calcofi)
     calcofi=calcofi[calcofi$Month=="July",]
 	calcofi=sapply(calcofi[,-(1:3)],function(x) tapply(x,calcofi$Year,mean))
 	july.calcofi=t(t(calcofi)-colMeans(calcofi))
@@ -39,9 +41,13 @@ if(use.calcofi)
 	calcofi=sapply(calcofi[,-(1:3)],function(x) tapply(x,calcofi$Year,mean))
 	oct.calcofi=t(t(calcofi)-colMeans(calcofi))
     colnames(oct.calcofi)=paste(colnames(oct.calcofi),".oct",sep="")
-	zcweights.environ=merge(zcweights,cbind(july.calcofi,oct.calcofi,data.frame(cohort=1984:lastyear,SST=JunetoSeptAnomalies[13:numyears],SST1=OcttoFebAnomalies[13:numyears],SST2=JunetoFebAnomalies[13:numyears],
- 							MEI=LaggedMEIJunetoSept[-(1:10)],MEI1=LaggedMEIOcttoFeb[-(1:10)],MEI2=LaggedMEIJunetoFeb[-(1:10)],UWI33=UWImeansJunetoSept[1,-(1:15)],UWI36=UWImeansJunetoSept[2,-(1:15)],
-							UWI331=UWImeansOcttoFeb[1,-(1:15)],UWI361=UWImeansOcttoFeb[2,-(1:15)],UWI332=UWImeansJunetoFeb[1,-(1:15)],UWI362=UWImeansJunetoFeb[2,-(1:15)])))
+	std_env=data.frame(cohort=1984:lastyear,SST=JunetoSeptAnomalies[13:numyears],SST1=OcttoFebAnomalies[13:numyears],SST2=JunetoFebAnomalies[13:numyears],
+			MEI=LaggedMEIJunetoSept[-(1:10)],MEI1=LaggedMEIOcttoFeb[-(1:10)],MEI2=LaggedMEIJunetoFeb[-(1:10)],UWI33=UWImeansJunetoSept[1,-(1:15)],UWI36=UWImeansJunetoSept[2,-(1:15)],
+			UWI331=UWImeansOcttoFeb[1,-(1:15)],UWI361=UWImeansOcttoFeb[2,-(1:15)],UWI332=UWImeansJunetoFeb[1,-(1:15)],UWI362=UWImeansJunetoFeb[2,-(1:15)])
+	calcofi=cbind(july.calcofi,oct.calcofi)
+	nr=min(nrow(std_env),nrow(calcofi))
+	std_env=cbind(std_env[1:nr,],calcofi[1:nr,])	
+	zcweights.environ=merge(zcweights,std_env)
 	fixed.f=list(weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort.factor,
 			weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort,
 			weight~sex*SST+sex:days+SST1:days+sex:SST1:days,

@@ -4,7 +4,7 @@
 #The scripts check for the value of fdir and if it exists the script will not change the value; otherwise it sets it to NULL
 if(!exists("fdir"))fdir=NULL
 require(CIPinnipedAnalysis)
-if(!exists("lastyear"))lastyear=2013
+if(!exists("lastyear"))lastyear=2014
 if(!exists("locations"))locations=2:5
 # use "" to use databases in Calcur installed package directory; use NULL to use default Databases directory J:/Master  or specify directory
 #fdir=NULL
@@ -27,7 +27,13 @@ numyears=lastyear-minyear+1
 JantoMayAnomalies=rowMeans(SSTAnomalies[,c("Jan","Feb","Mar","Apr","May")],na.rm=TRUE)[1:numyears]
 OcttoDec=SSTAnomalies[,c("Oct","Nov","Dec")][1:numyears,]
 JantoFeb=SSTAnomalies[2:nrow(SSTAnomalies),c("Jan","Feb")]
-if(nrow(JantoFeb)<nrow(OcttoDec)) JantoFeb=rbind(JantoFeb,c(NA,NA))
+if(nrow(JantoFeb)<nrow(OcttoDec)) 
+{
+	JantoFeb=rbind(JantoFeb,c(NA,NA))
+}else
+{
+	if(nrow(JantoFeb)>nrow(OcttoDec)) JantoFeb=JantoFeb[-nrow(JantoFeb),]
+}
 OcttoFebAnomalies=as.matrix(cbind(OcttoDec,JantoFeb))
 OcttoFebAnomalies[is.nan(OcttoFebAnomalies)]=NA
 OcttoFebAnomalies=rowMeans(OcttoFebAnomalies,na.rm=TRUE)

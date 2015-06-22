@@ -7,7 +7,7 @@ if(!exists("nboot"))nboot=100
 ####################################
 # Set this value; be aware that all of the environmental data has to be entered through Feb of lastyear+1 
 # for the growth script to work properly
-if(!exists("lastyear"))lastyear=2013
+if(!exists("lastyear"))lastyear=2014
 ################################################################################
 # Construct environmental values for models
 ################################################################################

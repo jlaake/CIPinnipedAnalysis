@@ -9,21 +9,21 @@ create_fo=function()
 {
 	data(fo)
 	data(scats)
-	sardine=get_fo(scats,fo,c("SARSAG"))
-	anchovy=get_fo(scats,fo,c("ENGMOR"))
-	sa=get_fo(scats,fo,c("SARSAG","ENGMOR"))
-	rockfish=get_fo(scats,fo,c("SEBSPP","SEBSP1","SEBSP2"))
-	hake=get_fo(scats,fo,c("MERPRO"))
-	squid=get_fo(scats,fo,c("LOLOPA"))
-	mackerel=get_fo(scats,fo,c("SCOJAP","SCOSPP","SCOMAR","TRAYSYM"))
-	lo.cal=get_fo(scats,fo,c("SEBSPP","SEBSP1","SEBSP2","MERPRO","LOLOPA"))
+	sardine=get_fo(scats,fo,c("SARSAG"))$fo
+	anchovy=get_fo(scats,fo,c("ENGMOR"))$fo
+	sa=get_fo(scats,fo,c("SARSAG","ENGMOR"))$fo
+	rockfish=get_fo(scats,fo,c("SEBSPP","SEBSP1","SEBSP2"))$fo
+	hake=get_fo(scats,fo,c("MERPRO"))$fo
+	squid=get_fo(scats,fo,c("LOLOPA"))$fo
+	mackerel=get_fo(scats,fo,c("SCOJAP","SCOSPP","SCOMAR","TRAYSYM"))$fo
+	lo.cal=get_fo(scats,fo,c("SEBSPP","SEBSP1","SEBSP2","MERPRO","LOLOPA"))$fo
 	hi.cal=get_fo(scats,fo,c("SARSAG","ENGMOR","SCOJAP","SCOSPP","SCOMAR","TRAYSYM"))	
 	fo=cbind(Year=as.numeric(names(sardine)),sardine=sardine,anchovy=anchovy,
 			rockfish=rockfish,hake=hake,squid=squid,mackerel=mackerel)
 # first and second principal components of 5 primary prey species
 	fo=cbind(fo,predict(prcomp(fo[,-1]))[,1:2])
 	fo=as.data.frame(fo)
-	fo=cbind(fo,sa=as.vector(sa),lo.cal=as.vector(lo.cal),hi.cal=as.vector(hi.cal))
+	fo=cbind(fo,sa=as.vector(sa),lo.cal=as.vector(lo.cal),hi.cal=as.vector(hi.cal$fo),n.scat=as.vector(hi.cal$n.scat))
 	fo$ratio=fo$hi.cal/fo$lo.cal
 	return(fo)
 }
@@ -42,7 +42,7 @@ create_fo=function()
 #' @param exclude if TRUE, then uses any species other than those listed in species
 #' @param years a vector of cut points for year groupings
 #' @param labels to be used for year groupings
-#' @return A vector of FO values for each year in the data
+#' @return A list with vector of FO values for each year in the data and number of scats for each year
 #' @export
 #' @author Jeff Laake
 #'
@@ -66,7 +66,7 @@ get_fo=function(scats,fo,species,exclude=FALSE,years=NULL,labels=NULL)
 	fosubset$fo=ifelse(fosubset$Year<=1991,cf$cf,1)
 	fotable=tapply(fosubset$fo,list(fosubset$Yr,fosubset$SCATNUM),mean)
 	fotable[is.na(fotable)]=0
-	rowSums(fotable)/size
+	return(list(fo=rowSums(fotable)/size,n.scat=size))
 }
 #' Computes correction factor for pre-1992 data
 #' 

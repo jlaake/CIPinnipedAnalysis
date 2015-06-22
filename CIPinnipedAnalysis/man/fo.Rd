@@ -14,7 +14,7 @@ Date     - date scat collected
 Year     - year of collection
 }
 Created with FO_DAT.txt file and following R code
-fo=read.delim("Fo_DAT.txt",sep="\t",header=TRUE,colClasses=c("factor","factor","character","character","NULL","character","NULL","NULL","numeric","NULL"))
+fo=read.delim("Fo_DAT.txt",sep="\\t",header=TRUE,colClasses=c("factor","factor","character","character","NULL","character","NULL","NULL","numeric","NULL"))
 #remove 1994 and 2007 because there is no prey species fo data
 fo=droplevels(fo[!fo$Year%in%c(1994,2007),])
 save(fo,file="fo.rda")}
