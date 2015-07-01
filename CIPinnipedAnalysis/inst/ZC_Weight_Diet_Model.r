@@ -30,12 +30,14 @@ if(use.calcofi)
 	calcofi=sapply(calcofi[,-(1:3)],function(x) tapply(x,calcofi$Year,mean))
 	oct.calcofi=t(t(calcofi)-colMeans(calcofi))
 	colnames(oct.calcofi)=paste(colnames(oct.calcofi),".oct",sep="")
-	zcweights.environ.diet=merge(zcweights,cbind(july.calcofi,oct.calcofi,data.frame(cohort=1984:lastyear,SST=JunetoSeptAnomalies[13:numyears],
-							SST1=OcttoFebAnomalies[13:numyears],SST2=JunetoFebAnomalies[13:numyears],
-							MEI=LaggedMEIJunetoSept[-(1:10)],MEI1=LaggedMEIOcttoFeb[-(1:10)],MEI2=LaggedMEIJunetoFeb[-(1:10)],
-							UWI33=UWImeansJunetoSept[1,-(1:15)],UWI36=UWImeansJunetoSept[2,-(1:15)],
-							UWI331=UWImeansOcttoFeb[1,-(1:15)],UWI361=UWImeansOcttoFeb[2,-(1:15)],UWI332=UWImeansJunetoFeb[1,-(1:15)],
-							UWI362=UWImeansJunetoFeb[2,-(1:15)])))
+	std_env=data.frame(cohort=1984:lastyear,SST=JunetoSeptAnomalies[13:numyears],SST1=OcttoFebAnomalies[13:numyears],SST2=JunetoFebAnomalies[13:numyears],
+			MEI=LaggedMEIJunetoSept[-(1:10)],MEI1=LaggedMEIOcttoFeb[-(1:10)],MEI2=LaggedMEIJunetoFeb[-(1:10)],UWI33=UWImeansJunetoSept[1,-(1:15)],UWI36=UWImeansJunetoSept[2,-(1:15)],
+			UWI331=UWImeansOcttoFeb[1,-(1:15)],UWI361=UWImeansOcttoFeb[2,-(1:15)],UWI332=UWImeansJunetoFeb[1,-(1:15)],UWI362=UWImeansJunetoFeb[2,-(1:15)])
+	calcofi=cbind(july.calcofi,oct.calcofi)
+	nr=min(nrow(std_env),nrow(calcofi))
+	std_env=cbind(std_env[1:nr,],calcofi[1:nr,])	
+	
+	zcweights.environ.diet=merge(zcweights,std_env)
 	fixed.f=list(weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort.factor,
 			weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort,
 			weight~sex*SST+sex:days+SST1:days+sex:SST1:days,

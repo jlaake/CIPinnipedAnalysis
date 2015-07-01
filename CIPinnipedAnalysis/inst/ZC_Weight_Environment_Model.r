@@ -179,6 +179,9 @@ ZCWeight.df$female.environ.mean.fall=NA
 ZCWeight.df$female.environ.mean.fall.se=NA
 ZCWeight.df$male.environ.mean.fall=NA
 ZCWeight.df$male.environ.mean.fall.se=NA
+ZCWeight.df$female.environ.mean.fall.fixed=NA
+ZCWeight.df$male.environ.mean.fall.fixed=NA
+
 add=0
 if(use.calcofi)add=9
 ZCWeight.df$female.environ.mean.fall[add+1:length(female.averages$fit)]=female.averages$fit

@@ -21,7 +21,7 @@ it is the FO of any of the species.}
 \item{labels}{to be used for year groupings}
 }
 \value{
-A vector of FO values for each year in the data
+A list with vector of FO values for each year in the data and number of scats for each year
 }
 \description{
 For a given set of species codes it computes FO by extracting the observed scats and

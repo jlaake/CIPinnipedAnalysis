@@ -3,13 +3,14 @@
 #' 
 #' @param fdir directory for data files; if NULL uses location specified in databases.txt of CalcurData package; if "" uses databases in CalcurData pacakge; otherwise uses specified directory location
 #' @param ENYears values of years that will be flagged as ENSO years
+#' @param exclude if TRUE, it excludes any records with missing weight value; setting exclude=FALSE extracts all records which is useful for creating age-length key
 #' @return dataframe of weights for Zc
 #' @export
 #' @author Jeff Laake
 #' @examples 
 #' source(file.path(system.file(package="CIPinnipedAnalysis"),"ZcWeightAnalysis.r"))
 #' 
-get.zc.weights=function(fdir=NULL,ENYears=c(1976,1983,1984,1986,1987,1992,1997,1998,2002,2009))
+get.zc.weights=function(fdir=NULL,ENYears=c(1976,1983,1984,1986,1987,1992,1997,1998,2002,2009),exclude=TRUE)
 {
 # read in area codes from Zc database
 areas=getCalcurData("Zc","areacodes",dir=fdir)
@@ -21,12 +22,17 @@ maxyear=max(zcweights$cohort)
 #
 #  Exclude those with missing weight and unknown sex
 #
-zcweights=zcweights[!zcweights$sex=="U" & !is.na(zcweights$weight)& !is.na(zcweights$sex),]
+if(exclude)
+{
+	zcweights=zcweights[!zcweights$sex=="U" & !is.na(zcweights$weight)& !is.na(zcweights$sex),]
+} else
+{
+	zcweights=zcweights[!zcweights$sex=="U" & !is.na(zcweights$sex),]
+}
 zcweights$sex=factor(zcweights$sex)
 #
 #  read in the weights from the unmarkedpupweights table.  Exclude those with unknown sex or weight and from SCI and SNI.
 #
-	
 zcweights.unmarked=getCalcurData("Zc","UnmarkedPupWeights",dir=fdir)
 zcweights.unmarked=zcweights.unmarked[!zcweights.unmarked$sex=="U"& !is.na(zcweights.unmarked$sex),]
 zcweights.unmarked$sex=factor(zcweights.unmarked$sex)
@@ -34,21 +40,39 @@ zcweights.unmarked$sex=factor(zcweights.unmarked$sex)
 #  read in the tag only pup weights but exclude those with missing sex or weight
 #
 zcTagOnly=getCalcurData("Zc","TagInitial",dir=fdir)
-zcTagOnly=zcTagOnly[zcTagOnly$age=="P"&!is.na(zcTagOnly$age)&!zcTagOnly$sex=="U" & !is.na(zcTagOnly$weight)& !is.na(zcTagOnly$sex),]
+if(exclude)
+{
+	zcTagOnly=zcTagOnly[zcTagOnly$age=="P"&!is.na(zcTagOnly$age)&!zcTagOnly$sex=="U" & !is.na(zcTagOnly$weight)& !is.na(zcTagOnly$sex),]
+}else
+{
+	zcTagOnly=zcTagOnly[zcTagOnly$age=="P"&!is.na(zcTagOnly$age)&!zcTagOnly$sex=="U" & !is.na(zcTagOnly$sex),]
+}
 zcTagOnly$sex=factor(zcTagOnly$sex)
 zcTagOnly=merge(zcTagOnly,subset(areas,select=c("region","sitecode")),by="region",all.x=TRUE)
 #
 #  read in the brand recaptures
 #
 zcRecap=getCalcurData("Zc","Recaptures",dir=fdir)
-zcRecap=zcRecap[!zcRecap$sex=="U" & !zcRecap$sex=="" &!is.na(zcRecap$weight)& !is.na(zcRecap$sex),]
+if(exclude)
+{
+	zcRecap=zcRecap[!zcRecap$sex=="U" & !zcRecap$sex=="" &!is.na(zcRecap$weight)& !is.na(zcRecap$sex),]
+}else
+{
+	zcRecap=zcRecap[!zcRecap$sex=="U" & !zcRecap$sex=="" & !is.na(zcRecap$sex),]
+}
 zcRecap$sex=factor(zcRecap$sex)
 zcRecap=merge(zcRecap,subset(zcweights,select=c("cohort","brand")),by="brand")
 #
 #  read in the tag recaptures
 #
 zcTagRecap=getCalcurData("Zc","TagRecapture",dir=fdir)
-zcTagRecap=zcTagRecap[!zcTagRecap$Sex=="U" & !is.na(zcTagRecap$Weight)& !is.na(zcTagRecap$Sex),]
+if(exclude)
+{
+	zcTagRecap=zcTagRecap[!zcTagRecap$Sex=="U" & !is.na(zcTagRecap$Weight)& !is.na(zcTagRecap$Sex),]
+}else
+{
+	zcTagRecap=zcTagRecap[!zcTagRecap$Sex=="U" & !is.na(zcTagRecap$Sex),]
+}
 zcTagRecap$sex=factor(zcTagRecap$Sex)
 zcTagRecap=merge(zcTagRecap,subset(zcTagOnly,select=c("cohort","AnimalID")),by="AnimalID")
 #
@@ -64,7 +88,7 @@ zcRecap=zcRecap[zcRecap$days>0,]
 #  Combine data tables
 #
 zcweights.unmarked=subset(zcweights.unmarked,select=c("AnimalID","sitecode","cohort","sex","weight","length","girth","days"))
-zcweights.unmarked=zcweights.unmarked[!is.na(zcweights.unmarked$weight),]
+if(exclude) zcweights.unmarked=zcweights.unmarked[!is.na(zcweights.unmarked$weight),]
 zcweights$sitecode="SMI"
 zcweights=subset(zcweights,select=c("AnimalID","sitecode","cohort","sex","weight","length","girth","days"))
 #zcTagOnly$sitecode="SMI"
@@ -100,7 +124,7 @@ zcweights$EN[zcweights$cohort%in%ENYears]=1
 #
 # check for any NA weights
 #
-if(any(is.na(zcweights$weight)))
+if(exclude & any(is.na(zcweights$weight)))
 {
 	warning("\n Problem with data extraction. Following records are missing a weight. They have been removed.\n")
 	for(w in which(is.na(zcweights$weight)))
@@ -109,4 +133,7 @@ if(any(is.na(zcweights$weight)))
 }
 return(zcweights)
 }
+
+
+
 
