@@ -11,6 +11,26 @@ if(!exists("locations"))locations=2:5
 ################################################################################
 # Construct environmental values for models
 #####################################################
+# Sea level height data: http://tidesandcurrents.noaa.gov/sltrends/sltrends_station.shtml?stnid=9412110
+#####################################################
+data(SeaLevelHeight)
+JunetoSeptSLH=with(SeaLevelHeight[SeaLevelHeight$Month%in% 6:9,],tapply(SeaLevelHeight,Year,mean,na.rm=T))
+AprtoSeptSLH=with(SeaLevelHeight[SeaLevelHeight$Month%in% 4:9,],tapply(SeaLevelHeight,Year,mean,na.rm=T))
+octtodec=split(SeaLevelHeight$SeaLevelHeight[SeaLevelHeight$Month%in%10:12],SeaLevelHeight$Year[SeaLevelHeight$Month%in%10:12])
+jantofeb=split(SeaLevelHeight$SeaLevelHeight[SeaLevelHeight$Month%in%1:2],SeaLevelHeight$Year[SeaLevelHeight$Month%in%1:2])
+OcttoFebSLH=NULL
+for(i in 1:length(octtodec))
+{
+	if(i+1 > length(jantofeb))
+	  OcttoFebSLH=c(OcttoFebSLH,mean(octtodec[[i]]))
+    else
+		OcttoFebSLH=c(OcttoFebSLH,mean(c(octtodec[[i]],jantofeb[[i+1]])))
+}
+numyears=lastyear-1975+1
+JunetoSeptSLH=JunetoSeptSLH[1:numyears]
+AprtoSeptSLH=AprtoSeptSLH[1:numyears]
+OcttoFebSLH=OcttoFebSLH[1:numyears]
+#####################################################
 # SST data
 #####################################################
 # Create SST Anomalies
@@ -40,6 +60,9 @@ OcttoFebAnomalies=rowMeans(OcttoFebAnomalies,na.rm=TRUE)
 JunetoSeptAnomalies=SSTAnomalies[1:numyears,c("June","July","Aug","Sept")]
 JunetoSeptAnomalies[is.nan(JunetoSeptAnomalies)]=NA
 JunetoSeptAnomalies=rowMeans(JunetoSeptAnomalies,na.rm=TRUE)[1:numyears]
+AprtoSeptAnomalies=SSTAnomalies[1:numyears,c("Apr","May","June","July","Aug","Sept")]
+AprtoSeptAnomalies[is.nan(AprtoSeptAnomalies)]=NA
+AprtoSeptAnomalies=rowMeans(AprtoSeptAnomalies,na.rm=TRUE)[1:numyears]
 OcttoDecAnomalies=SSTAnomalies[1:numyears,c("Oct","Nov","Dec")]
 OcttoDecAnomalies[is.nan(OcttoDecAnomalies)]=NA
 OcttoDecAnomalies=rowMeans(OcttoDecAnomalies,na.rm=TRUE)[1:numyears]
@@ -61,11 +84,14 @@ UWI=UWI[order(UWI$Year,UWI$Month),]
 UWI=UWI[UWI$Year<=lastyear+1,]
 UWImeansJunetoSept=with(UWI[UWI$Month%in%6:9,], tapply(UWIAnomaly,list(Location,Year),mean,na.rm=TRUE))
 UWIJunetoSept=with(UWI[UWI$Month%in%6:9,], tapply(UWIAnomaly,list(Month,Year,Location),mean,na.rm=TRUE))
+UWImeansAprtoSept=with(UWI[UWI$Month%in%4:9,], tapply(UWIAnomaly,list(Location,Year),mean,na.rm=TRUE))
+UWIAprtoSept=with(UWI[UWI$Month%in%4:9,], tapply(UWIAnomaly,list(Month,Year,Location),mean,na.rm=TRUE))
 UWIOcttoDec=with(UWI[UWI$Month%in%10:12,], tapply(UWIAnomaly,list(Month,Year,Location),mean,na.rm=TRUE))
 UWIJantoFeb=with(UWI[UWI$Month%in%1:2,], tapply(UWIAnomaly,list(Month,Year,Location),mean,na.rm=TRUE))
 
 minyr=min(dim(UWIJunetoSept)[2],dim(UWIOcttoDec)[2],dim(UWIJantoFeb)[2]-1)
 
+UWIAprtoSept=UWIAprtoSept[,1:minyr,]
 UWIJunetoSept=UWIJunetoSept[,1:minyr,]
 UWIOcttoDec=UWIOcttoDec[,1:minyr,]
 
@@ -89,9 +115,9 @@ for(i in 1:2)
 			UWImeansJunetoFeb=rbind(UWImeansJunetoFeb,colMeans(rbind(UWIJunetoSept[,-dim(UWIJunetoSept)[2],i],UWIOcttoDec[,,i],UWIJantoFeb[,-1,i]),na.rm=TRUE))
 }
 UWImeansJunetoSept=UWImeansJunetoSept[,as.numeric(colnames(UWImeansJunetoSept))<=lastyear]
+UWImeansAprtoSept=UWImeansAprtoSept[,as.numeric(colnames(UWImeansAprtoSept))<=lastyear]
 UWImeansOcttoFeb=UWImeansOcttoFeb[,as.numeric(colnames(UWImeansOcttoFeb))<=lastyear]
 UWImeansJunetoFeb=UWImeansJunetoFeb[,as.numeric(colnames(UWImeansJunetoFeb))<=lastyear]
-
 
 ####################################################
 # Multivariate ENSO Index
@@ -111,6 +137,8 @@ lag=which(MEIcor==max(MEIcor))-1
 average.MEI=function(x,months)return(tapply(x$MEI[x$Month%in%months],x$Year[x$Month%in%months],mean))
 LaggedMEIJunetoSept=average.MEI(MEI,(6:9-lag))
 LaggedMEIJunetoSept=LaggedMEIJunetoSept[as.numeric(names(LaggedMEIJunetoSept))<=lastyear]
+LaggedMEIAprtoSept=average.MEI(MEI,(4:9-lag))
+LaggedMEIAprtoSept=LaggedMEIAprtoSept[as.numeric(names(LaggedMEIAprtoSept))<=lastyear]
 
 # next assume 2 month lag to avoid Dec/Jan break
 LaggedMEIOcttoFeb=average.MEI(MEI,8:12) 
@@ -118,21 +146,5 @@ LaggedMEIOcttoFeb=LaggedMEIOcttoFeb[as.numeric(names(LaggedMEIOcttoFeb))<=lastye
 
 LaggedMEIJunetoFeb=average.MEI(MEI,4:12)
 LaggedMEIJunetoFeb=LaggedMEIJunetoFeb[as.numeric(names(LaggedMEIJunetoFeb))<=lastyear]
-
-
-
-#CentralSSTAnomalies=t(apply(anomalies[,,3:7],c(2,1),mean,na.rm=TRUE))
-#SouthSSTAnomalies=t(apply(anomalies[,,1:2],c(2,1),mean,na.rm=TRUE))
-#NorthSSTAnomalies=anomalies[,,8]
-
-#JantoMayAnomalies=rowMeans(SSTAnomalies[,c("Jan","Feb","Mar","Apr","May")])
-#JunetoSeptAnomalies=rowMeans(SSTAnomalies[,c("June","July","Aug","Sept")])
-#OcttoDecAnomalies=rowMeans(SSTAnomalies[,c("Oct","Nov","Dec")])
-
-#x=rbind(data.frame(Year=minyear:lastyear,Season=rep("Spring",numyears),SSTAnomaly=JantoMayAnomalies[1:numyears]),
-#		data.frame(Year=minyear:lastyear,Season=rep("Summer",numyears),SSTAnomaly=JunetoSeptAnomalies[1:numyears]),
-#		data.frame(Year=minyear:lastyear,Season=rep("Fall",numyears),SSTAnomaly=OcttoDecAnomalies[1:numyears]) )
-#x$Season=factor(x$Season,levels=c("Spring","Summer","Fall"))
-#x=x[order(x$Year,x$Season),]
 
 

@@ -1,3 +1,7 @@
+# uses zcweights which can either be assigned to zcweights.environ or zcweights.environ.abun
+# the latter limits to use of diet data where fish abundance data is also available.
+# also fixed.f can be set to the environment set or to the set with fish abundance as well
+#
 #if fdir="" it looks for data files in the CalcurData package directory of your R library.
 #if fdir=NULL it looks in databases.txt in CalcurData package directory to get the database location
 #if fdir is anything else it uses the value of fdir as the directory for database.  
@@ -30,97 +34,26 @@ if(use.calcofi)
 	calcofi=sapply(calcofi[,-(1:3)],function(x) tapply(x,calcofi$Year,mean))
 	oct.calcofi=t(t(calcofi)-colMeans(calcofi))
 	colnames(oct.calcofi)=paste(colnames(oct.calcofi),".oct",sep="")
-	std_env=data.frame(cohort=1984:lastyear,SST=JunetoSeptAnomalies[13:numyears],SST1=OcttoFebAnomalies[13:numyears],SST2=JunetoFebAnomalies[13:numyears],
-			MEI=LaggedMEIJunetoSept[-(1:10)],MEI1=LaggedMEIOcttoFeb[-(1:10)],MEI2=LaggedMEIJunetoFeb[-(1:10)],UWI33=UWImeansJunetoSept[1,-(1:15)],UWI36=UWImeansJunetoSept[2,-(1:15)],
+	std_env=data.frame(Year=1984:lastyear,SST=AprtoSeptAnomalies[13:numyears],SST1=OcttoFebAnomalies[13:numyears],SST2=JunetoFebAnomalies[13:numyears],
+			MEI=LaggedMEIAprtoSept[-(1:10)],MEI1=LaggedMEIOcttoFeb[-(1:10)],MEI2=LaggedMEIJunetoFeb[-(1:10)],UWI33=UWImeansAprtoSept[1,-(1:15)],UWI36=UWImeansAprtoSept[2,-(1:15)],
 			UWI331=UWImeansOcttoFeb[1,-(1:15)],UWI361=UWImeansOcttoFeb[2,-(1:15)],UWI332=UWImeansJunetoFeb[1,-(1:15)],UWI362=UWImeansJunetoFeb[2,-(1:15)])
 	calcofi=cbind(july.calcofi,oct.calcofi)
 	nr=min(nrow(std_env),nrow(calcofi))
 	std_env=cbind(std_env[1:nr,],calcofi[1:nr,])	
-	
 	zcweights.environ.diet=merge(zcweights,std_env)
-	fixed.f=list(weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort.factor,
-			weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort,
-			weight~sex*SST+sex:days+SST1:days+sex:SST1:days,
-			weight~sex*SST+sex:days+SST1:days+cohort.factor,
-			weight~sex*SST+sex:days+SST1:days+cohort,
-			weight~sex*SST+sex:days+SST1:days,
-			weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort.factor,
-			weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort,
-			weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days,
-			weight~sex*UWI36+sex:days+UWI361:days+cohort.factor,
-			weight~sex*UWI36+sex:days+UWI361:days+cohort,
-			weight~sex*UWI36+sex:days+UWI361:days,
-			weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort.factor,
-			weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort,
-			weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days,
-			weight~sex*MEI+sex:days+MEI1:days+cohort.factor,
-			weight~sex*MEI+sex:days+MEI1:days+cohort,
-			weight~sex*MEI+sex:days,
-			weight~sex*dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+sex:dynamic_height_0_500m.oct:days+cohort.factor,
-			weight~sex*dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+sex:dynamic_height_0_500m.oct:days+cohort,
-			weight~sex*dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+sex:dynamic_height_0_500m.oct:days,
-			weight~sex*dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+cohort.factor,
-			weight~sex*dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+cohort,
-			weight~sex*dynamic_height_0_500m+sex:days,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+sex:R_SIGMA_75m.oct:days+cohort.factor,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+sex:R_SIGMA_75m.oct:days+cohort,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+sex:R_SIGMA_75m.oct:days,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort.factor,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort,
-			weight~sex*R_SIGMA_75m+sex:days,
-			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m.oct:days+sex:R_POTEMP_25m.oct:days+cohort.factor,
-			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m.oct:days+sex:R_POTEMP_25m.oct:days+cohort,
-			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m.oct:days+sex:R_POTEMP_25m.oct:days,
-			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m.oct:days+cohort.factor,
-			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m.oct:days+cohort,
-			weight~sex*R_POTEMP_25m+sex:days+R_POTEMP_25m.oct:days,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+stratification,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+pycnocline_depth,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+R_POTEMP_25m,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+R_POTEMP_75m,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+dynamic_height_0_500m,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+R_O2_25m,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+R_O2_75m,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+R_NO3_25m,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort+R_NO3_75m)
 } else {
-	zcweights.environ.diet=merge(zcweights,data.frame(cohort=1975:lastyear,SST=JunetoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],
-					SST2=JunetoFebAnomalies[4:numyears],MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],
-					MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansJunetoSept[1,-(1:6)],UWI36=UWImeansJunetoSept[2,-(1:6)],
+	zcweights.environ.diet=merge(zcweights,data.frame(Year=1975:lastyear,SST=AprtoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],
+					SST2=JunetoFebAnomalies[4:numyears],MEI=LaggedMEIAprtoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],
+					MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansAprtoSept[1,-(1:6)],UWI36=UWImeansAprtoSept[2,-(1:6)],
 					UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],
 					UWI362=UWImeansJunetoFeb[2,-(1:6)]))
-	fixed.f=list(weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort.factor,
-			weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort,
-			weight~sex*SST+sex:days+SST1:days+sex:SST1:days,
-			weight~sex*SST+sex:days+SST1:days+cohort.factor,
-			weight~sex*SST+sex:days+SST1:days+cohort,
-			weight~sex*SST+sex:days+SST1:days,
-			weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort.factor,
-			weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort,
-			weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days,
-			weight~sex*UWI36+sex:days+UWI361:days+cohort.factor,
-			weight~sex*UWI36+sex:days+UWI361:days+cohort,
-			weight~sex*UWI36+sex:days+UWI361:days,
-			weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort.factor,
-			weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort,
-			weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days,
-			weight~sex*MEI+sex:days+MEI1:days+cohort.factor,
-			weight~sex*MEI+sex:days+MEI1:days+cohort,
-			weight~sex*MEI+sex:days)
 }
 
-zcweights.environ.diet$cohort.factor=factor(ifelse(zcweights.environ.diet$cohort<1990,0,1),labels=c("<=1989",">=1990"))
 zcweights.environ.diet$cohort=zcweights.environ.diet$cohort-min(zcweights.environ.diet$cohort)
 
 # create freq of occurence for prey data
-fo=create_fo()
+if(!exists("fo"))fo=create_fo()
 
-if(use.calcofi)
-{
-	zcweights.environ.diet$Year=zcweights.environ.diet$cohort+1984
-} else{
-	zcweights.environ.diet$Year=zcweights.environ.diet$cohort+1975
-}
 ZCWeight.df1=ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),]
 ZCWeight.df1=ZCWeight.df1[rownames(ZCWeight.df1)%in%rownames(fo),]
 zcweights.environ.diet=zcweights.environ.diet[zcweights.environ.diet$Year%in%fo$Year,]
@@ -130,7 +63,8 @@ zcweights.environ.diet=merge(zcweights.environ.diet,fo,by="Year")
 #
 random.f=list(res.environ$best.r)
 
-fixed.f.diet=sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ PC1")))
+
+fixed.f.diet=c(fixed.f,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ PC1"))))
 fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ squid "))))
 fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ rockfish "))))
 fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ squid + rockfish "))))

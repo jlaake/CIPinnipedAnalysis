@@ -67,6 +67,24 @@ NULL
 
 NULL
 
+#' Port San Luis Sea Level Height Data
+#' 
+#' A sequence of monthly average sea level height at Port San Luis
+#' http://tidesandcurrents.noaa.gov/sltrends/sltrends_station.shtml?stnid=9412110 
+#' 
+#' @name SeaLevelHeight
+#' @docType data
+#' @format A dataframe with fields 
+#' \preformatted{
+#' Year - year of data measurement
+#' Month - numeric month of measurement
+#' SeaLevelHeight - monthly mean sea level height in meters with seasonal fluctuations removed
+#' } 
+#' @keywords datasets
+
+NULL
+
+
 
 #' Scat record data
 #' 
