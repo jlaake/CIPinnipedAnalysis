@@ -25,38 +25,45 @@ if(!exists("ZCWeight.df"))
 # set of models depends on whether calcofi data are used
 if(use.calcofi)
 {
-	data(calcofi)
-	calcofi=calcofi[calcofi$Month=="July",]
-	calcofi=sapply(calcofi[,-(1:3)],function(x) tapply(x,calcofi$Year,mean))
-	july.calcofi=t(t(calcofi)-colMeans(calcofi))
-	data(calcofi)
-	calcofi=calcofi[calcofi$Month=="October",]
-	calcofi=sapply(calcofi[,-(1:3)],function(x) tapply(x,calcofi$Year,mean))
-	oct.calcofi=t(t(calcofi)-colMeans(calcofi))
-	colnames(oct.calcofi)=paste(colnames(oct.calcofi),".oct",sep="")
-	std_env=data.frame(Year=1984:lastyear,SST=AprtoSeptAnomalies[13:numyears],SST1=OcttoFebAnomalies[13:numyears],SST2=JunetoFebAnomalies[13:numyears],
-			MEI=LaggedMEIAprtoSept[-(1:10)],MEI1=LaggedMEIOcttoFeb[-(1:10)],MEI2=LaggedMEIJunetoFeb[-(1:10)],UWI33=UWImeansAprtoSept[1,-(1:15)],UWI36=UWImeansAprtoSept[2,-(1:15)],
-			UWI331=UWImeansOcttoFeb[1,-(1:15)],UWI361=UWImeansOcttoFeb[2,-(1:15)],UWI332=UWImeansJunetoFeb[1,-(1:15)],UWI362=UWImeansJunetoFeb[2,-(1:15)])
-	calcofi=cbind(july.calcofi,oct.calcofi)
-	nr=min(nrow(std_env),nrow(calcofi))
-	std_env=cbind(std_env[1:nr,],calcofi[1:nr,])	
-	zcweights.environ.diet=merge(zcweights,std_env)
+	if(is.null(zcweights$dynamic_height_0_500m))
+	{
+		data(calcofi)
+		calcofi=calcofi[calcofi$Month=="July",]
+		calcofi=sapply(calcofi[,-(1:3)],function(x) tapply(x,calcofi$Year,mean))
+		july.calcofi=t(t(calcofi)-colMeans(calcofi))
+		data(calcofi)
+		calcofi=calcofi[calcofi$Month=="October",]
+		calcofi=sapply(calcofi[,-(1:3)],function(x) tapply(x,calcofi$Year,mean))
+		oct.calcofi=t(t(calcofi)-colMeans(calcofi))
+		colnames(oct.calcofi)=paste(colnames(oct.calcofi),".oct",sep="")
+		std_env=data.frame(Year=1984:lastyear,SST=AprtoSeptAnomalies[13:numyears],SST1=OcttoFebAnomalies[13:numyears],SST2=JunetoFebAnomalies[13:numyears],
+				MEI=LaggedMEIAprtoSept[-(1:10)],MEI1=LaggedMEIOcttoFeb[-(1:10)],MEI2=LaggedMEIJunetoFeb[-(1:10)],UWI33=UWImeansAprtoSept[1,-(1:15)],UWI36=UWImeansAprtoSept[2,-(1:15)],
+				UWI331=UWImeansOcttoFeb[1,-(1:15)],UWI361=UWImeansOcttoFeb[2,-(1:15)],UWI332=UWImeansJunetoFeb[1,-(1:15)],UWI362=UWImeansJunetoFeb[2,-(1:15)])
+		calcofi=cbind(july.calcofi,oct.calcofi)
+		nr=min(nrow(std_env),nrow(calcofi))
+		std_env=cbind(std_env[1:nr,],calcofi[1:nr,])	
+		zcweights.environ.diet=merge(zcweights,std_env,by="Year")
+	} else
+		zcweights.environ.diet=zcweights
 } else {
-	zcweights.environ.diet=merge(zcweights,data.frame(Year=1975:lastyear,SST=AprtoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],
-					SST2=JunetoFebAnomalies[4:numyears],MEI=LaggedMEIAprtoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],
-					MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansAprtoSept[1,-(1:6)],UWI36=UWImeansAprtoSept[2,-(1:6)],
-					UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],
-					UWI362=UWImeansJunetoFeb[2,-(1:6)]))
+	if(is.null(zcweights$SST))
+	{
+		zcweights.environ.diet=merge(zcweights,data.frame(Year=1975:lastyear,SST=AprtoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],
+						SST2=JunetoFebAnomalies[4:numyears],MEI=LaggedMEIAprtoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],
+						MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansAprtoSept[1,-(1:6)],UWI36=UWImeansAprtoSept[2,-(1:6)],
+						UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],
+						UWI362=UWImeansJunetoFeb[2,-(1:6)]))		
+	} else
+		zcweights.environ.diet=zcweights
 }
-
-zcweights.environ.diet$cohort=zcweights.environ.diet$cohort-min(zcweights.environ.diet$cohort)
 
 # create freq of occurence for prey data
 if(!exists("fo"))fo=create_fo()
 
 ZCWeight.df1=ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),]
-ZCWeight.df1=ZCWeight.df1[rownames(ZCWeight.df1)%in%rownames(fo),]
+ZCWeight.df1=ZCWeight.df1[rownames(ZCWeight.df1)%in%rownames(fo) & rownames(ZCWeight.df1)%in% unique(zcweights.environ.diet$Year),]
 zcweights.environ.diet=zcweights.environ.diet[zcweights.environ.diet$Year%in%fo$Year,]
+
 zcweights.environ.diet=merge(zcweights.environ.diet,fo,by="Year")
 #
 # Next evaluate sequence of fixed-effect models with the chosen random effect model
@@ -96,9 +103,7 @@ male.averages=data.frame(fit=pp1[,2])
 expected.female.averages=data.frame(fit=pp0[,1])
 expected.male.averages=data.frame(fit=pp0[,2])
 
-add=0
-if(use.calcofi)add=9
-ZCWeight.df1=ZCWeight.df[as.numeric(rownames(ZCWeight.df))%in%(as.numeric(rownames(pp1))+1975+add),]
+
 ZCWeight.df1$female.environ.diet.mean.fall=female.averages$fit
 ZCWeight.df1$female.environ.diet.mean.fall.se=female.averages$se
 ZCWeight.df1$male.environ.diet.mean.fall=male.averages$fit
