@@ -343,7 +343,9 @@ ZCWeight.df$female.environ.mean.winter.se[add+1:length(female.averages$fit)]=fem
 ZCWeight.df$male.environ.mean.winter[add+1:length(female.averages$fit)]=male.averages$fit
 ZCWeight.df$male.environ.mean.winter.se[add+1:length(female.averages$fit)]=male.averages$se
 
-	
+ZCWeight.df$female.environ.mean.winter.fixed[add+1:length(female.averages$fit)]=expected.female.averages$fit
+ZCWeight.df$male.environ.mean.winter.fixed[add+1:length(female.averages$fit)]=expected.male.averages$fit
+
 
 	
 		

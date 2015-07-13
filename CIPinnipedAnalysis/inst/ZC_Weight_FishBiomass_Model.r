@@ -158,9 +158,13 @@ ZCWeight.df$female.eviron.abun.mean.fall=NA
 ZCWeight.df$female.eviron.abun.mean.fall.se=NA
 ZCWeight.df$male.eviron.abun.mean.fall=NA
 ZCWeight.df$male.eviron.abun.mean.fall.se=NA
+ZCWeight.df$male.eviron.abun.mean.fall.fixed=NA
+ZCWeight.df$female.eviron.abun.mean.fall.fixed=NA
 
 ZCWeight.df$female.eviron.abun.mean.fall[select]=female.averages$fit
 ZCWeight.df$female.eviron.abun.mean.fall.se[select]=female.averages$se
 ZCWeight.df$male.eviron.abun.mean.fall[select]=male.averages$fit
 ZCWeight.df$male.eviron.abun.mean.fall.se[select]=male.averages$se
 
+ZCWeight.df$female.environ.abun.mean.fall.fixed[select]=expected.female.averages$fit
+ZCWeight.df$male.environ.mean.fall.fixed[select]=expected.male.averages$fit

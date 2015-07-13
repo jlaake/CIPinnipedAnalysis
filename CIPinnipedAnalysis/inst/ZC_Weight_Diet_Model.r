@@ -70,12 +70,12 @@ zcweights.environ.diet=merge(zcweights.environ.diet,fo,by="Year")
 #
 random.f=list(res.environ$best.r)
 
+if(use.calcofi)
+	fixed.f=fixed.f[sapply(fixed.f,function(x) length(grep("dynamic",x))>0) |  sapply(fixed.f,function(x) length(grep("SST",x))>0) |  sapply(fixed.f,function(x) length(grep("R_SIGMA",x))>0)]
 
 fixed.f.diet=c(fixed.f,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ PC1"))))
 fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ squid "))))
 fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ rockfish "))))
-fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ squid + rockfish "))))
-fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ squid + sa "))))
 fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ sardine "))))
 fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ sa"))))
 fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ anchovy"))))
@@ -109,4 +109,6 @@ ZCWeight.df1$female.environ.diet.mean.fall.se=female.averages$se
 ZCWeight.df1$male.environ.diet.mean.fall=male.averages$fit
 ZCWeight.df1$male.environ.diet.mean.fall.se=male.averages$se
 ZCWeight.df1$Year=as.numeric(rownames(ZCWeight.df1))
+ZCWeight.df1$female.environ.diet.mean.fall.fixed=expected.female.averages$fit
+ZCWeight.df1$male.environ.diet.mean.fall.fixed=expected.male.averages$fit
 

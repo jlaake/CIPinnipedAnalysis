@@ -33,6 +33,9 @@ fitmixed=function(fixed.f,random.f,data,control=lmeControl(opt="optim"),method=N
 		{
 			i=i+1
 			results[[i]]=lme(f,random=r,data=data,control=control,method=method,...)
+			results[[i]]$data=NULL
+			results[[i]]$fitted=NULL
+			results[[i]]$residuals=NULL
 			cf=as.character(f)
 			cf[1]=cf[2]
 			cf[2]="~"
