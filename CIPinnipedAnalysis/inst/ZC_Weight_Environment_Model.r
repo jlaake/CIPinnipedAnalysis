@@ -335,8 +335,11 @@ expected.male.averages=data.frame(fit=pp0[,2],se=stderrors[(length(pp0[,1])+1):(
 
 ZCWeight.df$female.environ.mean.winter=NA
 ZCWeight.df$female.environ.mean.winter.se=NA
+ZCWeight.df$female.environ.mean.winter.fixed=NA
+
 ZCWeight.df$male.environ.mean.winter=NA
 ZCWeight.df$male.environ.mean.winter.se=NA
+ZCWeight.df$male.environ.mean.winter.fixed=NA
 	
 ZCWeight.df$female.environ.mean.winter[add+1:length(female.averages$fit)]=female.averages$fit
 ZCWeight.df$female.environ.mean.winter.se[add+1:length(female.averages$fit)]=female.averages$se
