@@ -134,6 +134,32 @@ zc.weight.model.environ.abun=lme(res.environ.abun$best.f,random=res.environ.abun
 summary(zc.weight.model.environ.abun)
 zc.weight.model=zc.weight.model.environ.abun
 
+bootstrap.se=function(x,nreps,days=0)
+{
+	pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))
+	i=0
+	while(i<nreps)
+	{
+		cat("Bootstrap ",i,"\n")
+		xsamp=lapply(split(x,list(x$batch,x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
+		xsamp=do.call("rbind",xsamp)
+		mod=try(lme(fixed=res.environ.abun$best.f,random=res.environ.abun$best.r,data=as.data.frame(xsamp),method="REML",control=lmeControl(opt="optim")))
+		if(class(mod)!="try-error")
+		{
+			i=i+1
+			xsamp$days=days
+			pp=predict(mod,newdata=xsamp)
+			pmat[i,]=as.vector(tapply(as.vector(pp),list(x$cohort,x$sex),mean))
+		}
+	}
+	return(sqrt(apply(pmat,2,var)))
+}
+
+#################  1 Oct Predictions ####################
+# use 100 reps to compute std error
+stderrors=bootstrap.se(zcweights.environ.abun,nboot,days=0)
+
+
 pp=zcweights.environ.abun
 pp$days=0
 pp1=predict(zc.weight.model,newdata=pp)
@@ -154,17 +180,17 @@ if(use.calcofi){
 }else{
 	select=ZCWeight.df$Year%in%(as.numeric(rownames(pp1))+1975)
 }
-ZCWeight.df$female.eviron.abun.mean.fall=NA
-ZCWeight.df$female.eviron.abun.mean.fall.se=NA
-ZCWeight.df$male.eviron.abun.mean.fall=NA
-ZCWeight.df$male.eviron.abun.mean.fall.se=NA
-ZCWeight.df$male.eviron.abun.mean.fall.fixed=NA
-ZCWeight.df$female.eviron.abun.mean.fall.fixed=NA
+ZCWeight.df$female.environ.abun.mean.fall=NA
+ZCWeight.df$female.environ.abun.mean.fall.se=NA
+ZCWeight.df$male.environ.abun.mean.fall=NA
+ZCWeight.df$male.environ.abun.mean.fall.se=NA
+ZCWeight.df$male.environ.abun.mean.fall.fixed=NA
+ZCWeight.df$female.environ.abun.mean.fall.fixed=NA
 
-ZCWeight.df$female.eviron.abun.mean.fall[select]=female.averages$fit
-ZCWeight.df$female.eviron.abun.mean.fall.se[select]=female.averages$se
-ZCWeight.df$male.eviron.abun.mean.fall[select]=male.averages$fit
-ZCWeight.df$male.eviron.abun.mean.fall.se[select]=male.averages$se
+ZCWeight.df$female.environ.abun.mean.fall[select]=female.averages$fit
+ZCWeight.df$female.environ.abun.mean.fall.se[select]=female.averages$se
+ZCWeight.df$male.environ.abun.mean.fall[select]=male.averages$fit
+ZCWeight.df$male.environ.abun.mean.fall.se[select]=male.averages$se
 
 ZCWeight.df$female.environ.abun.mean.fall.fixed[select]=expected.female.averages$fit
-ZCWeight.df$male.environ.mean.fall.fixed[select]=expected.male.averages$fit
+ZCWeight.df$male.environ.abun.mean.fall.fixed[select]=expected.male.averages$fit

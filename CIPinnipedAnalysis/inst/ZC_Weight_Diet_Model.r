@@ -60,9 +60,9 @@ if(use.calcofi)
 # create freq of occurence for prey data
 if(!exists("fo"))fo=create_fo()
 
-ZCWeight.df1=ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),]
-ZCWeight.df1=ZCWeight.df1[rownames(ZCWeight.df1)%in%rownames(fo) & rownames(ZCWeight.df1)%in% unique(zcweights.environ.diet$Year),]
-zcweights.environ.diet=zcweights.environ.diet[zcweights.environ.diet$Year%in%fo$Year,]
+#ZCWeight.df1=ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),]
+#ZCWeight.df1=ZCWeight.df1[rownames(ZCWeight.df1)%in%rownames(fo) & rownames(ZCWeight.df1)%in% unique(zcweights.environ.diet$Year),]
+#zcweights.environ.diet=zcweights.environ.diet[zcweights.environ.diet$Year%in%fo$Year,]
 
 zcweights.environ.diet=merge(zcweights.environ.diet,fo,by="Year")
 #
@@ -89,6 +89,33 @@ res.environ.diet=fitmixed(fixed.f.diet,random.f,data=zcweights.environ.diet)
 zc.weight.model.environ.diet=lme(res.environ.diet$best.f,random=res.environ.diet$best.r,data=zcweights.environ.diet,control=lmeControl(opt="optim"),method="REML")
 summary(zc.weight.model.environ.diet)
 
+
+bootstrap.se=function(x,nreps,days=0)
+{
+	pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))
+	i=0
+	while(i<nreps)
+	{
+		cat("Bootstrap ",i,"\n")
+		xsamp=lapply(split(x,list(x$batch,x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
+		xsamp=do.call("rbind",xsamp)
+		mod=try(lme(fixed=res.environ.diet$best.f,random=res.environ.diet$best.r,data=as.data.frame(xsamp),method="REML",control=lmeControl(opt="optim")))
+		if(class(mod)!="try-error")
+		{
+			i=i+1
+			xsamp$days=days
+			pp=predict(mod,newdata=xsamp)
+			pmat[i,]=as.vector(tapply(as.vector(pp),list(x$cohort,x$sex),mean))
+		}
+	}
+	return(sqrt(apply(pmat,2,var)))
+}
+
+#################  1 Oct Predictions ####################
+# use 100 reps to compute std error
+stderrors=bootstrap.se(zcweights.environ.diet,nboot,days=0)
+
+# Compute fall 1 Oct predictions and construct dataframes for female and male averages with std errors
 pp=zcweights.environ.diet
 pp$days=0
 pp1=predict(zc.weight.model.environ.diet,newdata=pp)
@@ -96,19 +123,18 @@ pp0=predict(zc.weight.model.environ.diet,newdata=pp,level=0)
 
 pp0=tapply(as.vector(pp0),list(zcweights.environ.diet$cohort,zcweights.environ.diet$sex),mean)
 pp1=tapply(as.vector(pp1),list(zcweights.environ.diet$cohort,zcweights.environ.diet$sex),mean)
+# create list with estimates and std errors for averages
+female.averages=data.frame(fit=pp1[,1],se=stderrors[1:length(pp1[,1])])
+male.averages=data.frame(fit=pp1[,2],se=stderrors[(length(pp1[,1])+1):(2*length(pp1[,1]))])
+# create list with estimates and std errors for expected averages
+expected.female.averages=data.frame(fit=pp0[,1],se=stderrors[1:length(pp0[,1])])
+expected.male.averages=data.frame(fit=pp0[,2],se=stderrors[(length(pp0[,1])+1):(2*length(pp0[,1]))])
 
-female.averages=data.frame(fit=pp1[,1])
-male.averages=data.frame(fit=pp1[,2])
+ZCWeight.df1=data.frame(Year=sort(unique(zcweights.environ.diet$Year)),female.environ.diet.mean.fall=female.averages$fit,
+female.environ.diet.mean.fall.se=female.averages$se,
+male.environ.diet.mean.fall=male.averages$fit,
+male.environ.diet.mean.fall.se=male.averages$se,
+female.environ.diet.mean.fall.fixed=expected.female.averages$fit,
+male.environ.diet.mean.fall.fixed=expected.male.averages$fit)
 
-expected.female.averages=data.frame(fit=pp0[,1])
-expected.male.averages=data.frame(fit=pp0[,2])
-
-
-ZCWeight.df1$female.environ.diet.mean.fall=female.averages$fit
-ZCWeight.df1$female.environ.diet.mean.fall.se=female.averages$se
-ZCWeight.df1$male.environ.diet.mean.fall=male.averages$fit
-ZCWeight.df1$male.environ.diet.mean.fall.se=male.averages$se
-ZCWeight.df1$Year=as.numeric(rownames(ZCWeight.df1))
-ZCWeight.df1$female.environ.diet.mean.fall.fixed=expected.female.averages$fit
-ZCWeight.df1$male.environ.diet.mean.fall.fixed=expected.male.averages$fit
-
+ZCWeight.df=merge(ZCWeight.df,ZCWeight.df1,all.x=TRUE)
