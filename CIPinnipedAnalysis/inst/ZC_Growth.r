@@ -88,16 +88,16 @@ if(length(1975:lastyear)==length(UWImeansOcttoFeb[1,-(1:6)]) & length(1975:lasty
 } else
 	cat("\nmismatch in environmental data; some data must be missing\n ")
 
-pp=data.frame(cohort=sort(unique(zcweights.lon$cohort)),sex=rep("F",each=length(unique(zcweights.lon$cohort))))
-pp$gr=predict(gr.mod,pp,level=1)
+ppgr=data.frame(cohort=sort(unique(zcweights.lon$cohort)),sex=rep("F",each=length(unique(zcweights.lon$cohort))))
+ppgr$gr=predict(gr.mod,ppgr,level=1)
 
 pp.lon=predict(mod,type="response",level=0)
 SST=sapply(split(zcweights.environ.lon$SST,zcweights.environ.lon$cohort),unique)
 pred.gr=sapply(split(pp.lon[zcweights.environ.lon$sex=="F"],names(pp.lon[zcweights.environ.lon$sex=="F"])),unique)
-plot(SST,pp$gr,xlab="Sea Surface Temperature Anomaly (C)",ylab="Female pup weight growth between 1 Oct and 1 Feb (kg/day)")
-lines(SST,pred.gr)
-text(2,0.06,expression(R^2),cex=1.5)
-text(2.3,0.06,paste(" = ",sprintf("%0.2f",var(pred.gr)/var(pp$gr)),sep=""),cex=1.5)
+#plot(SST,ppgr$gr,xlab="Sea Surface Temperature Anomaly (C)",ylab="Female pup weight growth between 1 Oct and 1 Feb (kg/day)")
+#lines(SST,pred.gr)
+#text(2,0.06,expression(R^2),cex=1.5)
+#text(2.3,0.06,paste(" = ",sprintf("%0.2f",var(pred.gr)/var(ppgr$gr)),sep=""),cex=1.5)
 
 #plot(zcweights.environ.lon$cohort[zcweights.environ.lon$sex=="F"],predict(mod)[zcweights.environ.lon$sex=="F"],pch="F",type="b",ylim=c(0,.12))
 #points(zcweights.environ.lon$cohort[zcweights.environ.lon$sex=="M"],predict(mod)[zcweights.environ.lon$sex=="M"],pch="M",type="b")

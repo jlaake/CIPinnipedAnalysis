@@ -19,227 +19,81 @@ if(!exists("use.calcofi"))use.calcofi=FALSE
 # get zc weight values from database
 zcweights=get.zc.weights(fdir=fdir)
 zcweights=zcweights[zcweights$cohort<=lastyear,]
-if(use.calcofi)
-{
-	data(calcofi)
-	zcweights=zcweights[zcweights$cohort>=1984&zcweights$cohort<=min(lastyear,max(calcofi$Year)),]
-}
 #
 #  exclude brand eval weights and captures in April and only use SMI
 #
 zcweights=zcweights[zcweights$days>-30&zcweights$days<150&
 				zcweights$sitecode=="SMI",]
 zcweights$batch=factor(paste(zcweights$cohort,zcweights$days))
+#
+# Get environment data, fish abundance data and diet data
+#
+# Get calcofi and std environmental data
+data(calcofi)
+calcofi=calcofi[calcofi$Month=="July",]
+calcofi=sapply(calcofi[calcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51"),-(1:3)],function(x) tapply(x,calcofi$Year[calcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51")],mean))
+july.calcofi=t(t(calcofi)-colMeans(calcofi))
+data(calcofi)
+calcofi=calcofi[calcofi$Month=="October",]
+calcofi=sapply(calcofi[calcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51"),-(1:3)],function(x) tapply(x,calcofi$Year[calcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51")],mean))
+oct.calcofi=t(t(calcofi)-colMeans(calcofi))
+colnames(oct.calcofi)=paste(colnames(oct.calcofi),".oct",sep="")
+calcofi=as.data.frame(cbind(july.calcofi,oct.calcofi))
+calcofi$cohort=as.numeric(rownames(calcofi))
+env.data=data.frame(cohort=1975:lastyear,SST=AprtoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],SST2=JunetoFebAnomalies[4:numyears],
+		MEI=LaggedMEIAprtoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansAprtoSept[1,-(1:6)],UWI36=UWImeansAprtoSept[2,-(1:6)],
+		UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],UWI362=UWImeansJunetoFeb[2,-(1:6)],
+		SLH=AprtoSeptSLH,SLH1=OcttoFebSLH)
 
+env.data=merge(env.data,calcofi,all.x=TRUE)
+# get fish data
+# read in abundance data files
+sardine=read.delim("sardine.txt",header=T)
+anchovy=read.delim("AnchovyAbundance.txt",header=T)
+hake=read.delim("hake.txt",header=T)
+# compute age 0 to 1 hake, 0 to 2 and 1 to 2 hake
+hake$Age01=hake$Age0+hake$Age1
+hake$Age02=hake$Age0+hake$Age1+hake$Age2
+hake$Age12=hake$Age1+hake$Age2
+names(hake)[-1]=paste("hake",names(hake)[-1],sep="")
+# add upper bound estimate for 2012-2013 anchovy
+#anchovy=rbind(anchovy,data.frame(Year=2012:2013,AnchovyBiomass=c(30,30)))
+# create sardine age 0-1 biomass
+total.sa=data.frame(Year=1981:2013,Age01=sardine$Abundance[sardine$Age==0]+sardine$Abundance[sardine$Age==1],Age0=sardine$Abundance[sardine$Age==0],Age1=sardine$Abundance[sardine$Age==1])
+total.sa$SardineBiomass=sardine$Biomass[sardine$Age==1]+sardine$Biomass[sardine$Age==0]
+names(total.sa)[2:4]=paste("sardine",names(total.sa)[2:4],sep="")
+# convert abundance to 1000s and biomass to 1000mt
+total.sa[,2:5]=total.sa[,2:5]/1000
+fish_abundance=merge(total.sa,anchovy)
+# compute biomass of anchovy and sardines in 1000s metric tons; excludes some years when only one of the species 
+fish_abundance$SardineAnchovyBiomass=fish_abundance$SardineBiomass+fish_abundance$AnchovyBiomass
+#merge hake data
+fish_abundance=merge(hake,fish_abundance,all.x=TRUE)
+names(fish_abundance)[1]="cohort"
+#merge fish abundance and environmental data
+env.data=merge(env.data,fish_abundance,all.x=TRUE )
+# get diet data
+# create freq of occurence for prey data
+if(!exists("fo"))fo=create_fo()
+names(fo)[1]="cohort"
+#merge in diet data
+env.data=merge(env.data,fo,all.x=TRUE)
+names(env.data)[1]="Year"
+#
+# merge weight data with environment data
+zcweights.environ=merge(zcweights,env.data,all.x=TRUE,by.x="cohort",by.y="Year")
+zcweights.environ$Year=zcweights.environ$cohort
+zcweights.environ$cohort=zcweights.environ$Year-min(zcweights.environ$Year)
+# limit data to calcofi years if use.calcofi set to TRUE
 if(use.calcofi)
 {
-    calcofi=calcofi[calcofi$Month=="July",]
-	calcofi=sapply(calcofi[calcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51"),-(1:3)],function(x) tapply(x,calcofi$Year[calcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51")],mean))
-	july.calcofi=t(t(calcofi)-colMeans(calcofi))
-    data(calcofi)
-    calcofi=calcofi[calcofi$Month=="October",]
-	calcofi=sapply(calcofi[,-(1:3)],function(x) tapply(x,calcofi$Year,mean))
-	oct.calcofi=t(t(calcofi)-colMeans(calcofi))
-    colnames(oct.calcofi)=paste(colnames(oct.calcofi),".oct",sep="")
-	std_env=data.frame(cohort=1984:lastyear,SST=JunetoSeptAnomalies[13:numyears],SST1=OcttoFebAnomalies[13:numyears],SST2=JunetoFebAnomalies[13:numyears],
-			MEI=LaggedMEIJunetoSept[-(1:10)],MEI1=LaggedMEIOcttoFeb[-(1:10)],MEI2=LaggedMEIJunetoFeb[-(1:10)],UWI33=UWImeansJunetoSept[1,-(1:15)],UWI36=UWImeansJunetoSept[2,-(1:15)],
-			UWI331=UWImeansOcttoFeb[1,-(1:15)],UWI361=UWImeansOcttoFeb[2,-(1:15)],UWI332=UWImeansJunetoFeb[1,-(1:15)],UWI362=UWImeansJunetoFeb[2,-(1:15)])
-	calcofi=cbind(july.calcofi,oct.calcofi)
-	nr=min(nrow(std_env),nrow(calcofi))
-	std_env=cbind(std_env[1:nr,],calcofi[1:nr,])	
-	zcweights.environ=merge(zcweights,std_env)
-	fixed.f=list(		
-			weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort,
-			weight~sex*SST+sex:days+SST1:days+sex:SST1:days,
-			weight~sex*SST+sex:days+SST1:days+cohort,
-			weight~sex*SST+sex:days+SST1:days,
-			weight~sex*SST+sex:days+cohort,
-			weight~sex*SST+sex:days,
-			weight~sex+SST+sex:days+SST1:days+sex:SST1:days+cohort,
-			weight~sex+SST+sex:days+SST1:days+sex:SST1:days,
-			weight~sex+SST+sex:days+SST1:days+cohort,
-			weight~sex+SST+sex:days+SST1:days,
-			weight~sex+SST+sex:days+cohort,
-			weight~sex+SST+sex:days,
-			
-			weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort,
-			weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days,
-			weight~sex*MEI+sex:days+MEI1:days+cohort,
-			weight~sex*MEI+sex:days+MEI1:days,
-			weight~sex*MEI+sex:days+cohort,
-			weight~sex*MEI+sex:days,
-			weight~sex+MEI+sex:days+MEI1:days+sex:MEI1:days+cohort,
-			weight~sex+MEI+sex:days+MEI1:days+sex:MEI1:days,
-			weight~sex+MEI+sex:days+MEI1:days+cohort,
-			weight~sex+MEI+sex:days+MEI1:days,
-			weight~sex+MEI+sex:days+cohort,
-			weight~sex+MEI+sex:days,
-			
-			weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort,
-			weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days,
-			weight~sex*UWI36+sex:days+UWI361:days+cohort,
-			weight~sex*UWI36+sex:days+UWI361:days,
-			weight~sex*UWI36+sex:days+cohort,
-			weight~sex*UWI36+sex:days,
-			weight~sex+UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort,
-			weight~sex+UWI36+sex:days+UWI361:days+sex:UWI361:days,
-			weight~sex+UWI36+sex:days+UWI361:days+cohort,
-			weight~sex+UWI36+sex:days+UWI361:days,
-			weight~sex+UWI36+sex:days+cohort,
-			weight~sex+UWI36+sex:days,
-			
-			weight~sex*dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+sex:dynamic_height_0_500m.oct:days+cohort,
-			weight~sex*dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+sex:dynamic_height_0_500m.oct:days,
-			weight~sex*dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+cohort,
-			weight~sex*dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days,
-			weight~sex*dynamic_height_0_500m+sex:days+cohort,
-			weight~sex*dynamic_height_0_500m+sex:days,
-			weight~sex+dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+sex:dynamic_height_0_500m.oct:days+cohort,
-			weight~sex+dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+sex:dynamic_height_0_500m.oct:days,
-			weight~sex+dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days+cohort,
-			weight~sex+dynamic_height_0_500m+sex:days+dynamic_height_0_500m.oct:days,
-			weight~sex+dynamic_height_0_500m+sex:days+cohort,
-			weight~sex+dynamic_height_0_500m+sex:days,
-			
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+sex:R_SIGMA_75m.oct:days+cohort,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+sex:R_SIGMA_75m.oct:days,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort,
-			weight~sex*R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days,
-			weight~sex*R_SIGMA_75m+sex:days+cohort,
-			weight~sex*R_SIGMA_75m+sex:days,
-			weight~sex+R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+sex:R_SIGMA_75m.oct:days+cohort,
-			weight~sex+R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+sex:R_SIGMA_75m.oct:days,
-			weight~sex+R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days+cohort,
-			weight~sex+R_SIGMA_75m+sex:days+R_SIGMA_75m.oct:days,
-			weight~sex+R_SIGMA_75m+sex:days+cohort,
-			weight~sex+R_SIGMA_75m+sex:days,
-			
-			weight~sex*R_POTEMP_75m+sex:days+R_POTEMP_75m.oct:days+sex:R_POTEMP_75m.oct:days+cohort,
-			weight~sex*R_POTEMP_75m+sex:days+R_POTEMP_75m.oct:days+sex:R_POTEMP_75m.oct:days,
-			weight~sex*R_POTEMP_75m+sex:days+R_POTEMP_75m.oct:days+cohort,
-			weight~sex*R_POTEMP_75m+sex:days+R_POTEMP_75m.oct:days,
-			weight~sex*R_POTEMP_75m+sex:days+cohort,
-			weight~sex*R_POTEMP_75m+sex:days,
-			weight~sex+R_POTEMP_75m+sex:days+R_POTEMP_75m.oct:days+sex:R_POTEMP_75m.oct:days+cohort,
-			weight~sex+R_POTEMP_75m+sex:days+R_POTEMP_75m.oct:days+sex:R_POTEMP_75m.oct:days,
-			weight~sex+R_POTEMP_75m+sex:days+R_POTEMP_75m.oct:days+cohort,
-			weight~sex+R_POTEMP_75m+sex:days+R_POTEMP_75m.oct:days,
-			weight~sex+R_POTEMP_75m+sex:days+cohort,
-			weight~sex+R_POTEMP_75m+sex:days,
-			
-			weight~sex*stratification+sex:days+stratification.oct:days+sex:stratification.oct:days+cohort,
-			weight~sex*stratification+sex:days+stratification.oct:days+sex:stratification.oct:days,
-			weight~sex*stratification+sex:days+stratification.oct:days+cohort,
-			weight~sex*stratification+sex:days+stratification.oct:days,
-			weight~sex*stratification+sex:days+cohort,
-			weight~sex*stratification+sex:days,
-			weight~sex+stratification+sex:days+stratification.oct:days+sex:stratification.oct:days+cohort,
-			weight~sex+stratification+sex:days+stratification.oct:days+sex:stratification.oct:days,
-			weight~sex+stratification+sex:days+stratification.oct:days+cohort,
-			weight~sex+stratification+sex:days+stratification.oct:days,
-			weight~sex+stratification+sex:days+cohort,
-			weight~sex+stratification+sex:days,
-			
-			weight~sex*pycnocline_depth+sex:days+pycnocline_depth.oct:days+sex:pycnocline_depth.oct:days+cohort,
-			weight~sex*pycnocline_depth+sex:days+pycnocline_depth.oct:days+sex:pycnocline_depth.oct:days,
-			weight~sex*pycnocline_depth+sex:days+pycnocline_depth.oct:days+cohort,
-			weight~sex*pycnocline_depth+sex:days+pycnocline_depth.oct:days,
-			weight~sex*pycnocline_depth+sex:days+cohort,
-			weight~sex*pycnocline_depth+sex:days,
-			weight~sex+pycnocline_depth+sex:days+pycnocline_depth.oct:days+sex:pycnocline_depth.oct:days+cohort,
-			weight~sex+pycnocline_depth+sex:days+pycnocline_depth.oct:days+sex:pycnocline_depth.oct:days,
-			weight~sex+pycnocline_depth+sex:days+pycnocline_depth.oct:days+cohort,
-			weight~sex+pycnocline_depth+sex:days+pycnocline_depth.oct:days,
-			weight~sex+pycnocline_depth+sex:days+cohort,
-			weight~sex+pycnocline_depth+sex:days,
-			
-			weight~sex*R_O2_75m+sex:days+R_O2_75m.oct:days+sex:R_O2_75m.oct:days+cohort,
-			weight~sex*R_O2_75m+sex:days+R_O2_75m.oct:days+sex:R_O2_75m.oct:days,
-			weight~sex*R_O2_75m+sex:days+R_O2_75m.oct:days+cohort,
-			weight~sex*R_O2_75m+sex:days+R_O2_75m.oct:days,
-			weight~sex*R_O2_75m+sex:days+cohort,
-			weight~sex*R_O2_75m+sex:days,
-			weight~sex+R_O2_75m+sex:days+R_O2_75m.oct:days+sex:R_O2_75m.oct:days+cohort,
-			weight~sex+R_O2_75m+sex:days+R_O2_75m.oct:days+sex:R_O2_75m.oct:days,
-			weight~sex+R_O2_75m+sex:days+R_O2_75m.oct:days+cohort,
-			weight~sex+R_O2_75m+sex:days+R_O2_75m.oct:days,
-			weight~sex+R_O2_75m+sex:days+cohort,
-			weight~sex+R_O2_75m+sex:days,
-			
-			weight~sex*R_NO3_75m+sex:days+R_NO3_75m.oct:days+sex:R_NO3_75m.oct:days+cohort,
-			weight~sex*R_NO3_75m+sex:days+R_NO3_75m.oct:days+sex:R_NO3_75m.oct:days,
-			weight~sex*R_NO3_75m+sex:days+R_NO3_75m.oct:days+cohort,
-			weight~sex*R_NO3_75m+sex:days+R_NO3_75m.oct:days,
-			weight~sex*R_NO3_75m+sex:days+cohort,
-			weight~sex*R_NO3_75m+sex:days,
-			weight~sex+R_NO3_75m+sex:days+R_NO3_75m.oct:days+sex:R_NO3_75m.oct:days+cohort,
-			weight~sex+R_NO3_75m+sex:days+R_NO3_75m.oct:days+sex:R_NO3_75m.oct:days,
-			weight~sex+R_NO3_75m+sex:days+R_NO3_75m.oct:days+cohort,
-			weight~sex+R_NO3_75m+sex:days+R_NO3_75m.oct:days,
-			weight~sex+R_NO3_75m+sex:days+cohort,
-			weight~sex+R_NO3_75m+sex:days)
-			
-} else {
-	zcweights.environ=merge(zcweights,data.frame(cohort=1975:lastyear,SST=AprtoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],SST2=JunetoFebAnomalies[4:numyears],
-					MEI=LaggedMEIAprtoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansAprtoSept[1,-(1:6)],UWI36=UWImeansAprtoSept[2,-(1:6)],
-					UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],UWI362=UWImeansJunetoFeb[2,-(1:6)],SLH=AprtoSeptSLH,SLH1=OcttoFebSLH))
-	fixed.f=list(
-					weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort,
-					weight~sex*SST+sex:days+SST1:days+sex:SST1:days,
-					weight~sex*SST+sex:days+SST1:days+cohort,
-					weight~sex*SST+sex:days+SST1:days,
-					weight~sex*SST+sex:days+cohort,
-					weight~sex*SST+sex:days,
-					weight~sex+SST+sex:days+SST1:days+sex:SST1:days+cohort,
-					weight~sex+SST+sex:days+SST1:days+sex:SST1:days,
-					weight~sex+SST+sex:days+SST1:days+cohort,
-					weight~sex+SST+sex:days+SST1:days,
-					weight~sex+SST+sex:days+cohort,
-					weight~sex+SST+sex:days,
-	
-					weight~sex*SLH+sex:days+SLH1:days+sex:SLH1:days+cohort,
-					weight~sex*SLH+sex:days+SLH1:days+sex:SLH1:days,
-					weight~sex*SLH+sex:days+SLH1:days+cohort,
-					weight~sex*SLH+sex:days+SLH1:days,
-					weight~sex*SLH+sex:days+cohort,
-					weight~sex*SLH+sex:days,
-					weight~sex+SLH+sex:days+SLH1:days+sex:SLH1:days+cohort,
-					weight~sex+SLH+sex:days+SLH1:days+sex:SLH1:days,
-					weight~sex+SLH+sex:days+SLH1:days+cohort,
-					weight~sex+SLH+sex:days+SLH1:days,
-					weight~sex+SLH+sex:days+cohort,
-					weight~sex+SLH+sex:days,
-					
-					
-					weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort,
-					weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days,
-					weight~sex*MEI+sex:days+MEI1:days+cohort,
-					weight~sex*MEI+sex:days+MEI1:days,
-					weight~sex*MEI+sex:days+cohort,
-					weight~sex*MEI+sex:days,
-					weight~sex+MEI+sex:days+MEI1:days+sex:MEI1:days+cohort,
-					weight~sex+MEI+sex:days+MEI1:days+sex:MEI1:days,
-					weight~sex+MEI+sex:days+MEI1:days+cohort,
-					weight~sex+MEI+sex:days+MEI1:days,
-					weight~sex+MEI+sex:days+cohort,
-					weight~sex+MEI+sex:days,
-					
-					weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort,
-					weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days,
-					weight~sex*UWI36+sex:days+UWI361:days+cohort,
-					weight~sex*UWI36+sex:days+UWI361:days,
-					weight~sex*UWI36+sex:days+cohort,
-					weight~sex*UWI36+sex:days,
-					weight~sex+UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort,
-					weight~sex+UWI36+sex:days+UWI361:days+sex:UWI361:days,
-					weight~sex+UWI36+sex:days+UWI361:days+cohort,
-					weight~sex+UWI36+sex:days+UWI361:days,
-					weight~sex+UWI36+sex:days+cohort,
-					weight~sex+UWI36+sex:days)
-}
-
-zcweights.environ$cohort=zcweights.environ$cohort-min(zcweights.environ$cohort)
-
+	zcweights.environ=zcweights.environ[!is.na(zcweights.environ$dynamic_height_0_500m),]
+	zcweights.environ=droplevels(zcweights.environ)
+}	
+#
+# specify set of models
+source(file.path(system.file(package="CIPinnipedAnalysis"),"environment_models.r"))
+#
 # First fit a sequence of random effect models with REML to assess best random model with same fixed model
 random.f=list(list(~1|cohort,~1|batch),list(~days|cohort,~1|batch),list(~sex:days|cohort,~1|batch),list(~sex*days|cohort,~1|batch),list(~-1+sex+days|cohort,~1|batch))
 fixed.f1=list(weight~sex*SST+sex:days+SST1:days+sex:SST1:days+UWI33+cohort+MEI)
@@ -248,10 +102,11 @@ res.environ=fitmixed(fixed.f1,random.f,data=zcweights.environ)
 # Using that random model, fit a sequence of fixed effect models with ML and use AIC to assess best fixed model
 random.f=list(res.environ$best.r)
 res.environ=fitmixed(fixed.f,random.f,data=zcweights.environ) 
+res.environ=compute_AICc(res.environ, length(table(zcweights.environ$Year))*2,5)
 
 # Finally fit best fixed/random model with REML
-zc.weight.model=lme(fixed=res.environ$best.f,random=res.environ$best.r,data=zcweights.environ,method="REML",control=lmeControl(opt="optim"))
-print(summary(zc.weight.model))
+zc.weight.environ.model=lme(fixed=res.environ$best.f,random=res.environ$best.r,data=zcweights.environ,method="REML",control=lmeControl(opt="optim"))
+print(summary(zc.weight.environ.model))
 
 
 bootstrap.se=function(x,nreps,days=0)
@@ -282,9 +137,9 @@ stderrors=bootstrap.se(zcweights.environ,nboot,days=0)
 pp=zcweights.environ
 pp$days=0
 # predictions at 1 Oct with random effects
-pp1=predict(zc.weight.model,newdata=pp)
+pp1=predict(zc.weight.environ.model,newdata=pp)
 # predictions at 1 Oct with fixed effects only
-pp0=predict(zc.weight.model,newdata=pp,level=0)
+pp0=predict(zc.weight.environ.model,newdata=pp,level=0)
 # compute mean values which essentially acts as unique
 pp0=tapply(as.vector(pp0),list(zcweights.environ$cohort,zcweights.environ$sex),mean)
 pp1=tapply(as.vector(pp1),list(zcweights.environ$cohort,zcweights.environ$sex),mean)
@@ -320,9 +175,9 @@ stderrors=bootstrap.se(zcweights.environ,nboot,days=123)
 pp=zcweights.environ
 pp$days=123
 # predictions at 1 Oct with random effects
-pp1=predict(zc.weight.model,newdata=pp)
+pp1=predict(zc.weight.environ.model,newdata=pp)
 # predictions at 1 Oct with fixed effects only
-pp0=predict(zc.weight.model,newdata=pp,level=0)
+pp0=predict(zc.weight.environ.model,newdata=pp,level=0)
 # compute mean values which essentially acts as unique
 pp0=tapply(as.vector(pp0),list(zcweights.environ$cohort,zcweights.environ$sex),mean)
 pp1=tapply(as.vector(pp1),list(zcweights.environ$cohort,zcweights.environ$sex),mean)

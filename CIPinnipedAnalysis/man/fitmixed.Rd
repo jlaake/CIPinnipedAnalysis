@@ -5,7 +5,7 @@
 \title{Fit a sequence of mixed effect models with normal error distribution}
 \usage{
 fitmixed(fixed.f, random.f, data, control = lmeControl(opt = "optim"),
-  method = NULL, ...)
+  method = NULL, save.model = FALSE, ...)
 }
 \arguments{
 \item{fixed.f}{sequence of formulas for fixed effects}
@@ -17,6 +17,8 @@ fitmixed(fixed.f, random.f, data, control = lmeControl(opt = "optim"),
 \item{control}{argument for nlme}
 
 \item{method}{REML or ML; chosen as needed but can be specified}
+
+\item{save.model}{if TRUE saves each complete model rather than removing data,fitted,residual components}
 
 \item{...}{other arguments for plot}
 }

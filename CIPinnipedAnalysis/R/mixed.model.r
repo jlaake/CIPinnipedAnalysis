@@ -8,12 +8,13 @@
 #' @param data dataframe for model fitting
 #' @param control argument for nlme
 #' @param method REML or ML; chosen as needed but can be specified
+#' @param save.model if TRUE saves each complete model rather than removing data,fitted,residual components
 #' @param ... other arguments for plot
 #' @return list with following elements: results - list with each fitted model object; model.table- model selection table;
 #' best - model number that was best fit in results list; best.f - formula for fixed effect from best model; best.r - formula for random effects for best model
-#' @export
+#' @export fitmixed compute_AICc
 #' @author Jeff Laake
-fitmixed=function(fixed.f,random.f,data,control=lmeControl(opt="optim"),method=NULL,...)
+fitmixed=function(fixed.f,random.f,data,control=lmeControl(opt="optim"),method=NULL,save.model=FALSE,...)
 {
 	if(class(fixed.f)=="formula") fixed.f=list(fixed.f)
 	if(length(fixed.f)>1)
@@ -33,9 +34,12 @@ fitmixed=function(fixed.f,random.f,data,control=lmeControl(opt="optim"),method=N
 		{
 			i=i+1
 			results[[i]]=lme(f,random=r,data=data,control=control,method=method,...)
-			results[[i]]$data=NULL
-			results[[i]]$fitted=NULL
-			results[[i]]$residuals=NULL
+			if(!save.model)
+			{
+				results[[i]]$data=NULL
+			    results[[i]]$fitted=NULL
+			    results[[i]]$residuals=NULL
+			}
 			cf=as.character(f)
 			cf[1]=cf[2]
 			cf[2]="~"
@@ -52,5 +56,19 @@ fitmixed=function(fixed.f,random.f,data,control=lmeControl(opt="optim"),method=N
 		results$best.r=random.f[[1]]
 	else
 		results$best.r=random.f[[results$best]]
+	return(results)
+}
+compute_AICc=function(results,nobs,nref)
+{
+	i=1
+	results$model.table$AICc=NA
+	for( mod in as.numeric(row.names(results$model.table)))
+	{
+		K=ncol(coef(results[[mod]]))+nref
+		results$model.table$AICc[i]=results$model.table$AIC[i] + 2*K*(K+1)/(nobs-K+1)
+		i=i+1
+	}
+	results$model.table=results$model.table[order(results$model.table$AICc),]
+	results$best=as.numeric(row.names(results$model.table))[1]
 	return(results)
 }

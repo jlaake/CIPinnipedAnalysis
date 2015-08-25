@@ -1,13 +1,14 @@
 ---
 title: "Calcofi pup weight figures"
-output: pdf_document
+output: word_document
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
 
 
 ```{r,results="hide",echo=FALSE}
   suppressPackageStartupMessages(library(CIPinnipedAnalysis))
-  lastyear=2013
+  lastyear=2014
+  nboot=100
   sdir=system.file(package="CIPinnipedAnalysis")
   source(file.path(sdir,"ZC_Weight_Adjustment_Model.r"))
   source(file.path(sdir,"ZC_Growth.r"))

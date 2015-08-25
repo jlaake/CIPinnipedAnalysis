@@ -1,4 +1,4 @@
-# uses zcweights which can either be assigned to zcweights.environ or zcweights.environ.abun
+# uses zcweights.diet which can either be assigned to zcweights.environ or zcweights.environ.abun
 # the latter limits to use of diet data where fish abundance data is also available.
 # also fixed.f can be set to the environment set or to the set with fish abundance as well
 #
@@ -22,59 +22,19 @@ if(!exists("ZCWeight.df"))
 	if(is.null(ZCWeight.df$female.environ.mean.fall))
 		source(file.path(system.file(package="CIPinnipedAnalysis"),"ZC_Weight_Environment_Model.r"))
 }
-# set of models depends on whether calcofi data are used
-if(use.calcofi)
-{
-	if(is.null(zcweights$dynamic_height_0_500m))
-	{
-		data(calcofi)
-		calcofi=calcofi[calcofi$Month=="July",]
-		calcofi=sapply(calcofi[,-(1:3)],function(x) tapply(x,calcofi$Year,mean))
-		july.calcofi=t(t(calcofi)-colMeans(calcofi))
-		data(calcofi)
-		calcofi=calcofi[calcofi$Month=="October",]
-		calcofi=sapply(calcofi[,-(1:3)],function(x) tapply(x,calcofi$Year,mean))
-		oct.calcofi=t(t(calcofi)-colMeans(calcofi))
-		colnames(oct.calcofi)=paste(colnames(oct.calcofi),".oct",sep="")
-		std_env=data.frame(Year=1984:lastyear,SST=AprtoSeptAnomalies[13:numyears],SST1=OcttoFebAnomalies[13:numyears],SST2=JunetoFebAnomalies[13:numyears],
-				MEI=LaggedMEIAprtoSept[-(1:10)],MEI1=LaggedMEIOcttoFeb[-(1:10)],MEI2=LaggedMEIJunetoFeb[-(1:10)],UWI33=UWImeansAprtoSept[1,-(1:15)],UWI36=UWImeansAprtoSept[2,-(1:15)],
-				UWI331=UWImeansOcttoFeb[1,-(1:15)],UWI361=UWImeansOcttoFeb[2,-(1:15)],UWI332=UWImeansJunetoFeb[1,-(1:15)],UWI362=UWImeansJunetoFeb[2,-(1:15)])
-		calcofi=cbind(july.calcofi,oct.calcofi)
-		nr=min(nrow(std_env),nrow(calcofi))
-		std_env=cbind(std_env[1:nr,],calcofi[1:nr,])	
-		zcweights.environ.diet=merge(zcweights,std_env,by="Year")
-	} else
-		zcweights.environ.diet=zcweights
-} else {
-	if(is.null(zcweights$SST))
-	{
-		zcweights.environ.diet=merge(zcweights,data.frame(Year=1975:lastyear,SST=AprtoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],
-						SST2=JunetoFebAnomalies[4:numyears],MEI=LaggedMEIAprtoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],
-						MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansAprtoSept[1,-(1:6)],UWI36=UWImeansAprtoSept[2,-(1:6)],
-						UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],
-						UWI362=UWImeansJunetoFeb[2,-(1:6)]))		
-	} else
-		zcweights.environ.diet=zcweights
-}
 
-# create freq of occurence for prey data
-if(!exists("fo"))fo=create_fo()
+# select data with fish abundance
+zcweights.environ.diet=zcweights.diet[!is.na(zcweights.diet$sardine),]
+zcweights.environ.diet=droplevels(zcweights.environ.diet)
 
-#ZCWeight.df1=ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),]
-#ZCWeight.df1=ZCWeight.df1[rownames(ZCWeight.df1)%in%rownames(fo) & rownames(ZCWeight.df1)%in% unique(zcweights.environ.diet$Year),]
-#zcweights.environ.diet=zcweights.environ.diet[zcweights.environ.diet$Year%in%fo$Year,]
-
-zcweights.environ.diet=merge(zcweights.environ.diet,fo,by="Year")
 #
 # Next evaluate sequence of fixed-effect models with the chosen random effect model
 #
 random.f=list(res.environ$best.r)
 
-if(use.calcofi)
-	fixed.f=fixed.f[sapply(fixed.f,function(x) length(grep("dynamic",x))>0) |  sapply(fixed.f,function(x) length(grep("SST",x))>0) |  sapply(fixed.f,function(x) length(grep("R_SIGMA",x))>0)]
-
 fixed.f.diet=c(fixed.f,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ PC1"))))
 fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ squid "))))
+fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ hake "))))
 fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ rockfish "))))
 fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ sardine "))))
 fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ sa"))))
@@ -84,6 +44,7 @@ fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~
 fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ ratio"))))
 
 res.environ.diet=fitmixed(fixed.f.diet,random.f,data=zcweights.environ.diet) 
+res.environ.diet=compute_AICc(res.environ.diet,length(table(zcweights.environ.diet$Year))*2,5)
 
 #  fit best environment-diet growth model with REML
 zc.weight.model.environ.diet=lme(res.environ.diet$best.f,random=res.environ.diet$best.r,data=zcweights.environ.diet,control=lmeControl(opt="optim"),method="REML")
