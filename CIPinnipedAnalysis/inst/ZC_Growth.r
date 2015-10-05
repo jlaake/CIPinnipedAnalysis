@@ -46,6 +46,8 @@ gr=sapply(split(zcweights.lon,list(zcweights.lon$AnimalID)),growth)
 grdata=data.frame(gr=gr,AnimalID=names(gr))
 grdata=merge(initial,grdata)
 
+# to avoid duplicate records remove records with gr=Nan because days=0
+grdata=grdata[!is.nan(grdata$gr),]
 gr.mod=lme(gr~sex,random=list(~sex|cohort,~1|AnimalID),data=grdata,control=lmeControl(opt="optim"))
 pp=data.frame(cohort=rep(sort(unique(zcweights.lon$cohort)),2),sex=rep(c("F","M"),each=length(unique(zcweights.lon$cohort))))
 pp$gr=predict(gr.mod,pp,level=1)

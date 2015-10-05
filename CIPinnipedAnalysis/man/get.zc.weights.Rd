@@ -23,6 +23,9 @@ Extracts weights for Zc pups
 :from various tables in the BrandMaster.mdb ACCESS database and returns a dataframe with ancillary fields added.
 }
 \examples{
+# following runs adjustment model and all subsequent growth models
+# and then stores table in CIPinnipedCensusQuery database. This will take
+# a substantial amount of time
 source(file.path(system.file(package="CIPinnipedAnalysis"),"ZcWeightAnalysis.r"))
 }
 \author{

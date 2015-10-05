@@ -24,6 +24,10 @@ female.observed=sapply(split(zcweights$weight[zcweights$sex=="F"],
 				factor(zcweights$cohort[zcweights$sex=="F"],levels=levels(factor(zcweights.all$cohort)))),mean)
 male.observed=sapply(split(zcweights$weight[zcweights$sex=="M"],
 				factor(zcweights$cohort[zcweights$sex=="M"],levels=levels(factor(zcweights.all$cohort)))),mean)
+female.observed.n=sapply(split(zcweights$weight[zcweights$sex=="F"],
+				factor(zcweights$cohort[zcweights$sex=="F"],levels=levels(factor(zcweights.all$cohort)))),length)
+male.observed.n=sapply(split(zcweights$weight[zcweights$sex=="M"],
+				factor(zcweights$cohort[zcweights$sex=="M"],levels=levels(factor(zcweights.all$cohort)))),length)
 
 fall.avg.day=tapply(zcweights$days,zcweights$cohort,mean)
 all.cohorts=sort(unique(zcweights.all$cohort))
@@ -37,6 +41,10 @@ male.winter.observed=sapply(split(zcweights$weight[zcweights$sex=="M"],
 				factor(zcweights$cohort[zcweights$sex=="M"],levels=levels(factor(zcweights.all$cohort)))),mean)
 male.winter.observed[is.nan(male.winter.observed)]=NA
 female.winter.observed[is.nan(female.winter.observed)]=NA
+female.winter.observed.n=sapply(split(zcweights$weight[zcweights$sex=="F"],
+				factor(zcweights$cohort[zcweights$sex=="F"],levels=levels(factor(zcweights.all$cohort)))),length)
+male.winter.observed.n=sapply(split(zcweights$weight[zcweights$sex=="M"],
+				factor(zcweights$cohort[zcweights$sex=="M"],levels=levels(factor(zcweights.all$cohort)))),length)
 
 winter.avg.day=tapply(zcweights$days,factor(zcweights$cohort,levels=sort(unique(zcweights.all$cohort))),mean)
 # For modelling use all of the data from 1 Sept to 1 Mar
@@ -95,9 +103,9 @@ pp$predict=predict(zc.weight.model,newdata=pp,level=1)
 female.averages=data.frame(fit=pp$predict[pp$sex=="F"],se=stderrors[as.numeric(row.names(pp[pp$sex=="F",]))])
 male.averages=data.frame(fit=pp$predict[pp$sex=="M"],se=stderrors[as.numeric(row.names(pp[pp$sex=="M",]))])
 # create dataframe 
-ZCWeight.df=data.frame(female.observed.mean.fall=female.observed,
+ZCWeight.df=data.frame(female.observed.mean.fall=female.observed,female.fall.n=female.observed.n,
 		female.adjusted.mean.fall=female.averages$fit,female.adjusted.mean.fall.se=female.averages$se,
-		male.observed.mean.fall=male.observed,
+		male.observed.mean.fall=male.observed,male.fall.n=male.observed.n,
 		male.adjusted.mean.fall=male.averages$fit,male.adjusted.mean.fall.se=male.averages$se,fall.avg.day=fall.avg.day)
 ZCWeight.df=cbind(Year=as.numeric(rownames(ZCWeight.df)),ZCWeight.df)
 
@@ -111,9 +119,11 @@ winter.male.averages=data.frame(fit=pp$predict[pp$sex=="M"],se=stderrors[as.nume
 
 # add to dataframe
 ZCWeight.df$female.observed.mean.winter=female.winter.observed
+ZCWeight.df$female.winter.n=female.winter.observed.n
 ZCWeight.df$female.adjusted.mean.winter=winter.female.averages$fit
 ZCWeight.df$female.adjusted.mean.se.winter=winter.female.averages$se
 ZCWeight.df$male.observed.mean.winter=male.winter.observed
+ZCWeight.df$male.winter.n=male.winter.observed.n
 ZCWeight.df$male.adjusted.mean.winter=winter.male.averages$fit
 ZCWeight.df$male.adjusted.mean.se.winter=winter.male.averages$se
 ZCWeight.df$winter.avg.day=winter.avg.day

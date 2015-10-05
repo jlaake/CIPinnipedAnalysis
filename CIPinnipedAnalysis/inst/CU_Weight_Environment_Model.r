@@ -4,6 +4,7 @@
 #The scripts check for the value of fdir and if it exists the script will not change the value; otherwise it sets it to NULL
 if(!exists("fdir"))fdir=NULL
 if(!exists("nboot"))nboot=100
+if(!exists("use.calcofi"))use.calcofi=FALSE
 ####################################
 # Set this value; be aware that all of the environmental data has to be entered through Feb of lastyear+1 
 # for the growth script to work properly
@@ -24,6 +25,59 @@ cuweights=get.cu.weights(fdir=fdir)
 #  exclude brand eval weights and captures in April
 #
 cuweights=cuweights[cuweights$days>-30&cuweights$days<150,]
+
+#
+# Get environment data, fish abundance data and diet data
+#
+# Get calcofi and std environmental data
+data(calcofi)
+calcofi=calcofi[calcofi$Month=="July",]
+calcofi=sapply(calcofi[calcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51"),-(1:3)],function(x) tapply(x,calcofi$Year[calcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51")],mean))
+july.calcofi=t(t(calcofi)-colMeans(calcofi))
+data(calcofi)
+calcofi=calcofi[calcofi$Month=="October",]
+calcofi=sapply(calcofi[calcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51"),-(1:3)],function(x) tapply(x,calcofi$Year[calcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51")],mean))
+oct.calcofi=t(t(calcofi)-colMeans(calcofi))
+colnames(oct.calcofi)=paste(colnames(oct.calcofi),".oct",sep="")
+calcofi=as.data.frame(cbind(july.calcofi,oct.calcofi))
+calcofi$cohort=as.numeric(rownames(calcofi))
+env.data=data.frame(cohort=1975:lastyear,SST=AprtoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],SST2=JunetoFebAnomalies[4:numyears],
+		MEI=LaggedMEIAprtoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansAprtoSept[1,-(1:6)],UWI36=UWImeansAprtoSept[2,-(1:6)],
+		UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],UWI362=UWImeansJunetoFeb[2,-(1:6)],
+		SLH=AprtoSeptSLH,SLH1=OcttoFebSLH)
+
+env.data=merge(env.data,calcofi,all.x=TRUE)
+# get fish data
+# read in abundance data files
+#sardine=read.delim("sardine.txt",header=T)
+#anchovy=read.delim("AnchovyAbundance.txt",header=T)
+#hake=read.delim("hake.txt",header=T)
+data(sardine)
+data(hake)
+data(anchovy)
+# compute age 0 to 1 hake, 0 to 2 and 1 to 2 hake
+hake$Age01=hake$Age0+hake$Age1
+hake$Age02=hake$Age0+hake$Age1+hake$Age2
+hake$Age12=hake$Age1+hake$Age2
+names(hake)[-1]=paste("hake",names(hake)[-1],sep="")
+# add upper bound estimate for 2012-2013 anchovy
+#anchovy=rbind(anchovy,data.frame(Year=2012:2013,AnchovyBiomass=c(30,30)))
+# create sardine age 0-1 biomass
+total.sa=data.frame(Year=1981:2013,Age01=sardine$Abundance[sardine$Age==0]+sardine$Abundance[sardine$Age==1],Age0=sardine$Abundance[sardine$Age==0],Age1=sardine$Abundance[sardine$Age==1])
+total.sa$SardineBiomass=sardine$Biomass[sardine$Age==1]+sardine$Biomass[sardine$Age==0]
+names(total.sa)[2:4]=paste("sardine",names(total.sa)[2:4],sep="")
+# convert abundance to 1000s and biomass to 1000mt
+total.sa[,2:5]=total.sa[,2:5]/1000
+fish_abundance=merge(total.sa,anchovy)
+# compute biomass of anchovy and sardines in 1000s metric tons; excludes some years when only one of the species 
+fish_abundance$SardineAnchovyBiomass=fish_abundance$SardineBiomass+fish_abundance$AnchovyBiomass
+#merge hake data
+fish_abundance=merge(hake,fish_abundance,all.x=TRUE)
+names(fish_abundance)[1]="cohort"
+#merge fish abundance and environmental data
+env.data=merge(env.data,fish_abundance,all.x=TRUE )
+
+
 
 cuweights.environ=merge(cuweights,data.frame(cohort=1975:lastyear,SST=JunetoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],SST2=JunetoFebAnomalies[4:numyears],
 				MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansJunetoSept[1,-(1:6)],UWI36=UWImeansJunetoSept[2,-(1:6)],

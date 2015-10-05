@@ -48,9 +48,9 @@ env.data=data.frame(cohort=1975:lastyear,SST=AprtoSeptAnomalies[4:numyears],SST1
 env.data=merge(env.data,calcofi,all.x=TRUE)
 # get fish data
 # read in abundance data files
-sardine=read.delim("sardine.txt",header=T)
-anchovy=read.delim("AnchovyAbundance.txt",header=T)
-hake=read.delim("hake.txt",header=T)
+data(sardine)
+data(hake)
+data(anchovy)
 # compute age 0 to 1 hake, 0 to 2 and 1 to 2 hake
 hake$Age01=hake$Age0+hake$Age1
 hake$Age02=hake$Age0+hake$Age1+hake$Age2

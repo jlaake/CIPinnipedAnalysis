@@ -8,6 +8,9 @@
 #' @export
 #' @author Jeff Laake
 #' @examples 
+#' # following runs adjustment model and all subsequent growth models
+#' # and then stores table in CIPinnipedCensusQuery database. This will take
+#' # a substantial amount of time
 #' source(file.path(system.file(package="CIPinnipedAnalysis"),"ZcWeightAnalysis.r"))
 #' 
 get.zc.weights=function(fdir=NULL,ENYears=c(1976,1983,1984,1986,1987,1992,1997,1998,2002,2009),exclude=TRUE)

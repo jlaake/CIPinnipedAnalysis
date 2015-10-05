@@ -14,9 +14,21 @@ if(!exists("nboot"))nboot=100
 if(!exists("lastyear"))lastyear=2013
 ####################################
 source(file.path(sdir,"CreateAnomalies.r"))
+cat("\nWeight adjust model\n")
 source(file.path(sdir,"ZC_Weight_Adjustment_Model.r"))
+cat("\nWeight environment model\n")
 source(file.path(sdir,"ZC_Weight_Environment_Model.r"))
+cat("\nWeight environment/fish model\n")
+source(file.path(sdir,"ZC_Weight_FishBiomass_Model.r"))
+cat("\nWeight environment/fish/diet model\n")
+source(file.path(sdir,"ZC_Weight_Diet_Model.r"))
+cat("\nLongitudinal growth model\n")
 source(file.path(sdir,"ZC_Growth.r"))
+
+#
+# store ZcWeight.df in CIPinnipedCensusQuery
+#
+store_weights(ZCWeight.df,fdir=fdir)
 
 ################################################################################
 #  Brand vs control at brand eval

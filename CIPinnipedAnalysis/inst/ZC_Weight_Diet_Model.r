@@ -23,7 +23,8 @@ if(!exists("ZCWeight.df"))
 		source(file.path(system.file(package="CIPinnipedAnalysis"),"ZC_Weight_Environment_Model.r"))
 }
 
-# select data with fish abundance
+if(!exists("zcweights.diet")) zcweights.diet=zcweights.environ.abun
+# select data 
 zcweights.environ.diet=zcweights.diet[!is.na(zcweights.diet$sardine),]
 zcweights.environ.diet=droplevels(zcweights.environ.diet)
 
