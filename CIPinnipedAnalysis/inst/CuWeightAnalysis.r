@@ -15,3 +15,8 @@ if(!exists("lastyear"))lastyear=2014
 ####################################
 source(file.path(sdir,"CU_Weight_Adjustment_Model.r"))
 source(file.path(sdir,"CU_Weight_Environment_Model.r"))
+
+CUWeight.df=cbind(Year=as.numeric(rownames(CUWeight.df)),CUWeight.df)
+
+store_weights(CUWeight.df,species="CU",fdir=fdir)
+

@@ -5,6 +5,9 @@
 if(!exists("fdir"))fdir=NULL
 if(!exists("nboot"))nboot=100
 if(!exists("use.calcofi"))use.calcofi=FALSE
+if(!exists("CUWeight.df"))
+	source(file.path(system.file(package="CIPinnipedAnalysis"),"CU_Weight_Adjustment_Model.r"))
+
 ####################################
 # Set this value; be aware that all of the environmental data has to be entered through Feb of lastyear+1 
 # for the growth script to work properly
@@ -77,17 +80,24 @@ names(fish_abundance)[1]="cohort"
 #merge fish abundance and environmental data
 env.data=merge(env.data,fish_abundance,all.x=TRUE )
 
-
-
-cuweights.environ=merge(cuweights,data.frame(cohort=1975:lastyear,SST=JunetoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],SST2=JunetoFebAnomalies[4:numyears],
-				MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansJunetoSept[1,-(1:6)],UWI36=UWImeansJunetoSept[2,-(1:6)],
-				UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],UWI362=UWImeansJunetoFeb[2,-(1:6)]))
-cuweights.environ$cohort.factor=factor(ifelse(cuweights.environ$cohort<1990,0,1),labels=c("<=1989",">=1990"))
-cuweights.environ$SST=cuweights.environ$SST1
-cuweights.environ$SST[cuweights.environ$days>90]=cuweights.environ$SST3[cuweights.environ$days>90]
-cuweights.environ$MEI[cuweights.environ$days>90]=cuweights.environ$MEI1[cuweights.environ$days>90]
-cuweights.environ$UWI33[cuweights.environ$days>90]=cuweights.environ$UWI331[cuweights.environ$days>90]
-cuweights.environ$UWI36[cuweights.environ$days>90]=cuweights.environ$UWI361[cuweights.environ$days>90]
+cuweights.environ=merge(cuweights,env.data,all.x=TRUE,by.x="cohort",by.y="cohort")
+cuweights.environ$Year=cuweights.environ$cohort
+cuweights.environ$cohort=cuweights.environ$Year-min(cuweights.environ$Year)
+# limit data to calcofi years if use.calcofi set to TRUE
+if(use.calcofi)
+{
+	cuweights.environ=cuweights.environ[!is.na(cuweights.environ$dynamic_height_0_500m),]
+	cuweights.environ=droplevels(cuweights.environ)
+}	
+#cuweights.environ=merge(cuweights,data.frame(cohort=1975:lastyear,SST=JunetoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],SST2=JunetoFebAnomalies[4:numyears],
+#				MEI=LaggedMEIJunetoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansJunetoSept[1,-(1:6)],UWI36=UWImeansJunetoSept[2,-(1:6)],
+#				UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],UWI362=UWImeansJunetoFeb[2,-(1:6)]))
+#cuweights.environ$cohort.factor=factor(ifelse(cuweights.environ$cohort<1990,0,1),labels=c("<=1989",">=1990"))
+#cuweights.environ$SST=cuweights.environ$SST1
+#cuweights.environ$SST[cuweights.environ$days>90]=cuweights.environ$SST3[cuweights.environ$days>90]
+#cuweights.environ$MEI[cuweights.environ$days>90]=cuweights.environ$MEI1[cuweights.environ$days>90]
+#cuweights.environ$UWI33[cuweights.environ$days>90]=cuweights.environ$UWI331[cuweights.environ$days>90]
+#cuweights.environ$UWI36[cuweights.environ$days>90]=cuweights.environ$UWI361[cuweights.environ$days>90]
 
 #############################################################################################################
 # Environmental Cross-sectional analysis of weights
@@ -99,29 +109,15 @@ res.environ=fitmixed(fixed.f,random.f,data=cuweights.environ)
 
 # Using that random model, fit a sequence of fixed effect models with ML and use AIC to assess best fixed model
 random.f=list(res.environ$best.r)
-fixed.f=list(weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort.factor,
-		weight~sex*SST+sex:days+SST1:days+sex:SST1:days+cohort,
-		weight~sex*SST+sex:days+SST1:days+sex:SST1:days,
-		weight~sex*SST+sex:days+SST1:days+cohort.factor,
-		weight~sex*SST+sex:days+SST1:days+cohort,
-		weight~sex*SST+sex:days+SST1:days,
-		weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort.factor,
-		weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days+cohort,
-		weight~sex*UWI36+sex:days+UWI361:days+sex:UWI361:days,
-		weight~sex*UWI36+sex:days+UWI361:days+cohort.factor,
-		weight~sex*UWI36+sex:days+UWI361:days+cohort,
-		weight~sex*UWI36+sex:days+UWI361:days,
-		weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort.factor,
-		weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days+cohort,
-		weight~sex*MEI+sex:days+MEI1:days+sex:MEI1:days,
-		weight~sex*MEI+sex:days+MEI1:days+cohort.factor,
-		weight~sex*MEI+sex:days+MEI1:days+cohort,
-		weight~sex*MEI+sex:days)
+# specify set of models
+source(file.path(system.file(package="CIPinnipedAnalysis"),"environment_models.r"))
+
 res.environ=fitmixed(fixed.f,random.f,data=cuweights.environ) 
+res.environ=compute_AICc(res.environ, length(table(cuweights.environ$Year))*2,5)
 
 # Finally fit best fixed/random model with REML
-cu.weight.model=lme(fixed=res.environ$best.f,random=res.environ$best.r,data=cuweights.environ,method="REML",control=lmeControl(opt="optim"))
-print(summary(cu.weight.model))
+cu.weight.environ.model=lme(fixed=res.environ$best.f,random=res.environ$best.r,data=cuweights.environ,method="REML",control=lmeControl(opt="optim"))
+print(summary(cu.weight.environ.model))
 
 bootstrap.se=function(x,nreps)
 {
@@ -129,6 +125,7 @@ bootstrap.se=function(x,nreps)
 	i=0
 	while(i<nreps)
 	{
+		cat("Bootstrap ",i,"\n")
 		xsamp=lapply(split(x,list(x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
 		xsamp=do.call("rbind",xsamp)
 		mod=try(lme(formula(cu.weight.model),random=as.formula(cu.weight.model$call$random),data=as.data.frame(xsamp),control=lmeControl(opt="optim")))
@@ -144,59 +141,36 @@ bootstrap.se=function(x,nreps)
 }
 # use 100 reps to compute std error
 stderrors=bootstrap.se(cuweights.environ,nboot)
-# Compute predictions and construct dataframes for female and male averages with std errors
+# Compute fall 1 Oct predictions and construct dataframes for female and male averages with std errors
 pp=cuweights.environ
 pp$days=0
-# predictions with random effects
-pp1=predict(cu.weight.model,newdata=pp)
+# predictions at 1 Oct with random effects
+pp1=predict(cu.weight.environ.model,newdata=pp)
+# predictions at 1 Oct with fixed effects only
+pp0=predict(cu.weight.environ.model,newdata=pp,level=0)
+# compute mean values which essentially acts as unique
+pp0=tapply(as.vector(pp0),list(cuweights.environ$cohort,cuweights.environ$sex),mean)
 pp1=tapply(as.vector(pp1),list(cuweights.environ$cohort,cuweights.environ$sex),mean)
+# create list with estimates and std errors for averages
 female.averages=data.frame(fit=pp1[,1],se=stderrors[1:length(pp1[,1])])
 male.averages=data.frame(fit=pp1[,2],se=stderrors[(length(pp1[,1])+1):(2*length(pp1[,1]))])
+# create list with estimates and std errors for expected averages
+expected.female.averages=data.frame(fit=pp0[,1],se=stderrors[1:length(pp0[,1])])
+expected.male.averages=data.frame(fit=pp0[,2],se=stderrors[(length(pp0[,1])+1):(2*length(pp0[,1]))])
 
-if(exists("CUWeight.df"))
-{
-   CUWeight.df$female.environ.mean=NA
-   CUWeight.df$female.environ.mean.se=NA
-   CUWeight.df$male.environ.mean=NA
-   CUWeight.df$male.environ.mean.se=NA
-   numrecs=1:length(female.averages$fit)
-   CUWeight.df$female.environ.mean[numrecs]=female.averages$fit
-   CUWeight.df$female.environ.mean.se[numrecs]=female.averages$se
-   CUWeight.df$male.environ.mean[numrecs]=male.averages$fit
-   CUWeight.df$male.environ.mean.se[numrecs]=male.averages$se
-  
-   # Plot predictions and observed
-   jpeg("CUEnvironObserved&Predicted.jpg",height=600,width=600,quality=100,pointsize=12)
-   par(mfrow=c(2,1))
-   year.seq=1975:max(as.numeric(row.names(CUWeight.df)))
-   with(CUWeight.df,plot(year.seq,female.environ.mean,pch="F",type="b",ylim=c(4,16),xlab="Year"))
-   with(CUWeight.df,points(year.seq,female.observed.mean,pch="O"))
-   with(CUWeight.df,lines(year.seq,female.observed.mean,lty=2))
-   with(CUWeight.df,plot(year.seq,male.environ.mean,pch="M",type="b",ylim=c(4,16),xlab="Year"))
-   with(CUWeight.df,points(year.seq,male.observed.mean,pch="O"))
-   with(CUWeight.df,lines(year.seq,male.observed.mean,lty=2))
-   dev.off()
+CUWeight.df$female.environ.mean.fall=NA
+CUWeight.df$female.environ.mean.fall.se=NA
+CUWeight.df$male.environ.mean.fall=NA
+CUWeight.df$male.environ.mean.fall.se=NA
+CUWeight.df$female.environ.mean.fall.fixed=NA
+CUWeight.df$male.environ.mean.fall.fixed=NA
 
-   # predictions with fixed effects only
-   pp0=predict(cu.weight.model,newdata=pp,level=0)
-   pp0=tapply(as.vector(pp0),list(cuweights.environ$cohort,cuweights.environ$sex),mean)
-   expected.female.averages=data.frame(fit=pp0[,1],se=stderrors[1:length(pp0[,1])])
-   expected.male.averages=data.frame(fit=pp0[,2],se=stderrors[(length(pp0[,1])+1):(2*length(pp0[,1]))])
+add=0
+if(use.calcofi)add=9
+CUWeight.df$female.environ.mean.fall[(add+1):(add+length(female.averages$fit))]=female.averages$fit
+CUWeight.df$female.environ.mean.fall.se[(add+1):(add+length(female.averages$fit))]=female.averages$se
+CUWeight.df$male.environ.mean.fall[(add+1):(add+length(female.averages$fit))]=male.averages$fit
+CUWeight.df$male.environ.mean.fall.se[(add+1):(add+length(female.averages$fit))]=male.averages$se
 
-   jpeg("CUEnvironFixedEffectFemalePredictions&Observed.jpg",height=600,width=600,quality=100,pointsize=12)
-   par(mfrow=c(2,1))
-   with(CUWeight.df,plot(year.seq[numrecs],expected.female.averages$fit,pch="F",type="b",ylim=c(4,16),xlab="Year"))
-   points(year.seq,CUWeight.df$female.observed.mean,pch="O")
-   lines(year.seq[numrecs],expected.female.averages$fit,pch="S",lty=2)
-   with(CUWeight.df,plot(year.seq[numrecs],expected.male.averages$fit,pch="F",type="b",ylim=c(4,16),xlab="Year"))
-   points(year.seq,CUWeight.df$male.observed.mean,pch="O")
-   lines(year.seq[numrecs],expected.male.averages$fit,pch="S",lty=2)
-   dev.off()
-
-   # Plot residuals of predictions based on fixed effects only versus mixed effects
-   jpeg("CUEnvironFixedEffectResiduals.jpg",height=600,width=600,quality=100,pointsize=12)
-   par(mfrow=c(2,1))
-   plot(year.seq[numrecs],female.averages$fit-expected.female.averages$fit,pch="F",type="b")
-   plot(year.seq[numrecs],male.averages$fit-expected.male.averages$fit,pch="M",type="b")
-   dev.off()
-}
+CUWeight.df$female.environ.mean.fall.fixed[(add+1):(add+length(female.averages$fit))]=expected.female.averages$fit
+CUWeight.df$male.environ.mean.fall.fixed[(add+1):(add+length(female.averages$fit))]=expected.male.averages$fit

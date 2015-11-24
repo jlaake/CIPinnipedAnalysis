@@ -1,13 +1,13 @@
 ---
 title: "Callorhinus pup weights"
-output: pdf_document
+output: word_document
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
 
 
 ```{r,results="hide",echo=FALSE}
   suppressPackageStartupMessages(library(CIPinnipedAnalysis))
-  lastyear=2014
+  lastyear=2015
   sdir=system.file(package="CIPinnipedAnalysis")
   source(file.path(sdir,"CU_Weight_Adjustment_Model.r"))
 ```

@@ -1,6 +1,6 @@
 ---
 title: "Zalophus pup weights"
-output: pdf_document
+output: word_document
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
 
@@ -8,7 +8,7 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ```{r,results="hide",echo=FALSE}
   suppressPackageStartupMessages(library(CIPinnipedAnalysis))
 #  doc.type <-knitr::opts_knit$get('rmarkdown.pandoc.to')
-  lastyear=2014
+  lastyear=2015
   sdir=system.file(package="CIPinnipedAnalysis")
   source(file.path(sdir,"ZC_Weight_Adjustment_Model.r"))
 ```
@@ -17,8 +17,8 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
 par(mfrow=c(2,1))
 maxyear=max(zcweights$cohort)
-ymin=min(c(female.averages$fit-1.96*female.averages$se, male.averages$fit-1.96*male.averages$se))*.9
-ymax=max(c(female.averages$fit+1.96*female.averages$se, male.averages$fit+1.96*male.averages$se))*1.1
+ymin=min(c((female.averages$fit-1.96*female.averages$se)*.9,(male.averages$fit-1.96*male.averages$se)*.9))
+ymax=max(c((female.averages$fit+1.96*female.averages$se)*1.1,(male.averages$fit+1.96*male.averages$se)*1.1))
 plot_weight.series(1975:maxyear,female.averages,main="California sea lion Female Pups",ylim=c(ymin,ymax),date="1 Oct")
 plot_weight.series(1975:maxyear,male.averages,main="California sea lion Male Pups",ylim=c(ymin,ymax),date="1 Oct")
 ```
@@ -31,13 +31,13 @@ par(mfrow=c(2,1))
 maxyear=max(zcweights$cohort)
 female.mean=mean(female.averages$fit)
 male.mean=mean(male.averages$fit)
-ymin=min(c(female.averages$fit-1.96*female.averages$se, male.averages$fit-1.96*male.averages$se))*1.1
-ymax=max(c(female.averages$fit+1.96*female.averages$se, male.averages$fit+1.96*male.averages$se))*1.1
+ymin=min(c((female.averages$fit-1.96*female.averages$se-female.mean)*1.1, (male.averages$fit-1.96*male.averages$se-male.mean)*1.1))
+ymax=max(c((female.averages$fit+1.96*female.averages$se-female.mean)*1.1, (male.averages$fit+1.96*male.averages$se-male.mean)*1.1))
 female.averages$fit=female.averages$fit-female.mean
-plot_weight.series(1975:maxyear,female.averages,main="California sea lion Female Pups",ylim=c(ymin-female.mean,ymax-female.mean),date="1 Oct")
+plot_weight.series(1975:maxyear,female.averages,main="California sea lion Female Pups",ylim=c(ymin,ymax),date="1 Oct")
 abline(h=0)
 male.averages$fit=male.averages$fit-male.mean
-plot_weight.series(1975:maxyear,male.averages,main="California sea lion Male Pups",ylim=c(ymin-male.mean,ymax-male.mean),date="1 Oct")
+plot_weight.series(1975:maxyear,male.averages,main="California sea lion Male Pups",ylim=c(ymin,ymax),date="1 Oct")
 abline(h=0)
 ```
 
@@ -47,8 +47,8 @@ Figure 2. Predicted Zalophus pup weights on San Miguel Island at 1 Oct expressed
 ```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
 par(mfrow=c(2,1))
 maxyear=max(zcweights$cohort)
-ymin=min(c(winter.female.averages$fit-1.96*winter.female.averages$se, winter.male.averages$fit-1.96*winter.male.averages$se))*.9
-ymax=max(c(winter.female.averages$fit+1.96*winter.female.averages$se, winter.male.averages$fit+1.96*winter.male.averages$se))*1.1
+ymin=min(c((winter.female.averages$fit-1.96*winter.female.averages$se)*.9, (winter.male.averages$fit-1.96*winter.male.averages$se)*.9))
+ymax=max(c((winter.female.averages$fit+1.96*winter.female.averages$se)*1.1, (winter.male.averages$fit+1.96*winter.male.averages$se)*1.1))
 plot_weight.series(1975:maxyear,winter.female.averages,main="California sea lion Female Pups",ylim=c(ymin,ymax),date="1 Feb")
 plot_weight.series(1975:maxyear,winter.male.averages,main="California sea lion Male Pups",ylim=c(ymin,ymax),date="1 Feb")
 ```
@@ -60,8 +60,8 @@ par(mfrow=c(2,1))
 maxyear=max(zcweights$cohort)
 female.mean=mean(winter.female.averages$fit)
 male.mean=mean(winter.male.averages$fit)
-ymin=min(c(winter.female.averages$fit-female.mean-1.96*winter.female.averages$se, winter.male.averages$fit-male.mean-1.96*winter.male.averages$se))*1.1
-ymax=max(c(winter.female.averages$fit-female.mean+1.96*winter.female.averages$se, winter.male.averages$fit-male.mean+1.96*winter.male.averages$se))*1.1
+ymin=min(c((winter.female.averages$fit-female.mean-1.96*winter.female.averages$se)*1.1, (winter.male.averages$fit-male.mean-1.96*winter.male.averages$se)*1.1))
+ymax=max(c((winter.female.averages$fit-female.mean+1.96*winter.female.averages$se)*1.1, (winter.male.averages$fit-male.mean+1.96*winter.male.averages$se)*1.1))
 winter.female.averages$fit=winter.female.averages$fit-female.mean
 winter.male.averages$fit=winter.male.averages$fit-male.mean
 plot_weight.series(1975:maxyear,winter.female.averages,main="California sea lion Female Pups",ylim=c(ymin,ymax),date="1 Feb")

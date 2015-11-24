@@ -31,8 +31,29 @@ cuweights=cuweights.all
 #  fit growth model
 #
 require(nlme)
-cu.weight.model=lme(weight~sex*days,random=~days|cohort,data=cuweights)
+#
+#  fit growth model- only adjusting for timing of collection date in fall
+#
+# First fit a sequence of random effect models with REML to assess best random model with same fixed model
+random.f=list(list(~1|cohort),list(~days|cohort),list(~sex:days|cohort),list(~sex*days|cohort),list(~-1+sex+days|cohort))
+fixed.f=list(weight~sex*days)
+res.adjust=fitmixed(fixed.f,random.f,data=cuweights) 
+
+# Using that random model, fit a sequence of fixed effect models with ML and use AIC to assess best fixed model
+random.f=list(res.adjust$best.r)
+fixed.f=list(
+		weight~sex*days,
+		weight~sex+days,
+		weight~sex,
+		weight~days,
+		weight~1)
+res.adjust=fitmixed(fixed.f,random.f,data=cuweights) 
+
+# Finally fit best fixed/random model with REML
+cu.weight.model=lme(fixed=res.adjust$best.f,random=res.adjust$best.r,data=cuweights,method="REML",control=lmeControl(opt="optim"))
 print(summary(cu.weight.model))
+
+
 # define bootstrap function to compute std error for predicted sex-cohort means
 bootstrap.se=function(x,nreps)
 {
@@ -42,7 +63,7 @@ bootstrap.se=function(x,nreps)
 	{
 		xsamp=lapply(split(x,list(x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
 		xsamp=do.call("rbind",xsamp)
-		mod=try(lme(formula(cu.weight.model),random=as.formula(cu.weight.model$call$random),data=as.data.frame(xsamp)))
+		mod=try(lme(formula(cu.weight.model),random=as.formula(cu.weight.model$call$random),data=as.data.frame(xsamp),control=lmeControl(opt="optim")))
 		if(class(mod)!="try-error")
 		{
 			i=i+1
@@ -63,8 +84,8 @@ male.averages=data.frame(fit=pp$predict[pp$sex=="M"],se=stderrors[as.numeric(row
 # create dataframe with normal conf interval
 cu.female.averages=female.averages
 cu.male.averages=male.averages
-CUWeight.df=data.frame(female.observed.mean=female.observed,
-		female.adjusted.mean=cu.female.averages$fit,female.adjusted.mean.se=cu.female.averages$se,
-		male.observed.mean=male.observed,
-		male.adjusted.mean=cu.male.averages$fit,male.adjusted.mean.se=cu.male.averages$se)
-
+CUWeight.df=data.frame(female.observed.mean.fall=female.observed,
+		female.adjusted.mean.fall=cu.female.averages$fit,female.adjusted.mean.fall.se=cu.female.averages$se,
+		male.observed.mean.fall=male.observed,
+		male.adjusted.mean.fall=cu.male.averages$fit,male.adjusted.meanfall..se=cu.male.averages$se)
+CUWeight.df=cbind(Year=as.numeric(rownames(CUWeight.df)),CUWeight.df)

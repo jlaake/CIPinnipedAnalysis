@@ -3,6 +3,7 @@
 export(CuMortalityStats)
 export(ZCpermit_report)
 export(ZcMortalityStats)
+export(average_anomalies)
 export(average_cf)
 export(bone_cf)
 export(check.dead.pup.areas)

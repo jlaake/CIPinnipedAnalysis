@@ -74,7 +74,7 @@ names(fish_abundance)[1]="cohort"
 env.data=merge(env.data,fish_abundance,all.x=TRUE )
 # get diet data
 # create freq of occurence for prey data
-if(!exists("fo"))fo=create_fo()
+fo=create_fo()
 names(fo)[1]="cohort"
 #merge in diet data
 env.data=merge(env.data,fo,all.x=TRUE)
