@@ -30,22 +30,21 @@ zcweights$batch=factor(paste(zcweights$cohort,zcweights$days))
 #
 # Get calcofi and std environmental data
 data(calcofi)
-calcofi=calcofi[calcofi$Month=="July",]
-calcofi=sapply(calcofi[calcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51"),-(1:3)],function(x) tapply(x,calcofi$Year[calcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51")],mean))
-july.calcofi=t(t(calcofi)-colMeans(calcofi))
-data(calcofi)
-calcofi=calcofi[calcofi$Month=="October",]
-calcofi=sapply(calcofi[calcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51"),-(1:3)],function(x) tapply(x,calcofi$Year[calcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51")],mean))
-oct.calcofi=t(t(calcofi)-colMeans(calcofi))
+julycalcofi=calcofi[calcofi$Month=="July",]
+julycalcofi=sapply(julycalcofi[julycalcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51"),-(1:3)],function(x) tapply(x,julycalcofi$Year[julycalcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51")],mean))
+july.calcofi=t(t(julycalcofi)-colMeans(julycalcofi))
+Octcalcofi=calcofi[calcofi$Month=="October",]
+Octcalcofi=sapply(Octcalcofi[Octcalcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51"),-(1:3)],function(x) tapply(x,Octcalcofi$Year[Octcalcofi$Station%in%c("76.7.49","76.7.51","76.7.55","80.51","80.55","83.3.51")],mean))
+oct.calcofi=t(t(Octcalcofi)-colMeans(Octcalcofi))
 colnames(oct.calcofi)=paste(colnames(oct.calcofi),".oct",sep="")
-calcofi=as.data.frame(cbind(july.calcofi,oct.calcofi))
-calcofi$cohort=as.numeric(rownames(calcofi))
+calcofi.df=as.data.frame(cbind(july.calcofi,oct.calcofi))
+calcofi.df$cohort=as.numeric(rownames(calcofi.df))
 env.data=data.frame(cohort=1975:lastyear,SST=AprtoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],SST2=JunetoFebAnomalies[4:numyears],
 		MEI=LaggedMEIAprtoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansAprtoSept[1,-(1:6)],UWI36=UWImeansAprtoSept[2,-(1:6)],
 		UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],UWI362=UWImeansJunetoFeb[2,-(1:6)],
 		SLH=AprtoSeptSLH,SLH1=OcttoFebSLH)
 
-env.data=merge(env.data,calcofi,all.x=TRUE)
+env.data=merge(env.data,calcofi.df,all.x=TRUE)
 # get fish data
 # read in abundance data files
 data(sardine)

@@ -71,6 +71,7 @@ res.adjust=fitmixed(fixed.f,random.f,data=zcweights)
 # Finally fit best fixed/random model with REML
 zc.weight.model=lme(fixed=res.adjust$best.f,random=res.adjust$best.r,data=zcweights,method="REML",control=lmeControl(opt="optim"))
 print(summary(zc.weight.model))
+zc.weight.adjust.model=zc.weight.model
 
 # define bootstrap function to compute std error for predicted sex-cohort means
 bootstrap.se=function(x,nreps,days)
@@ -92,6 +93,7 @@ bootstrap.se=function(x,nreps,days)
 		}
 	}
 	return(sqrt(apply(pmat,2,var)))
+	
 }
 
 
