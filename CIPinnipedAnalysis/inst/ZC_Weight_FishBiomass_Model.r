@@ -19,7 +19,7 @@ fixed.f.sa=c(fixed.f.sa,sapply(fixed.f,function(x) as.formula(paste("weight~",as
 # fit models
 random.f=list(res.environ$best.r)
 res.environ.abun=fitmixed(fixed.f.sa,random.f,data=zcweights.environ.abun) 
-res.environ.abun=compute_AICc(res.environ.abun, length(table(zcweights.environ.abun$Year))*2,5)
+res.environ.abun=compute_AICc(res.environ.abun, length(table(zcweights.environ.abun$Year))*2,5,fixed.f.sa)
 
 
 res.environ.abun$model.table[1,]

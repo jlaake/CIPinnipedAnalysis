@@ -45,7 +45,7 @@ fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~
 fixed.f.diet=c(fixed.f.diet,sapply(fixed.f,function(x) as.formula(paste("weight~",as.character(x)[3],"+ ratio"))))
 
 res.environ.diet=fitmixed(fixed.f.diet,random.f,data=zcweights.environ.diet) 
-res.environ.diet=compute_AICc(res.environ.diet,length(table(zcweights.environ.diet$Year))*2,5)
+res.environ.diet=compute_AICc(res.environ.diet,length(table(zcweights.environ.diet$Year))*2,5,fixed.f.diet)
 
 #  fit best environment-diet growth model with REML
 zc.weight.model.environ.diet=lme(res.environ.diet$best.f,random=res.environ.diet$best.r,data=zcweights.environ.diet,control=lmeControl(opt="optim"),method="REML")

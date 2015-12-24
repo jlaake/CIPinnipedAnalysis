@@ -101,7 +101,7 @@ res.environ=fitmixed(fixed.f1,random.f,data=zcweights.environ)
 # Using that random model, fit a sequence of fixed effect models with ML and use AIC to assess best fixed model
 random.f=list(res.environ$best.r)
 res.environ=fitmixed(fixed.f,random.f,data=zcweights.environ) 
-res.environ=compute_AICc(res.environ, length(table(zcweights.environ$Year))*2,5)
+res.environ=compute_AICc(res.environ, length(table(zcweights.environ$Year))*2,5,fixed.f)
 
 # Finally fit best fixed/random model with REML
 zc.weight.environ.model=lme(fixed=res.environ$best.f,random=res.environ$best.r,data=zcweights.environ,method="REML",control=lmeControl(opt="optim"))

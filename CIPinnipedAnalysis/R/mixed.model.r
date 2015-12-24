@@ -58,7 +58,7 @@ fitmixed=function(fixed.f,random.f,data,control=lmeControl(opt="optim"),method=N
 		results$best.r=random.f[[results$best]]
 	return(results)
 }
-compute_AICc=function(results,nobs,nref)
+compute_AICc=function(results,nobs,nref,fixed.f)
 {
 	i=1
 	results$model.table$AICc=NA
@@ -70,5 +70,6 @@ compute_AICc=function(results,nobs,nref)
 	}
 	results$model.table=results$model.table[order(results$model.table$AICc),]
 	results$best=as.numeric(row.names(results$model.table))[1]
+	results$best.f=fixed.f[[results$best]]
 	return(results)
 }
