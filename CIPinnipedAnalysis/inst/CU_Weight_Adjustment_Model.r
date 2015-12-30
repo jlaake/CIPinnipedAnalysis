@@ -5,9 +5,7 @@
 if(!exists("fdir"))fdir=NULL
 if(!exists("nboot"))nboot=100
 ####################################
-# Set this value; be aware that all of the environmental data has to be entered through Feb of lastyear+1 
-# for the growth script to work properly
-if(!exists("lastyear"))lastyear=2014
+
 ####################################
 #################################################################################
 # Cross-sectional analysis
@@ -18,6 +16,8 @@ cuweights=get.cu.weights(fdir=fdir)
 #  exclude brand eval weights and captures in April
 #
 cuweights.all=cuweights[cuweights$days>-30&cuweights$days<150,]
+if(!exists("lastyear"))lastyear=max(cuweights.all$cohort)
+cuweights.all=cuweights.all[cuweights.all$cohort<=lastyear,]
 #
 # compute observed averages - using data within 1 Sept to 15 Nov
 #

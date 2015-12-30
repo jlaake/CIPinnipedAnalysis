@@ -8,11 +8,9 @@ output: pdf_document
 
 ```{r,results="hide",echo=FALSE}
   suppressPackageStartupMessages(library(CIPinnipedAnalysis))
-  lastyear=2013
   sdir=system.file(package="CIPinnipedAnalysis")
   source(file.path(sdir,"ZC_Weight_Adjustment_Model.r"))
   source(file.path(sdir,"ZC_Growth.r"))
-   source(file.path(sdir,"ZC_Weight_Diet_Model.r"))
 ```
 
 ```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}

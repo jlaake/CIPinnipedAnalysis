@@ -4,7 +4,6 @@
 #The scripts check for the value of fdir and if it exists the script will not change the value; otherwise it sets it to NULL
 if(!exists("fdir"))fdir=NULL
 require(CIPinnipedAnalysis)
-if(!exists("lastyear"))lastyear=2014
 if(!exists("nboot"))nboot=100
 # If ZC_Weight_Adjustment_model has not been run, run now
 if(!exists("ZCWeight.df"))
@@ -18,6 +17,7 @@ if(!exists("use.calcofi"))use.calcofi=FALSE
 #################################################################################
 # get zc weight values from database
 zcweights=get.zc.weights(fdir=fdir)
+if(!exists("lastyear"))lastyear=max(zcweights$cohort)
 zcweights=zcweights[zcweights$cohort<=lastyear,]
 #
 #  exclude brand eval weights and captures in April and only use SMI
@@ -39,10 +39,12 @@ oct.calcofi=t(t(Octcalcofi)-colMeans(Octcalcofi))
 colnames(oct.calcofi)=paste(colnames(oct.calcofi),".oct",sep="")
 calcofi.df=as.data.frame(cbind(july.calcofi,oct.calcofi))
 calcofi.df$cohort=as.numeric(rownames(calcofi.df))
-env.data=data.frame(cohort=1975:lastyear,SST=AprtoSeptAnomalies[4:numyears],SST1=OcttoFebAnomalies[4:numyears],SST2=JunetoFebAnomalies[4:numyears],
-		MEI=LaggedMEIAprtoSept[-1],MEI1=LaggedMEIOcttoFeb[-1],MEI2=LaggedMEIJunetoFeb[-1],UWI33=UWImeansAprtoSept[1,-(1:6)],UWI36=UWImeansAprtoSept[2,-(1:6)],
-		UWI331=UWImeansOcttoFeb[1,-(1:6)],UWI361=UWImeansOcttoFeb[2,-(1:6)],UWI332=UWImeansJunetoFeb[1,-(1:6)],UWI362=UWImeansJunetoFeb[2,-(1:6)],
-		SLH=AprtoSeptSLH,SLH1=OcttoFebSLH)
+numyears=lastyear-1975+1
+if(length(1975:lastyear)>length(OcttoFebAnomalies[-(1:3)])) stop("lastyear set to value that is too great")
+env.data=data.frame(cohort=1975:lastyear,SST=AprtoSeptAnomalies[-(1:3)][1:numyears],SST1=OcttoFebAnomalies[-(1:3)][1:numyears],SST2=JunetoFebAnomalies[-(1:3)][1:numyears],
+		MEI=LaggedMEIAprtoSept[-1][1:numyears],MEI1=LaggedMEIOcttoFeb[-1][1:numyears],MEI2=LaggedMEIJunetoFeb[-1][1:numyears],UWI33=UWImeansAprtoSept[1,-(1:6)][1:numyears],UWI36=UWImeansAprtoSept[2,-(1:6)][1:numyears],
+		UWI331=UWImeansOcttoFeb[1,-(1:6)][1:numyears],UWI361=UWImeansOcttoFeb[2,-(1:6)][1:numyears],UWI332=UWImeansJunetoFeb[1,-(1:6)][1:numyears],UWI362=UWImeansJunetoFeb[2,-(1:6)][1:numyears],
+		SLH=AprtoSeptSLH[1:numyears],SLH1=OcttoFebSLH[1:numyears])
 
 env.data=merge(env.data,calcofi.df,all.x=TRUE)
 # get fish data

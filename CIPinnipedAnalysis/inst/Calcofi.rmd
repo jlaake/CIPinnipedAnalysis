@@ -7,8 +7,7 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 
 ```{r,results="hide",echo=FALSE}
   suppressPackageStartupMessages(library(CIPinnipedAnalysis))
-  lastyear=2014
-  nboot=100
+    suppressPackageStartupMessages(library(pander))
   sdir=system.file(package="CIPinnipedAnalysis")
   source(file.path(sdir,"ZC_Weight_Adjustment_Model.r"))
   source(file.path(sdir,"ZC_Growth.r"))
@@ -77,5 +76,14 @@ text(2005.4,0.03,"Females",pos=4)
 
 Figure 3. Daily growth rate of Zalophus pup weights on San Miguel Island.
 
+
+
+
+
+
+Table 1. Growth rate values, standard errors and sample sizes.
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(pp,split.tables=Inf)
+```
 
 

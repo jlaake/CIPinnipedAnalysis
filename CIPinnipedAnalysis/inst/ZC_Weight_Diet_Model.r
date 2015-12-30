@@ -8,7 +8,6 @@
 #The scripts check for the value of fdir and if it exists the script will not change the value; otherwise it sets it to NULL
 if(!exists("fdir"))fdir=NULL
 require(CIPinnipedAnalysis)
-if(!exists("lastyear"))lastyear=2014
 if(!exists("nboot"))nboot=100
 if(!exists("anomalies"))
 	source(file.path(system.file(package="CIPinnipedAnalysis"),"CreateAnomalies.r"))

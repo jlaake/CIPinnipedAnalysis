@@ -1,8 +1,8 @@
 Package: CIPinnipedAnalysis
 Type: Package
 Title: Channel Islands Pinniped Analysis functions
-Version: 1.2.0
-Date: 2015-11-18
+Version: 1.3.0
+Date: 2015-12-30
 Author: Jeff Laake
 Maintainer: <jeff.laake@noaa.gov>
 Description: Channel Islands Pinniped Analysis functions:

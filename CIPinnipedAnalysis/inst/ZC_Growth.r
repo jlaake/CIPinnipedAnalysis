@@ -5,7 +5,6 @@
 require(CIPinnipedAnalysis)
 if(!exists("fdir"))fdir=NULL
 if(!exists("nboot"))nboot=100
-if(!exists("lastyear"))lastyear=2013
 if(!exists("anomalies"))
 {
 	sdir=system.file(package="CIPinnipedAnalysis")
@@ -16,6 +15,7 @@ if(!exists("anomalies"))
 ################################################################################
 # get zc weight values from database
 zcweights.lon=get.zc.weights(fdir=fdir)
+if(!exists("lastyear"))lastyear=max(zcweights.lon$cohort)
 zcweights.lon=zcweights.lon[zcweights.lon$cohort<=lastyear,]
 
 #
@@ -51,7 +51,7 @@ grdata=grdata[!is.nan(grdata$gr),]
 gr.mod=lme(gr~sex,random=list(~sex|cohort,~1|AnimalID),data=grdata,control=lmeControl(opt="optim"))
 pp=data.frame(cohort=rep(sort(unique(zcweights.lon$cohort)),2),sex=rep(c("F","M"),each=length(unique(zcweights.lon$cohort))))
 pp$gr=predict(gr.mod,pp,level=1)
-
+pp$n=as.vector(table(zcweights.lon$cohort,zcweights.lon$sex))
 bootstrap.se=function(x,nreps)
 {
 	pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))
@@ -73,12 +73,15 @@ bootstrap.se=function(x,nreps)
 	return(sqrt(apply(pmat,2,var)))
 }
 stderrors=bootstrap.se(grdata,nboot)
+pp$gr.se=stderrors
 
 # Merge growth data with environmental data
-if(length(1975:lastyear)==length(UWImeansOcttoFeb[1,-(1:6)]) & length(1975:lastyear)==length(OcttoFebAnomalies[4:numyears]) & length(1975:lastyear)==length(LaggedMEIOcttoFeb[-1]) )
-{
-	zcweights.environ.lon=merge(grdata,data.frame(cohort=1975:lastyear,SST=OcttoFebAnomalies[4:numyears],MEI=LaggedMEIOcttoFeb[-1],
-					UWI33=UWImeansOcttoFeb[1,-(1:6)],UWI36=UWImeansOcttoFeb[2,-(1:6)]))
+if(length(1975:lastyear)>length(UWImeansOcttoFeb[1,-(1:6)]) & length(1975:lastyear)>length(OcttoFebAnomalies[-(1:3)]) & length(1975:lastyear)>length(LaggedMEIOcttoFeb[-1]) ){
+	stop("\nmismatch in environmental data; specified lastyear is too great\n ")
+} else {
+	numyears=lastyear-1975+1
+	zcweights.environ.lon=merge(grdata,data.frame(cohort=1975:lastyear,SST=OcttoFebAnomalies[-(1:3)][1:numyears],MEI=LaggedMEIOcttoFeb[-1][1:numyears],
+					UWI33=UWImeansOcttoFeb[1,-(1:6)][1:numyears],UWI36=UWImeansOcttoFeb[2,-(1:6)][1:numyears]))
 # Create model
 	
 	fixed.f=list(gr~sex*UWI33,gr~sex*MEI,gr~sex*SST)
@@ -87,8 +90,7 @@ if(length(1975:lastyear)==length(UWImeansOcttoFeb[1,-(1:6)]) & length(1975:lasty
 	gr.models=fitmixed(fixed.f=fixed.f,random.f=random.f,data=zcweights.environ.lon)
 	
 	mod=lme(fixed=gr.models$best.f,random=random.f,data=zcweights.environ.lon)
-} else
-	cat("\nmismatch in environmental data; some data must be missing\n ")
+} 
 
 ppgr=data.frame(cohort=sort(unique(zcweights.lon$cohort)),sex=rep("F",each=length(unique(zcweights.lon$cohort))))
 ppgr$gr=predict(gr.mod,ppgr,level=1)
@@ -96,21 +98,5 @@ ppgr$gr=predict(gr.mod,ppgr,level=1)
 pp.lon=predict(mod,type="response",level=0)
 SST=sapply(split(zcweights.environ.lon$SST,zcweights.environ.lon$cohort),unique)
 pred.gr=sapply(split(pp.lon[zcweights.environ.lon$sex=="F"],names(pp.lon[zcweights.environ.lon$sex=="F"])),unique)
-#plot(SST,ppgr$gr,xlab="Sea Surface Temperature Anomaly (C)",ylab="Female pup weight growth between 1 Oct and 1 Feb (kg/day)")
-#lines(SST,pred.gr)
-#text(2,0.06,expression(R^2),cex=1.5)
-#text(2.3,0.06,paste(" = ",sprintf("%0.2f",var(pred.gr)/var(ppgr$gr)),sep=""),cex=1.5)
-
-#plot(zcweights.environ.lon$cohort[zcweights.environ.lon$sex=="F"],predict(mod)[zcweights.environ.lon$sex=="F"],pch="F",type="b",ylim=c(0,.12))
-#points(zcweights.environ.lon$cohort[zcweights.environ.lon$sex=="M"],predict(mod)[zcweights.environ.lon$sex=="M"],pch="M",type="b")
-#lines(zcweights.environ.lon$cohort[zcweights.environ.lon$sex=="M"],predict(mod)[zcweights.environ.lon$sex=="M"],lty=2)
-# Observed and predicted values
-#dev.new()
-#par(mfrow=c(1,2))
-#plot(zcweights.environ.lon$cohort[zcweights.environ.lon$sex=="F"],predict(mod)[zcweights.environ.lon$sex=="F"],pch="F",type="b",ylim=c(0,.14),ylab="Female daily growth rate (kg/day)",xlab="Cohort")
-#points(c(1989,1990,1995,1997:2010,2012:max(zcweights.environ.lon$cohort)),tapply(zcweights.environ.lon$gr[zcweights.environ.lon$sex=="F"],zcweights.environ.lon$cohort[zcweights.environ.lon$sex=="F"],mean),pch="O")
-#plot(zcweights.environ.lon$cohort[zcweights.environ.lon$sex=="M"],predict(mod)[zcweights.environ.lon$sex=="M"],pch="M",type="b",ylim=c(0,.14),ylab="Male daily growth rate (kg/day)",xlab="Cohort")
-#points(c(1989,1990,1995,1997:2010,2012:max(zcweights.environ.lon$cohort)),tapply(zcweights.environ.lon$gr[zcweights.environ.lon$sex=="M"],zcweights.environ.lon$cohort[zcweights.environ.lon$sex=="M"],mean),pch="O")
-
 
 
