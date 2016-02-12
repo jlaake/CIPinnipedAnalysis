@@ -61,7 +61,7 @@ bootstrap.se=function(x,nreps)
 	i=0
 	while(i<nreps)
 	{
-		xsamp=lapply(split(x,list(x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
+		xsamp=lapply(split(x,list(x$sex,x$cohort)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
 		xsamp=do.call("rbind",xsamp)
 		mod=try(lme(formula(cu.weight.model),random=as.formula(cu.weight.model$call$random),data=as.data.frame(xsamp),control=lmeControl(opt="optim")))
 		if(class(mod)!="try-error")

@@ -51,7 +51,7 @@ grdata=grdata[!is.nan(grdata$gr),]
 gr.mod=lme(gr~sex,random=list(~sex|cohort,~1|AnimalID),data=grdata,control=lmeControl(opt="optim"))
 pp=data.frame(cohort=rep(sort(unique(zcweights.lon$cohort)),2),sex=rep(c("F","M"),each=length(unique(zcweights.lon$cohort))))
 pp$gr=predict(gr.mod,pp,level=1)
-pp$n=as.vector(table(zcweights.lon$cohort,zcweights.lon$sex))
+pp$n=as.vector(table(grdata$cohort,grdata$sex))
 bootstrap.se=function(x,nreps)
 {
 	pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))

@@ -19,7 +19,7 @@ fixed.f.sa=c(fixed.f.sa,sapply(fixed.f,function(x) as.formula(paste("weight~",as
 # fit models
 random.f=list(res.environ$best.r)
 res.environ.abun=fitmixed(fixed.f.sa,random.f,data=cuweights.environ.abun) 
-res.environ.abun=compute_AICc(res.environ.abun, length(table(cuweights.environ.abun$Year))*2,5)
+res.environ.abun=compute_AICc(res.environ.abun, length(table(cuweights.environ.abun$Year))*2,4,fixed.f.sa)
 
 
 res.environ.abun$model.table[1,]
@@ -38,7 +38,7 @@ bootstrap.se=function(x,nreps,days=0)
 	while(i<nreps)
 	{
 		cat("Bootstrap ",i,"\n")
-		xsamp=lapply(split(x,list(x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
+		xsamp=lapply(split(x,list(x$sex,x$cohort)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
 		xsamp=do.call("rbind",xsamp)
 		mod=try(lme(fixed=res.environ.abun$best.f,random=res.environ.abun$best.r,data=as.data.frame(xsamp),method="REML",control=lmeControl(opt="optim")))
 		if(class(mod)!="try-error")

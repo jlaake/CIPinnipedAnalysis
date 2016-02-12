@@ -113,7 +113,7 @@ random.f=list(res.environ$best.r)
 source(file.path(system.file(package="CIPinnipedAnalysis"),"environment_models.r"))
 
 res.environ=fitmixed(fixed.f,random.f,data=cuweights.environ) 
-res.environ=compute_AICc(res.environ, length(table(cuweights.environ$Year))*2,5)
+res.environ=compute_AICc(res.environ, length(table(cuweights.environ$Year))*2,4,fixed.f)
 
 # Finally fit best fixed/random model with REML
 cu.weight.environ.model=lme(fixed=res.environ$best.f,random=res.environ$best.r,data=cuweights.environ,method="REML",control=lmeControl(opt="optim"))
@@ -126,7 +126,7 @@ bootstrap.se=function(x,nreps)
 	while(i<nreps)
 	{
 		cat("Bootstrap ",i,"\n")
-		xsamp=lapply(split(x,list(x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
+		xsamp=lapply(split(x,list(x$sex,x$cohort)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
 		xsamp=do.call("rbind",xsamp)
 		mod=try(lme(formula(cu.weight.model),random=as.formula(cu.weight.model$call$random),data=as.data.frame(xsamp),control=lmeControl(opt="optim")))
 		if(class(mod)!="try-error")

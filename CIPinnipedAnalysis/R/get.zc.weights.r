@@ -22,6 +22,7 @@ areas=getCalcurData("Zc","areacodes",dir=fdir)
 #
 zcweights=getCalcurData("Zc","ZCBRAND",dir=fdir)
 maxyear=max(zcweights$cohort)
+zcweights$AnimalID=as.character(zcweights$AnimalID)
 #
 #  Exclude those with missing weight and unknown sex
 #
@@ -56,6 +57,7 @@ zcTagOnly=merge(zcTagOnly,subset(areas,select=c("region","sitecode")),by="region
 #  read in the brand recaptures
 #
 zcRecap=getCalcurData("Zc","Recaptures",dir=fdir)
+zcRecap$AnimalID=as.character(zcRecap$AnimalID)
 if(exclude)
 {
 	zcRecap=zcRecap[!zcRecap$sex=="U" & !zcRecap$sex=="" &!is.na(zcRecap$weight)& !is.na(zcRecap$sex),]
@@ -64,7 +66,7 @@ if(exclude)
 	zcRecap=zcRecap[!zcRecap$sex=="U" & !zcRecap$sex=="" & !is.na(zcRecap$sex),]
 }
 zcRecap$sex=factor(zcRecap$sex)
-zcRecap=merge(zcRecap,subset(zcweights,select=c("cohort","brand")),by="brand")
+zcRecap=merge(zcRecap,subset(zcweights,select=c("cohort","AnimalID")),by="AnimalID")
 #
 #  read in the tag recaptures
 #
