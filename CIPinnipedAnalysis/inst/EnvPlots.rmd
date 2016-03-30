@@ -1,6 +1,6 @@
 ---
 title: "Environmental Data Plots"
-output: word_document
+output: pdf_document
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
 
@@ -22,14 +22,14 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 
 ```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
 par(mfrow=c(3,1))
-plot(minyear:lastyear,x$SSTAnomaly[x$Season=="Spring"],ylab="SST Anomaly",main="Winter/Spring (Jan-May)",xlab="")
-lines(minyear:lastyear,x$SSTAnomaly[x$Season=="Spring"])
+plot(minyear:maxyear,x$SSTAnomaly[x$Season=="Spring"],ylab="SST Anomaly",main="Winter/Spring (Jan-May)",xlab="")
+lines(minyear:maxyear,x$SSTAnomaly[x$Season=="Spring"])
 abline(h=0)
-plot(minyear:lastyear,x$SSTAnomaly[x$Season=="Summer"],ylab="SST Anomaly",main="Summer (June-Sept)",xlab="")
-lines(minyear:lastyear,x$SSTAnomaly[x$Season=="Summer"])
+plot(minyear:maxyear,x$SSTAnomaly[x$Season=="Summer"],ylab="SST Anomaly",main="Summer (June-Sept)",xlab="")
+lines(minyear:maxyear,x$SSTAnomaly[x$Season=="Summer"])
 abline(h=0)
-plot(minyear:lastyear,x$SSTAnomaly[x$Season=="Fall"],ylab="SST Anomaly",main="Fall (Oct-Dec)",xlab="")
-lines(minyear:lastyear,x$SSTAnomaly[x$Season=="Fall"])
+plot(minyear:maxyear,x$SSTAnomaly[x$Season=="Fall"],ylab="SST Anomaly",main="Fall (Oct-Dec)",xlab="")
+lines(minyear:maxyear,x$SSTAnomaly[x$Season=="Fall"])
 abline(h=0)
 ```
 
