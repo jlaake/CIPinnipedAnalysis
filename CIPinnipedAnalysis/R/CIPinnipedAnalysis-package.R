@@ -23,6 +23,27 @@
 
 NULL
 
+#' Zc production and early mortailty
+#' 
+#' @name Zc
+#' @examples
+#'  check.dead.pup.areas()
+#'  source(file.path(system.file(package="CIPinnipedAnalysis"),"ZcPupProduction.r"))
+#'  source(file.path(system.file(package="CIPinnipedAnalysis"),"ZcEarlyPupMortality.r"))
+
+NULL
+
+#' Cu production and early mortailty
+#' 
+#' @name Cu
+#' @examples
+#'  check.dead.pup.areas()
+#'  source(file.path(system.file(package="CIPinnipedAnalysis"),"CuPupProduction.r"))
+#'  source(file.path(system.file(package="CIPinnipedAnalysis"),"CuEarlyPupMortality.r"))
+
+NULL
+
+
 #' POPAN model results and correction factors from dead pup tagging data
 #' 
 #' POPAN results and correction factor data (estimates) that are used to correct dead

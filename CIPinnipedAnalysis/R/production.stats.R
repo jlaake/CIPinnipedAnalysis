@@ -229,6 +229,14 @@ for(y in sort(unique(LiveByYearandArea$Year)))
 	if(species=="Zc"& mainland)
 	{
 	   xx=suppressMessages(getdead_ch(island,y,merge=FALSE))
+	   if(all(!is.na(xx$df$Substrate))&all(!is.na(xx$df$Position)))
+	   if(any(xx$df$Substrate=="") | any(xx$df$Position==""))
+	   {
+		   cat("Missing position or substrate values in year",y)
+		   xx$df=xx$df[xx$df$Substrate!=""&xx$df$Position!="",]
+		   xx$df$Substrate=factor(as.character(xx$df$Substrate))
+		   xx$df$Position=factor(as.character(xx$df$Position))
+	   }
 	   xx$df$survey=CIPinnipedAnalysis::process_ch(xx$df$ch,xx$df$freq)$first
 	   names(xx$df)[6]="Area"
     }
@@ -245,6 +253,7 @@ for(y in sort(unique(LiveByYearandArea$Year)))
 		    strata=c("AC","BC","AN","BN")
 		    for(i in 1:4)
 			    cf[i]=average_cf(island,y,ndays2=LiveByYearandArea$Days[LiveByYearandArea$Year==y&substr(LiveByYearandArea$Area,1,3)==a]-16,lev=strata[i])
+			if(length(prop)>4)stop("check values of Position and Substrate - should only be 4 combinations AN AC BN BC")
 		    cf=sum(prop*cf)
 	      }else
 	      {

@@ -1,0 +1,75 @@
+---
+title: "Calcofi pup weight figures"
+output: word_document
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+
+```{r,results="hide",echo=FALSE}
+  suppressPackageStartupMessages(library(CIPinnipedAnalysis))
+    suppressPackageStartupMessages(library(pander))
+  sdir=system.file(package="CIPinnipedAnalysis")
+  nboot=2
+  source(file.path(sdir,"ZC_Weight_Adjustment_Model.r"))
+  source(file.path(sdir,"ZC_Growth.r"))
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+yavg=mean(female.averages$fit)
+low=which(female.averages$fit<0.9*yavg)
+high=which(female.averages$fit>1.1*yavg)
+barcol=rep("grey",length(female.averages$fit))
+femanomaly=female.averages$fit-yavg
+barcol[low]="red"
+barcol[high]="green"
+barplot(femanomaly,col=barcol,names.arg=sort(unique(ZCWeight.df$Year)),las=2,cex.names=0.75)
+
+
+```
+
+Figure 1. Predicted Zalophus pup weights on San Miguel Island at 1 Oct using adjustment model 
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+yavg=mean(winter.female.averages$fit)
+low=which(winter.female.averages$fit<0.9*yavg)
+high=which(winter.female.averages$fit>1.1*yavg)
+barcol=rep("grey",length(winter.female.averages$fit))
+winter.female.averages$fit=winter.female.averages$fit-yavg
+barcol[low]="red"
+barcol[high]="green"
+barplot(winter.female.averages$fit,col=barcol,names.arg=sort(unique(ZCWeight.df$Year[!is.na(ZCWeight.df$female.winter.n)])),las=2,cex.names=0.75)
+```
+
+Figure 2. Predicted Zalophus pup weights on San Miguel Island at 1 Feb using adjustment model.
+
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+female.averages=data.frame(fit=pp$gr[pp$sex=="F"],se=stderrors[as.numeric(row.names(pp[pp$sex=="F",]))])
+male.averages=data.frame(fit=pp$gr[pp$sex=="M"],se=stderrors[as.numeric(row.names(pp[pp$sex=="M",]))])
+yavg=mean(female.averages$fit)
+low=which(female.averages$fit<0.8*yavg)
+high=which(female.averages$fit>1.2*yavg)
+female.averages$fit=female.averages$fit-yavg
+barcol=rep("grey",length(female.averages$fit))
+barcol[low]="red"
+barcol[high]="green"
+barplot(female.averages$fit,col=barcol,names.arg=sort(unique(grdata$cohort)),las=2)
+
+```
+
+Figure 3. Daily weight growth rate anomaly from mean rate for Zalophus pups on San Miguel Island.
+
+
+
+
+
+
+Table 1. Growth rate values, standard errors and sample sizes.
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(pp,split.tables=Inf)
+```
+
+

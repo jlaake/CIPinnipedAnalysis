@@ -1,6 +1,8 @@
 ---
 title: "Pinniped Production"
-output: pdf_document
+output:
+  word_document: default
+  pdf_document: default
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
 
@@ -8,6 +10,9 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ```{r,results="hide",echo=FALSE}
   suppressPackageStartupMessages(library(CIPinnipedAnalysis))
   source(file.path(system.file(package="CIPinnipedAnalysis"),"PupProduction.r"))
+# Get production tables 
+	ZcProduction=getCalcurData("CIPquery","ZcProduction",dir=fdir1)
+	CuProduction=getCalcurData("CIPquery","CuProduction",dir=fdir1)
   maxyr=max(ZcProduction$Year)
 ```
 

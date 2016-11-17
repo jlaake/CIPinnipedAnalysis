@@ -1,0 +1,72 @@
+---
+		title: "Zalophus Pup Production"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+---
+		
+		
+		```{r,results="hide",echo=FALSE}
+		suppressPackageStartupMessages(library(CIPinnipedAnalysis))
+		source(file.path(system.file(package="CIPinnipedAnalysis"),"PupProduction.r"))
+		# Get production tables 
+	  ZcProduction=getCalcurData("CIPquery","ZcProduction",dir=fdir1)
+   	CuProduction=getCalcurData("CIPquery","CuProduction",dir=fdir1)
+
+		maxyr=max(ZcProduction$Year)
+		```
+
+# Zalophus 
+```{r,results="hide",echo=FALSE,fig.height=7,fig.width=6,dpi=300}
+		par(mfrow=c(2,1))
+		plot(ZcProduction$Year[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],ZcProduction$TotalLiveCountByYear[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],xlab="Year",ylab="Live pup count",xaxt="n",main="Mainland SMI California sea lion Live Pup Count")
+		lines(ZcProduction$Year[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],ZcProduction$TotalLiveCountByYear[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"])
+		axis(1,at=seq(1970,maxyr,2),labels= seq(1970,maxyr,2))
+		
+		zccr.years=ZcProduction$Year[ZcProduction$Area=="CastleRock"]
+		zccr.prod=ZcProduction$PupProduction[ZcProduction$Area=="CastleRock"]
+		zcyears=1970:max(zccr.years)
+		zcmissing.years=zcyears[!zcyears%in%zccr.years]
+		zccr.prod=c(zccr.prod,rep(NA,length(zcmissing.years)))
+		zccr.years=c(zccr.years,zcmissing.years)
+		zccr.prod=zccr.prod[order(zccr.years)]
+		zccr.years=sort(zccr.years)
+		plot(zccr.years,zccr.prod,main="Castle Rock California sea lion Live Pup Count",xlab="Year",ylab="Live pup count",xaxt="n",xlim=c(1970,maxyr))
+		lines(zccr.years,zccr.prod)
+		axis(1,at=seq(1970,maxyr,2),labels= seq(1970,maxyr,2))
+		dev.off()
+		```
+
+Figure 1. Count of live Zalophus pups on San Miguel Island
+
+
+```{r,results="hide",echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+		plot(ZcProduction$Year[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],ZcProduction$MortalityRateAtLiveCount[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],xlab="Year",ylab="Mortality",xaxt="n",main="Zc SMI Mainland Pre-census Mortality")
+		lines(ZcProduction$Year[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],ZcProduction$MortalityRateAtLiveCount[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"])
+		axis(1,at=seq(1970,maxyr,2),labels= seq(1970,maxyr,2))
+		```
+
+Figure 2. Pre-census Zalophus pup mortality rate
+
+
+```{r,results="hide",echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+		par(mfrow=c(2,1))
+		plot(ZcProduction$Year[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],ZcProduction$PupProduction[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],xlab="Year",ylab="Pup production",xaxt="n",main="SMI California sea lions Mainland")
+		lines(ZcProduction$Year[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"],ZcProduction$PupProduction[ZcProduction$Area=="Mainland"&ZcProduction$Island=="SMI"])
+		axis(1,at=seq(1970,maxyr,2),labels= seq(1970,maxyr,2)) 
+		
+		zccr.years=ZcProduction$Year[ZcProduction$Area=="CastleRock"]
+		zccr.prod=ZcProduction$PupProduction[ZcProduction$Area=="CastleRock"]
+		zcyears=1970:max(zccr.years)
+		zcmissing.years=zcyears[!zcyears%in%zccr.years]
+		zccr.prod=c(zccr.prod,rep(NA,length(zcmissing.years)))
+		zccr.years=c(zccr.years,zcmissing.years)
+		zccr.prod=zccr.prod[order(zccr.years)]
+		zccr.years=sort(zccr.years)
+		plot(zccr.years,zccr.prod,main="California sea lions Castle Rock",xlab="Year",ylab="Pup production",xaxt="n",xlim=c(1970,maxyr))
+		lines(zccr.years,zccr.prod)
+		axis(1,at=seq(1970,maxyr,2),labels= seq(1970,maxyr,2))
+		
+		```
+
+Figure 3. Estimated pup production of Zalophus pups on San Miguel Island
+
+

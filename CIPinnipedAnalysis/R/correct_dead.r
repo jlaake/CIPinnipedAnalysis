@@ -77,9 +77,19 @@ correct_dead=function(island,year)
 		df=df[order(df$Area,df$Occasion),]
 	df$cumdead=cumdead
 #
-#   compute and apply correction factor to observed data
+#   compute and apply correction factor to observed data; toss out any records missing
+#   position and substrate if after 1997
 #
  	df$cf=rep(NA,nrow(df))
+	if(year>1997)
+	{
+		missing=which(df$Position=="" | df$Substrate=="")
+		if(length(missing)>0)
+		{
+			cat("Some position or substrate values are missing for year = ",year)
+		    df=df[-missing,]
+		}
+	}
 	for(i in 1:nrow(df))
 	{
 		if(year<=1997)
