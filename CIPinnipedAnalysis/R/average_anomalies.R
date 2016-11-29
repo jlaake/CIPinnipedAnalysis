@@ -12,7 +12,7 @@ average_anomalies=function(v,start,n)
 	years=rownames(v)[ir:nrow(v)]
 	v=as.vector(t(v))
 	if(start>1) v=v[-(1:(start-1))]
-	avg=apply(cbind(seq(1,length(v),12),(seq(1,length(v),12)+n-1)),1,function(x)mean(v[x[1]:x[2]],na.rm=T))
+	avg=apply(cbind(seq(1,length(v),12),(seq(1,length(v),12)+n-1)),1,function(x)mean(v[x[1]:x[2]],na.rm=TRUE))
 	names(avg)=years
 	return(avg)
 }

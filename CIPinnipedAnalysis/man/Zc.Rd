@@ -2,13 +2,15 @@
 % Please edit documentation in R/CIPinnipedAnalysis-package.R
 \name{Zc}
 \alias{Zc}
-\title{Zc production and early mortailty}
+\title{Zc production and early mortality}
 \description{
-Zc production and early mortailty
+Zc production and early mortality
 }
 \examples{
+\donttest{
  check.dead.pup.areas()
  source(file.path(system.file(package="CIPinnipedAnalysis"),"ZcPupProduction.r"))
  source(file.path(system.file(package="CIPinnipedAnalysis"),"ZcEarlyPupMortality.r"))
+}
 }
 

@@ -1,14 +1,12 @@
 Package: CIPinnipedAnalysis
 Type: Package
-Title: Channel Islands Pinniped Analysis functions
+Title: Various Functions used for Analysis of Channel Islands Pinniped Data
 Version: 1.6.3
 Date: 2016-11-16
 Author: Jeff Laake
 Maintainer: <jeff.laake@noaa.gov>
-Description: Channel Islands Pinniped Analysis functions:
-    pup production, early pup mortality, SST and other
-    enviromental measurement computations
-License: GPL-2
+Description: Channel Islands Pinniped Analysis functions include those to compute pup production, early pup mortality, pup growth based on environment, diet and fisheries data.
+License: GPL (>= 2)
 Depends:
     RMark,
     CalcurData,

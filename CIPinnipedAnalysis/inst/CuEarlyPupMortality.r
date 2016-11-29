@@ -38,14 +38,14 @@ cu.mort.table=cu.mort
 cu.mort.table$SurveyDate=substr(as.character(cu.mort$SurveyDate),1,10)
 xx=saveCalcurData(cu.mort.table,db="CIPquery",tbl="CuEarlyPupMortality",dir=fdir1)
 pdf("CuEarlyPupMortality.pdf",width=9)
-ltype=rep(1:6,ceiling(numyears/6))
-col=rep(c("black","red","blue","orange","green"),each=ceiling(numyears/5))
 minyear=min(cu.mort$Year)
 maxyear=max(cu.mort$Year)
 numyears=maxyear-minyear+1
+ltype=rep(1:6,ceiling(numyears/6))
+col=rep(c("black","red","blue","orange","green"),each=ceiling(numyears/5))
 cu.mort$DaysFrom15June=as.Date(cu.mort$SurveyDate)-as.Date(paste(cu.mort$Year,"-06-15",sep=""))
 i=1
-with(cu.mort[cu.mort$Year==minyear,],plot(c(0,DaysFrom15June),c(1,CumS),xlab="Days from 15 June",ylab="Cumulative Survival",ylim=c(min(zcsmi.mort$CumS,na.rm=TRUE),1),lty=ltype[1],col=col[1],type="l",xlim=c(0,max(zcsmi.mort$DaysFrom15June))))
+with(cu.mort[cu.mort$Year==minyear,],plot(c(0,DaysFrom15June),c(1,CumS),xlab="Days from 15 June",ylab="Cumulative Survival",ylim=c(min(cu.mort$CumS,na.rm=TRUE),1),lty=ltype[1],col=col[1],type="l",xlim=c(0,max(cu.mort$DaysFrom15June))))
 for (y in (minyear+1):maxyear)
 {
 	i=i+1

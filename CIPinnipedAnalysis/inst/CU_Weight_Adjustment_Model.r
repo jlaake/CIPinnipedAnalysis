@@ -50,7 +50,7 @@ fixed.f=list(
 res.adjust=fitmixed(fixed.f,random.f,data=cuweights) 
 
 # Finally fit best fixed/random model with REML
-cu.weight.model=lme(fixed=res.adjust$best.f,random=res.adjust$best.r,data=cuweights,method="REML",control=lmeControl(opt="optim"))
+cu.weight.model=lme(fixed=res.adjust$best.f,random=res.adjust$best.r,data=res.adjust$data,method="REML",control=lmeControl(opt="optim"))
 print(summary(cu.weight.model))
 
 
@@ -75,7 +75,7 @@ bootstrap.se=function(x,nreps)
 	return(sqrt(apply(pmat,2,var)))
 }
 # use 100 reps to compute std error
-stderrors=bootstrap.se(cuweights,nboot)
+stderrors=bootstrap.se(res.adjust$data,nboot)
 # Compute predictions and construct dataframes for female and male averages with std errors
 pp=data.frame(days=0,cohort=rep(sort(unique(cuweights$cohort)),2),sex=rep(c("F","M"),each=length(unique(cuweights$cohort))))
 pp$predict=predict(cu.weight.model,newdata=pp,level=1)

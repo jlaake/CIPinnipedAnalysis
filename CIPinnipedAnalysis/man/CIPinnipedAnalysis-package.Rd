@@ -17,10 +17,11 @@ LazyLoad: \tab yes\cr }
 \examples{
 # Note this uses default argument value of NULL for dir which
 # means that the locations for the databases is specified by databases.txt in CalcurData package
+\donttest{
 check.dead.pup.areas()
 source(file.path(system.file(package="CIPinnipedAnalysis"),"PupProduction.r"))
 source(file.path(system.file(package="CIPinnipedAnalysis"),"EarlyPupMortality.r"))
-
+}
 }
 \author{
 Jeff Laake

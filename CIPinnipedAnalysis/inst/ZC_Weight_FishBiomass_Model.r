@@ -25,7 +25,7 @@ res.environ.abun=compute_AICc(res.environ.abun, length(table(zcweights.environ.a
 res.environ.abun$model.table[1,]
 
 # fit best model with reml
-zc.weight.model.environ.abun=lme(res.environ.abun$best.f,random=res.environ.abun$best.r,data=zcweights.environ.abun,control=lmeControl(opt="optim"),method="REML")
+zc.weight.model.environ.abun=lme(res.environ.abun$best.f,random=res.environ.abun$best.r,data=res.environ.abun$data,control=lmeControl(opt="optim"),method="REML")
 summary(zc.weight.model.environ.abun)
 zc.weight.model=zc.weight.model.environ.abun
 
@@ -52,17 +52,17 @@ bootstrap.se=function(x,nreps,days=0)
 
 #################  1 Oct Predictions ####################
 # use 100 reps to compute std error
-stderrors=bootstrap.se(zcweights.environ.abun,nboot,days=0)
+stderrors=bootstrap.se(res.environ.abun$data,nboot,days=0)
 
 
-pp=zcweights.environ.abun
+pp=res.environ.abun$data
 pp$days=0
 pp1=predict(zc.weight.model,newdata=pp)
 
 pp0=predict(zc.weight.model,newdata=pp,level=0)
 
-pp0=tapply(as.vector(pp0),list(zcweights.environ.abun$cohort,zcweights.environ.abun$sex),mean)
-pp1=tapply(as.vector(pp1),list(zcweights.environ.abun$cohort,zcweights.environ.abun$sex),mean)
+pp0=tapply(as.vector(pp0),list(pp$cohort,pp$sex),mean)
+pp1=tapply(as.vector(pp1),list(pp$cohort,pp$sex),mean)
 
 female.averages=data.frame(fit=pp1[,1],se=stderrors[1:length(pp1[,1])])
 male.averages=data.frame(fit=pp1[,2],se=stderrors[(length(pp1[,1])+1):(2*length(pp1[,1]))])

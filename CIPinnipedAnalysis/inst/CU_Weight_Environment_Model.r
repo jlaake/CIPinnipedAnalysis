@@ -45,16 +45,16 @@ calcofi$cohort=as.numeric(rownames(calcofi))
 numyears=lastyear-1975+1
 if(length(1975:lastyear)>length(OcttoFebAnomalies[-(1:3)])) stop("lastyear set to value that is too great")
 env.data=data.frame(cohort=1975:lastyear,SST=AprtoSeptAnomalies[-(1:3)][1:numyears],SST1=OcttoFebAnomalies[-(1:3)][1:numyears],SST2=JunetoFebAnomalies[-(1:3)][1:numyears],
-		MEI=LaggedMEIAprtoSept[-1],MEI1=LaggedMEIOcttoFeb[-1][1:numyears],MEI2=LaggedMEIJunetoFeb[-1][1:numyears],UWI33=UWImeansAprtoSept[1,-(1:6)][1:numyears],UWI36=UWImeansAprtoSept[2,-(1:6)][1:numyears],
+		MEI=LaggedMEIAprtoSept[-1][1:numyears],MEI1=LaggedMEIOcttoFeb[-1][1:numyears],MEI2=LaggedMEIJunetoFeb[-1][1:numyears],UWI33=UWImeansAprtoSept[1,-(1:6)][1:numyears],UWI36=UWImeansAprtoSept[2,-(1:6)][1:numyears],
 		UWI331=UWImeansOcttoFeb[1,-(1:6)][1:numyears],UWI361=UWImeansOcttoFeb[2,-(1:6)][1:numyears],UWI332=UWImeansJunetoFeb[1,-(1:6)][1:numyears],UWI362=UWImeansJunetoFeb[2,-(1:6)][1:numyears],
 		SLH=AprtoSeptSLH[1:numyears],SLH1=OcttoFebSLH[1:numyears])
 
 env.data=merge(env.data,calcofi,all.x=TRUE)
 # get fish data
 # read in abundance data files
-#sardine=read.delim("sardine.txt",header=T)
-#anchovy=read.delim("AnchovyAbundance.txt",header=T)
-#hake=read.delim("hake.txt",header=T)
+#sardine=read.delim("sardine.txt",header=TRUE)
+#anchovy=read.delim("AnchovyAbundance.txt",header=TRUE)
+#hake=read.delim("hake.txt",header=TRUE)
 data(sardine)
 data(hake)
 data(anchovy)
@@ -116,7 +116,7 @@ res.environ=fitmixed(fixed.f,random.f,data=cuweights.environ)
 res.environ=compute_AICc(res.environ, length(table(cuweights.environ$Year))*2,4,fixed.f)
 
 # Finally fit best fixed/random model with REML
-cu.weight.environ.model=lme(fixed=res.environ$best.f,random=res.environ$best.r,data=cuweights.environ,method="REML",control=lmeControl(opt="optim"))
+cu.weight.environ.model=lme(fixed=res.environ$best.f,random=res.environ$best.r,data=res.environ$data,method="REML",control=lmeControl(opt="optim"))
 print(summary(cu.weight.environ.model))
 
 bootstrap.se=function(x,nreps)
@@ -140,17 +140,17 @@ bootstrap.se=function(x,nreps)
 	return(sqrt(apply(pmat,2,var)))
 }
 # use 100 reps to compute std error
-stderrors=bootstrap.se(cuweights.environ,nboot)
+stderrors=bootstrap.se(res.environ$data,nboot)
 # Compute fall 1 Oct predictions and construct dataframes for female and male averages with std errors
-pp=cuweights.environ
+pp=res.environ$data
 pp$days=0
 # predictions at 1 Oct with random effects
 pp1=predict(cu.weight.environ.model,newdata=pp)
 # predictions at 1 Oct with fixed effects only
 pp0=predict(cu.weight.environ.model,newdata=pp,level=0)
 # compute mean values which essentially acts as unique
-pp0=tapply(as.vector(pp0),list(cuweights.environ$cohort,cuweights.environ$sex),mean)
-pp1=tapply(as.vector(pp1),list(cuweights.environ$cohort,cuweights.environ$sex),mean)
+pp0=tapply(as.vector(pp0),list(pp$cohort,pp$sex),mean)
+pp1=tapply(as.vector(pp1),list(pp$cohort,pp$sex),mean)
 # create list with estimates and std errors for averages
 female.averages=data.frame(fit=pp1[,1],se=stderrors[1:length(pp1[,1])])
 male.averages=data.frame(fit=pp1[,2],se=stderrors[(length(pp1[,1])+1):(2*length(pp1[,1]))])

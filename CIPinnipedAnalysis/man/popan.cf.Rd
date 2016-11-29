@@ -37,7 +37,7 @@ Each set of models is run and then they are re-run using the initial values from
 model convergence which can fail for POPAN models.  To see which models are failing set silent=FALSE. Once the models have been
 run, the function popan.derived is called with the list of model results which computes the abundances and related statistics (immigration BiGross) by model averaging
 over the set of models.  These are then stored in the list cfdata which is returned with the correction factors by occasion (cfbyocc) and the marklist of final model results.
-The cfdata is used by correct_dead and get_cf functions to create estimates of total number of pups that died in years with no tagging data.
+The cfdata is used by correct_dead and compute_cf functions to create estimates of total number of pups that died in years with no tagging data.
 
 Note: In 1994 the number of untagged and stacked was not recorded on the last occasion; thus the correction factor for the last occasion is not useful.
 }

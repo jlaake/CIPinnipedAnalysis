@@ -51,7 +51,7 @@ res.environ.diet=fitmixed(fixed.f.diet,random.f,data=zcweights.environ.diet)
 res.environ.diet=compute_AICc(res.environ.diet,length(table(zcweights.environ.diet$Year))*2,5,fixed.f.diet)
 
 #  fit best environment-diet growth model with REML
-zc.weight.model.environ.diet=lme(res.environ.diet$best.f,random=res.environ.diet$best.r,data=zcweights.environ.diet,control=lmeControl(opt="optim"),method="REML")
+zc.weight.model.environ.diet=lme(res.environ.diet$best.f,random=res.environ.diet$best.r,data=res.environ.diet$data,control=lmeControl(opt="optim"),method="REML")
 summary(zc.weight.model.environ.diet)
 
 
@@ -78,16 +78,16 @@ bootstrap.se=function(x,nreps,days=0)
 
 #################  1 Oct Predictions ####################
 # use 100 reps to compute std error
-stderrors=bootstrap.se(zcweights.environ.diet,nboot,days=0)
+stderrors=bootstrap.se(res.environ.diet$data,nboot,days=0)
 
 # Compute fall 1 Oct predictions and construct dataframes for female and male averages with std errors
-pp=zcweights.environ.diet
+pp=res.environ.diet$data
 pp$days=0
 pp1=predict(zc.weight.model.environ.diet,newdata=pp)
 pp0=predict(zc.weight.model.environ.diet,newdata=pp,level=0)
 
-pp0=tapply(as.vector(pp0),list(zcweights.environ.diet$cohort,zcweights.environ.diet$sex),mean)
-pp1=tapply(as.vector(pp1),list(zcweights.environ.diet$cohort,zcweights.environ.diet$sex),mean)
+pp0=tapply(as.vector(pp0),list(pp$cohort,pp$sex),mean)
+pp1=tapply(as.vector(pp1),list(pp$cohort,pp$sex),mean)
 # create list with estimates and std errors for averages
 female.averages=data.frame(fit=pp1[,1],se=stderrors[1:length(pp1[,1])])
 male.averages=data.frame(fit=pp1[,2],se=stderrors[(length(pp1[,1])+1):(2*length(pp1[,1]))])

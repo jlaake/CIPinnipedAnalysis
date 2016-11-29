@@ -4,7 +4,10 @@
 \alias{create_fo}
 \title{Creates Frequency of Occurrence (FO) DataFrame for Primary Prey}
 \usage{
-create_fo()
+create_fo(fo)
+}
+\arguments{
+\item{fo}{dataframe of fo data included in package}
 }
 \value{
 dataframe of FO for key prey or prey groupings and derived values

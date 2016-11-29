@@ -26,8 +26,9 @@ Extracts weights for Zc pups
 # following runs adjustment model and all subsequent growth models
 # and then stores table in CIPinnipedCensusQuery database. This will take
 # a substantial amount of time
+\donttest{
 source(file.path(system.file(package="CIPinnipedAnalysis"),"ZcWeightAnalysis.r"))
-
+}
 }
 \author{
 Jeff Laake

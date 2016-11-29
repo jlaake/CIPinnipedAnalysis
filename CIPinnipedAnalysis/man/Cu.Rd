@@ -7,8 +7,10 @@
 Cu production and early mortailty
 }
 \examples{
+\donttest{
  check.dead.pup.areas()
  source(file.path(system.file(package="CIPinnipedAnalysis"),"CuPupProduction.r"))
  source(file.path(system.file(package="CIPinnipedAnalysis"),"CuEarlyPupMortality.r"))
+}
 }
 

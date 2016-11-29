@@ -1,13 +1,13 @@
 #' Creates Frequency of Occurrence (FO) DataFrame for Primary Prey
 #' 
+#' @param fo dataframe of fo data included in package
 #' @return dataframe of FO for key prey or prey groupings and derived values
 #' including first and second principal components of 5 primary prey
 #' @export
 #' @author Jeff Laake
 #'
-create_fo=function()
+create_fo=function(fo)
 {
-	data(fo)
 	sardine=get_fo(fo,c("SARSAG"))$fo
 	anchovy=get_fo(fo,c("ENGMOR"))$fo
 	sa=get_fo(fo,c("SARSAG","ENGMOR"))$fo
@@ -33,6 +33,7 @@ create_fo=function()
 }
 #' Creates Frequency of Occurrence (FO) DataFrame for Primary Prey of Callorhinus
 #' 
+#' @param fo dataframe of fo data included in package
 #' @return dataframe of FO for key prey or prey groupings 
 #' @export
 #' @author Jeff Laake

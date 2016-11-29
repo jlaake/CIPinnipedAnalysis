@@ -69,7 +69,7 @@ fixed.f=list(
 res.adjust=fitmixed(fixed.f,random.f,data=zcweights) 
 
 # Finally fit best fixed/random model with REML
-zc.weight.model=lme(fixed=res.adjust$best.f,random=res.adjust$best.r,data=zcweights,method="REML",control=lmeControl(opt="optim"))
+zc.weight.model=lme(fixed=res.adjust$best.f,random=res.adjust$best.r,data=res.adjust$data,method="REML",control=lmeControl(opt="optim"))
 print(summary(zc.weight.model))
 zc.weight.adjust.model=zc.weight.model
 
@@ -98,7 +98,7 @@ bootstrap.se=function(x,nreps,days)
 
 
 ################# 1 Oct Predictions #####################
-stderrors=bootstrap.se(zcweights,nboot,days=0)
+stderrors=bootstrap.se(res.adjust$data,nboot,days=0)
 # Compute predictions and construct dataframes for female and male averages with bootstrap std errors
 pp=data.frame(days=0,cohort=rep(sort(unique(zcweights$cohort)),2),sex=rep(c("F","M"),each=length(unique(zcweights$cohort))))
 pp$predict=predict(zc.weight.model,newdata=pp,level=1)
@@ -115,7 +115,7 @@ ZCWeight.df=cbind(Year=as.numeric(rownames(ZCWeight.df)),ZCWeight.df)
 ################# 1 Feb Predictions #####################
 pp=data.frame(days=123,cohort=rep(sort(unique(zcweights$cohort)),2),sex=rep(c("F","M"),each=length(unique(zcweights$cohort))))
 pp$predict=predict(zc.weight.model,newdata=pp,level=1)
-stderrors=bootstrap.se(zcweights,nboot,days=123)
+stderrors=bootstrap.se(res.adjust$data,nboot,days=123)
 winter.female.averages=data.frame(fit=pp$predict[pp$sex=="F"],se=stderrors[as.numeric(row.names(pp[pp$sex=="F",]))])
 winter.male.averages=data.frame(fit=pp$predict[pp$sex=="M"],se=stderrors[as.numeric(row.names(pp[pp$sex=="M",]))])
 

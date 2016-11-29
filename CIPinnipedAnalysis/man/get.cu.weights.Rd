@@ -23,8 +23,9 @@ Extracts weights for Cu pups
 database and returns a dataframe with ancillary fields added.
 }
 \examples{
+\donttest{
 source(file.path(system.file(package="CIPinnipedAnalysis"),"CuWeightAnalysis.r"))
-
+}
 }
 \author{
 Jeff Laake

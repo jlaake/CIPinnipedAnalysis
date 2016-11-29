@@ -74,8 +74,10 @@ names(fish_abundance)[1]="cohort"
 #merge fish abundance and environmental data
 env.data=merge(env.data,fish_abundance,all.x=TRUE )
 # get diet data
-# create freq of occurence for prey data
-fo=create_fo()
+# create freq of occurence for prey data from dataframe fo in
+# package
+data(fo)
+fo=create_fo(fo)
 names(fo)[1]="cohort"
 #merge in diet data
 env.data=merge(env.data,fo,all.x=TRUE)
@@ -106,7 +108,7 @@ res.environ=fitmixed(fixed.f,random.f,data=zcweights.environ)
 res.environ=compute_AICc(res.environ, length(table(zcweights.environ$Year))*2,5,fixed.f)
 
 # Finally fit best fixed/random model with REML
-zc.weight.environ.model=lme(fixed=res.environ$best.f,random=res.environ$best.r,data=zcweights.environ,method="REML",control=lmeControl(opt="optim"))
+zc.weight.environ.model=lme(fixed=res.environ$best.f,random=res.environ$best.r,data=res.environ$data,method="REML",control=lmeControl(opt="optim"))
 print(summary(zc.weight.environ.model))
 
 
@@ -133,17 +135,17 @@ bootstrap.se=function(x,nreps,days=0)
 
 #################  1 Oct Predictions ####################
 # use 100 reps to compute std error
-stderrors=bootstrap.se(zcweights.environ,nboot,days=0)
+stderrors=bootstrap.se(res.environ$data,nboot,days=0)
 # Compute fall 1 Oct predictions and construct dataframes for female and male averages with std errors
-pp=zcweights.environ
+pp=res.environ$data
 pp$days=0
 # predictions at 1 Oct with random effects
 pp1=predict(zc.weight.environ.model,newdata=pp)
 # predictions at 1 Oct with fixed effects only
 pp0=predict(zc.weight.environ.model,newdata=pp,level=0)
 # compute mean values which essentially acts as unique
-pp0=tapply(as.vector(pp0),list(zcweights.environ$cohort,zcweights.environ$sex),mean)
-pp1=tapply(as.vector(pp1),list(zcweights.environ$cohort,zcweights.environ$sex),mean)
+pp0=tapply(as.vector(pp0),list(pp$cohort,pp$sex),mean)
+pp1=tapply(as.vector(pp1),list(pp$cohort,pp$sex),mean)
 # create list with estimates and std errors for averages
 female.averages=data.frame(fit=pp1[,1],se=stderrors[1:length(pp1[,1])])
 male.averages=data.frame(fit=pp1[,2],se=stderrors[(length(pp1[,1])+1):(2*length(pp1[,1]))])
@@ -171,17 +173,17 @@ ZCWeight.df$male.environ.mean.fall.fixed[(add+1):(add+length(female.averages$fit
 
 #################  1 Feb Predictions ####################
 # use 100 reps to compute std error
-stderrors=bootstrap.se(zcweights.environ,nboot,days=123)
+stderrors=bootstrap.se(res.environ$data,nboot,days=123)
 # Compute fall 1 Feb predictions and construct dataframes for female and male averages with std errors
-pp=zcweights.environ
+pp=res.environ$data
 pp$days=123
 # predictions at 1 Oct with random effects
 pp1=predict(zc.weight.environ.model,newdata=pp)
 # predictions at 1 Oct with fixed effects only
 pp0=predict(zc.weight.environ.model,newdata=pp,level=0)
 # compute mean values which essentially acts as unique
-pp0=tapply(as.vector(pp0),list(zcweights.environ$cohort,zcweights.environ$sex),mean)
-pp1=tapply(as.vector(pp1),list(zcweights.environ$cohort,zcweights.environ$sex),mean)
+pp0=tapply(as.vector(pp0),list(pp$cohort,pp$sex),mean)
+pp1=tapply(as.vector(pp1),list(pp$cohort,pp$sex),mean)
 # create list with estimates and std errors for averages
 female.averages=data.frame(fit=pp1[,1],se=stderrors[1:length(pp1[,1])])
 male.averages=data.frame(fit=pp1[,2],se=stderrors[(length(pp1[,1])+1):(2*length(pp1[,1]))])

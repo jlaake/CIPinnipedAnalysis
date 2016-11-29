@@ -82,11 +82,11 @@ if(length(1975:lastyear)>length(UWImeansOcttoFeb[1,-(1:6)]) & length(1975:lastye
 	numyears=lastyear-1975+1
 	zcweights.environ.lon=merge(grdata,data.frame(cohort=1975:lastyear,SST=OcttoFebAnomalies[-(1:3)][1:numyears],MEI=LaggedMEIOcttoFeb[-1][1:numyears],
 					UWI33=UWImeansOcttoFeb[1,-(1:6)][1:numyears],UWI36=UWImeansOcttoFeb[2,-(1:6)][1:numyears]))
-# Create model - but exclude any rows with missing values
-	zcweights.environ.lon=na.exclude(zcweights.environ.lon)
+# Create model 
 	fixed.f=list(gr~sex*UWI33,gr~sex*MEI,gr~sex*SST)
 	random.f=list(~1|cohort)
-	
+	zcweights.environ.lon=subset(zcweights.environ.lon,select=c("cohort","gr","sex","UWI33","MEI","SST"))
+	zcweights.environ.lon=na.exclude(zcweights.environ.lon)
 	gr.models=fitmixed(fixed.f=fixed.f,random.f=random.f,data=zcweights.environ.lon)
 	
 	mod=lme(fixed=gr.models$best.f,random=random.f,data=zcweights.environ.lon)

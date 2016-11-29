@@ -39,7 +39,9 @@ month.  Computes average monthly value from a defined set of years
 year-month matrix to produce anomaly matrix.
 }
 \examples{
+\donttest{
 source(file.path(system.file(package="CIPinnipedAnalysis"),"CreateAnomalies.r"))
+}
 
 }
 \author{

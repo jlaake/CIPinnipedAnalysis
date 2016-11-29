@@ -12,7 +12,7 @@
 #' @param ... other arguments for plot
 #' @return list with following elements: results - list with each fitted model object; model.table- model selection table;
 #' best - model number that was best fit in results list; best.f - formula for fixed effect from best model; best.r - formula for random effects for best model
-#' @export fitmixed compute_AICc
+#' @export
 #' @author Jeff Laake
 fitmixed=function(fixed.f,random.f,data,control=lmeControl(opt="optim"),method=NULL,save.model=FALSE,...)
 {
@@ -26,6 +26,9 @@ fitmixed=function(fixed.f,random.f,data,control=lmeControl(opt="optim"),method=N
 		if(length(random.f)>1)
 			if(is.null(method))method="REML"
 	}
+	# subset data to only include all variables used in the set of models and then exclude any rows with NA
+	data=subset(data,select=unique(c(unlist(sapply(fixed.f,all.vars)),unlist(sapply(unlist(random.f),all.vars)))))
+	data=na.exclude(data)
 	results=vector("list",length(fixed.f)*length(random.f))
 	model.table=data.frame(fixed=rep(NA,length(fixed.f)*length(random.f)),random=rep(NA,length(fixed.f)*length(random.f)))
 	i=0
@@ -56,8 +59,20 @@ fitmixed=function(fixed.f,random.f,data,control=lmeControl(opt="optim"),method=N
 		results$best.r=random.f[[1]]
 	else
 		results$best.r=random.f[[results$best]]
+	results$data=data
 	return(results)
 }
+#' Compute AICc (AIC with small sample size correction) for a series of models
+#' 
+#' @param results list of model results with element model.table
+#' @param nobs number of observations  
+#' @param nref number of random effect parameters
+#' @param fixed.f vector of fixed effect formulas
+#' @return list with following elements: results - list with each fitted model object; model.table- model selection table;
+#' best - model number that was best fit in results list; best.f - formula for fixed effect from best model; best.r - formula for random effects for best model
+#' @export
+#' @author Jeff Laake
+
 compute_AICc=function(results,nobs,nref,fixed.f)
 {
 	i=1

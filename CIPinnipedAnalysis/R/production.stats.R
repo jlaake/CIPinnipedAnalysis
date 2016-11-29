@@ -246,7 +246,7 @@ for(y in sort(unique(LiveByYearandArea$Year)))
         {
 	      if(y>1997)
 	      {
-			counts=as.vector(with(xx$df[xx$df$survey<=3 & substr(xx$df$Area,1,3)== a,],tapply(abs(freq),list(Position,Substrate),sum,na.rm=T)))
+			counts=as.vector(with(xx$df[xx$df$survey<=3 & substr(xx$df$Area,1,3)== a,],tapply(abs(freq),list(Position,Substrate),sum,na.rm=TRUE)))
 			counts[is.na(counts)]=0
 			prop=counts/sum(counts)
 			cf=vector("numeric",4)
