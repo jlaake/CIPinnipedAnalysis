@@ -1,0 +1,1004 @@
+---
+title: "California Sea Lion Pup Growth"
+date: '`r format(Sys.time(), "%d %B %Y")`'
+output:
+  word_document: default
+  pdf_document:
+    includes:
+      in_header: header.tex
+---
+
+Abstract Add text
+
+1 Introduction
+
+```{r,echo=FALSE,results='hide'}
+suppressWarnings(suppressPackageStartupMessages({
+library(CIPinnipedAnalysis)
+library(CalcurData)
+library(pander)
+}))
+fdir=NULL
+nboot=100
+lastyear=2015
+runit=FALSE
+options(width=150)
+if(runit)
+{
+for(irep in 1:2)
+{
+# set use.calcofi
+if(irep==1)
+{
+  cat("\n 1")
+  use.calcofi=FALSE
+} else
+{
+  cat("\n 2")
+  rm(ZCWeight.df,ZCWeight.df1,res.environ,zcweights.diet,anomalies,zcweights.environ)
+  use.calcofi=TRUE
+}
+## ----environdata,echo=FALSE----------------------------------------------
+source(file.path(system.file(package="CIPinnipedAnalysis"),"CreateAnomalies.r"))
+
+
+#######################################################
+#
+## Growth Weight Adjustment model (40 years)
+#
+#######################################################
+
+source(file.path(system.file(package="CIPinnipedAnalysis"),"ZC_Weight_Adjustment_Model.r"))
+days=tapply(zcweights$days,zcweights$cohort,mean)
+# show differences in mean and variance of males and females
+pdf("sex_weight_boxplot.pdf")
+with(zcweights,boxplot(weight~sex,ylab="Weight (kg)",xlab="Sex"))
+dev.off()
+# show annual deviations as a function of days from 1 Oct - growth
+pdf("days_weight_crossplot.pdf")
+plot(days,female.observed-mean(female.observed),xlab="Days from 1 Oct",ylab="Female Weight Anomaly (kg)") 
+dev.off()
+# show that std deviation roughly linear with absolute # of days from 1 Oct
+pdf("days_stdev.pdf")
+barplot(sqrt(sapply(split(female.observed-mean(female.observed),cut(abs(days),c(0,5,10,15,20,30))),var)),ylab="Std deviation", xlab="Absolute value of no. days from 1 Oct") 
+dev.off()
+
+
+#######################################################
+#
+# Growth Weight Environment Model (40 years with use.calcofi=FALSE
+#     and 30 years with use.calcofi=TRUE)
+#
+#######################################################
+
+source(file.path(system.file(package="CIPinnipedAnalysis"),"ZC_Weight_Environment_Model.r"))
+ 
+#######################################################
+#
+# Fish abundance + environment - uses 32 years with use.calcofi=FALSE
+#            and uses 29 years with use.calcofi=TRUE
+#              loses 2014,1981-82
+#
+#######################################################
+fixed.f=sapply(res.environ$model.table[res.environ$model.table$AICc-min(res.environ$model.table$AICc)<10,"fixed"],as.formula)
+
+source(file.path(system.file(package="CIPinnipedAnalysis"),"ZC_Weight_FishBiomass_Model.r"))
+
+#######################################################
+#
+# Growth Diet - Environment, FishAbundance and FO (22 years with  use.calcofi=FALSE
+#          and 19 years with use.calcofi=TRUE)
+#           loses 1980-1983
+#######################################################
+zcweights.diet=zcweights.environ.abun
+
+
+fixed.f=sapply(res.environ.abun$model.table[res.environ.abun$model.table$AICc-min(res.environ.abun$model.table$AICc)<10,"fixed"],as.formula)
+
+source(file.path(system.file(package="CIPinnipedAnalysis"),"ZC_Weight_Diet_Model.r"))
+
+res.environ.abun.diet=res.environ.diet 
+
+zcweights.environ.abun.diet=zcweights.environ.diet
+
+zc.weight.model.environ.abun.diet=zc.weight.model.environ.diet
+
+df=cbind(fo[rownames(fo)%in%as.character(ZCWeight.df1$Year),],
+     fall.adjusted=ZCWeight.df$female.adjusted.mean.fall[!is.na(ZCWeight.df$female.environ.diet.mean.fall)],
+	 fall.environ=ZCWeight.df$female.environ.mean.fall.fixed[!is.na(ZCWeight.df$female.environ.diet.mean.fall)],
+residual=ZCWeight.df$female.environ.mean.fall[!is.na(ZCWeight.df$female.environ.diet.mean.fall)]- ZCWeight.df$female.environ.mean.fall.fixed[!is.na(ZCWeight.df$female.environ.diet.mean.fall)])
+rownames(df)=ZCWeight.df1$Year
+
+names(ZCWeight.df)[38:43]=sapply(strsplit(names(ZCWeight.df)[38:43],"\\."),function(x) paste(c(x[1:2],"abun",x[3:length(x)]),collapse="."))
+
+
+#######################################################
+#
+# Growth Diet - Environment and FO (23 years with  use.calcofi=FALSE
+#          and 19 years with use.calcofi=TRUE)
+#           loses 1980-1983
+#######################################################
+zcweights.diet=zcweights.environ
+
+fixed.f=sapply(res.environ$model.table[res.environ$model.table$AICc-min(res.environ$model.table$AICc)<10,"fixed"],as.formula)
+
+source(file.path(system.file(package="CIPinnipedAnalysis"),"ZC_Weight_Diet_Model.r"))
+
+
+df=cbind(fo[rownames(fo)%in%as.character(ZCWeight.df1$Year),],
+     fall.adjusted=ZCWeight.df$female.adjusted.mean.fall[!is.na(ZCWeight.df$female.environ.diet.mean.fall)],
+	 fall.environ=ZCWeight.df$female.environ.mean.fall.fixed[!is.na(ZCWeight.df$female.environ.diet.mean.fall)],
+residual=ZCWeight.df$female.environ.mean.fall[!is.na(ZCWeight.df$female.environ.diet.mean.fall)]- ZCWeight.df$female.environ.mean.fall.fixed[!is.na(ZCWeight.df$female.environ.diet.mean.fall)])
+rownames(df)=ZCWeight.df1$Year
+
+if(irep==1)
+{
+  cat("save not")
+  save.image("C:\\Users\\JLaake\\Desktop\\MyDocuments\\Analyses\\ZC Mortality Event\\Not Calcofi\\.Rdata")
+} else
+{
+  cat("save use")
+  save.image("C:\\Users\\JLaake\\Desktop\\MyDocuments\\Analyses\\ZC Mortality Event\\Use Calcofi\\.Rdata")
+}
+}}
+
+
+```
+
+2 Methods
+
+2.1 Field Methods
+Include selection of pups across dates (batches)
+  
+2.2 Data Selection
+Pup weights were collected on branded, tagged and unmarked pups on San Miguel Island from 1975 to 2014. The timing of pup weight measurements varied across years. Pups were typically weighed on or near 1 Oct and 1 Feb but the timing varied around these target dates. Pup weights measured between 1 Sept and 1 March were used in the analysis and the measurement date was used in the analysis as a covariate to adjust means to 1 OCt and 1 Feb. 
+
+
+2.3 Explanatory Variables
+
+2.3.1 Oceanographic Variables
+Each of the following variables were available for the entire 40 year time series. The values from April-September were used as predictor for initial weight (1 Oct) and the values from Oct-Feb were used as predictors for the slope of weight growth across time (days from 1 Oct).
+  SST anomaly measured at a set of buoys in the female foraging range. 
+  SLH anomaly was measured at Port San Luis in the middle of the female forarging range.  
+  MEI - multivariate ENSO index measured at the equator was lagged by 2 months which gave highest correlation with SST in the female foraging range. 
+  UWI33 and UWI36, upwelling indices for regions surrrounding female foraging range. 
+  
+Calcofi oceanographic variables measured at stations 76.7.49,76.7.51,76.7.55,80.51,80.55, and 83.3.51 were only available for 30 years from 1984-2013. The variables considered as predictors included dynamic_height_0_500m, stratification, pycnocline_depth, R_POTEMP_75m, and R_O2_75m, R_NO3_75m. Values measured on the July Calcofi cruise were used for the April-Sept period (initial weight) and the values from the October cruise were used for the Oct-Feb period for growth between Oct and Feb.
+
+2.3.2 Fish abundance Variables
+Fish abundance time series were available for anchovy, sardine and hake (Pacific whiting) which are 3 of the primary sea lion prey. Hake abundance of age 0 and 1 fish were available for the entire 40 years from (citation). Sardine biomass of age 0 and 1 fish were available from (citation) for 31 years starting in 1981 with some years missing.  Spawning biomass of anchovy were available from (citation) for 29 years starting in 1981 with some years missing. Estimates for 2012-2015 are not yet available.
+
+2.3.3 Female Sea Lion Diet Variables
+Scats collected on San Miguel Island in a region primarily used by female sea lions was collected throughout each year. Scats collected between May and October have been analyzed for years 1980-1986, 1991-1993,1995-1996,2000-2005 and 2009-2013. Annual sample sizes varied from 43 to 502. The frequency of occurrence (FO=proportion of scats containing the prey) of the 6 primary prey items included sardine, anchovy, rockfish, hake, market squid, and mackerel (add species names). We considered all of these as predictor variables except mackerel which typically had a low FO. In addition, we considered the FO of sardine or anchovy, the sum of lower calorie prey FO (rockfish, squid, hake), sum of high calorie prey FO (sardine, anchovy, mackerel) and the ration of low calorie to high calorie prey FO. In addition, we also consdidered the first principal component of the FO data for the 6 primary prey items.
+  
+
+2.4 Statistical Methods
+Linear mixed effect models were fitted to cross-sectional pup weight measurements with the function lme in the R package nlme. We evaluated the influence of oceanographic variables, forage fish abundance and female sea lion diet on pup weights as well as trend and sex variables. In fitting the mixed effect models, we followed the recommendation of Zurr et al () to select a best random effect model using restricted maximum likelihood (REML) with a constant and fairly complete fixed effect model and then evaluating fixed effect models with Akaike's Information Criterion (AIC) fitted with maximum likelihood (ML) using the best random effect model. And finally fitting the best model using REML for to obtain more reliable estimates of precision. To avoid model over-fitting we used the small sample version AICc for model selection in evaluating the fixed effect models. We used twice the number of years as the sample size because we had 2 sexes and most of the variables (oceanographic, fish abundance and diet) were only varied across years. 
+
+Random effect models: 1: ~1|cohort,~1|batch, 2: ~days|cohort,~1|batch, 3: ~sex:days|cohort, ~1|batch, 4: ~-1+sex+days|cohort,~1|batch, 5: ~sex*days|cohort, ~1|batch
+
+
+Only the basic environmental variables were available for the entire 40 year time series. Thus, to evaluate the role of these variables we chose a nested approach in which we evaluated models using data with oceanographic variables, then the smaller data set with oceanographic and fish abundance variables, and finally the smallest data set with oceanographic, fish abundance and diet variables. This last data set did exclude a few years in the early 1980s in which diet data were available but fish abundance variables were not. In stepping down the analysis levels we used the set of models from the larger data set within 10 AIC units. We used those models and others that added the further explanatory variables for fish abundance and then diet. Thus it was possible for the best model using the smallest data set to include only the oceanographic variables or oceanographic and fish abundance variables or some from all of the variables. We conducted two nested analyses. The first started with the full 40 year time series and the basic oceanographic variables of SST, SLH, MEI and UWI and then stepped down to data in which fish abundance and diet were available. The second started with 30 years of the data in which the Calcofi oceanographic variables and the basic variables were considered and then stepped down from the smaller set. This did exclude a few years in the early 1980s in which both diet and fish abundance were available.
+
+3 Results
+
+3.1 Female Sea Lion Diet and Fish Abundance
+
+No details here yet and we should consider whether we want this.  Essentially it shows that sea lion diet FO is correlated with fish abundance to some degree for the prey items when both were available.
+
+
+```{r,fodata,echo=FALSE}
+fo=create_fo()
+# read in abundance data files
+data(sardine)
+data(anchovy)
+data(hake)
+data(loligo)
+data(Rockfish)
+rockfish=Rockfish
+#sardine=read.delim("sardine.txt",header=T)
+#anchovy=read.delim("AnchovyAbundance.txt",header=T)
+#hake=read.delim("hake.txt",header=T)
+#loligo=read.delim("loligo.txt",header=T)
+#rockfish=read.delim("rockfish.txt",header=T)
+# add rough upper bound estimate for 2012-2013
+#anchovy=rbind(anchovy,data.frame(Year=2012:2013,AnchovyBiomass=c(20,20)))
+total.sa=data.frame(Year=1981:2013,Age01=sardine$Abundance[sardine$Age==0]+sardine$Abundance[sardine$Age==1],Age0=sardine$Abundance[sardine$Age==0],Age1=sardine$Abundance[sardine$Age==1])
+total.sa$SardineBiomass=sardine$Biomass[sardine$Age==1]+sardine$Biomass[sardine$Age==0]
+# convert abundance to 1000s and biomass to 1000mt
+total.sa[,2:5]=total.sa[,2:5]/1000
+fish_abundance=merge(total.sa,anchovy)
+# compute biomass of anchovy and sardines in 1000s metric tons; excludes some years when only one of the species
+fish_abundance$SardineAnchovyBiomass=fish_abundance$SardineBiomass+fish_abundance$AnchovyBiomass
+# use age 0 to 2 hake
+hake$Age01=hake$Age0+hake$Age1
+hake$Age02=hake$Age0+hake$Age1+hake$Age2
+hake$Age12=hake$Age1+hake$Age2
+```
+
+
+```{r,sardine,echo=FALSE}
+#################################
+# Sardine
+#################################
+sardine.data=data.frame(Year=fo$Year,fo=fo$sardine,n=fo$n.scat)
+sardine.data=merge(sardine.data,total.sa,by="Year")
+sardine.resp=cbind(floor(sardine.data$fo*sardine.data$n+.5),floor((1-sardine.data$fo)*sardine.data$n+.5))
+
+mod=glm(sardine.resp~sardine.data$SardineBiomass,family="quasibinomial")
+
+```
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(mod,split.tables=Inf)
+```
+
+```{r,echo=FALSE,fig.width=6,fig.height=6}
+
+plot(sardine.data$SardineBiomass,sardine.data$fo,xlab="Sardine abundance age 0 and 1 (1000's)",ylab="Proportion of SMI female scats containing sardine",ylim=c(0,1))
+lines(sardine.data$SardineBiomass[order(sardine.data$SardineBiomass)],predict(mod,type="response")[order(sardine.data$SardineBiomass)])
+text(300,.9,paste("r =",formatC(cor(sardine.data$SardineBiomass,sardine.data$fo),digits=3)),cex=1.5) 
+
+p=sardine.data$fo
+sep=sqrt((p*(1-p)/sardine.data$n))
+C=exp(1.96*sep/(p*(1-p)))
+pL=p/(p+(1-p)*C)
+pU=p/(p+(1-p)/C)
+for(i in 1:length(sardine.data$Age01))
+   lines(x=rep(sardine.data$SardineBiomass[i],2), y=c(pL[i],pU[i]))
+```
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+sardine.data$Year=as.numeric(as.character(sardine.data$Year))
+par(mar=c(5, 4, 4, 4) + 0.1)
+plot(sardine.data$Year,sardine.data$Age01,xlab="Year",ylab="Sardine abundance age 0 and 1 (1000's)",type="b")
+sardine.range=range(sardine.data$Age01)
+points(sardine.data$Year,sardine.range[1]+sardine.data$fo*diff(sardine.range),pch=2)
+lines(sardine.data$Year,sardine.range[1]+sardine.data$fo*diff(sardine.range),lty=2)
+for(i in 1:length(sardine.data$Year))
+ lines(x=rep(sardine.data$Year[i],2), y=c(sardine.range[1]+pL[i]*diff(sardine.range),sardine.range[1]+pU[i]*diff(sardine.range)))
+axis(4,at=seq(5e6,2e7,5e6),labels=format((seq(5e6,2e7,5e6)-sardine.range[1])/diff(sardine.range),digits=1))
+mtext("Sardine FO",4,2.5)
+points(1982,2e7,pch=1)
+points(1982,1.7e7,pch=2)
+text(1982,2e7,"Sardine abundance",pos=4)
+text(1982,1.7e7,"Sardine FO(May-Oct)",pos=4)
+```
+
+```{r,anchovy,echo=FALSE}
+#################################
+# Anchovy
+#################################
+anchovy.data=data.frame(Year=fo$Year,fo=fo$anchovy,n=fo$n.scat)
+anchovy.data=merge(anchovy.data,anchovy,by="Year")
+anchovy.resp=cbind(floor(anchovy.data$fo*anchovy.data$n+.5),floor((1-anchovy.data$fo)*anchovy.data$n+.5))
+mod=glm(anchovy.resp~anchovy.data$AnchovyBiomass,family="quasibinomial")
+
+```
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(mod,split.tables=Inf)
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6}
+plot(anchovy.data$Anchovy,anchovy.data$fo,xlab="Anchovy abundance",ylab="Proportion of SMI female scats containing anchovy",ylim=c(0,1))
+lines(anchovy.data$AnchovyBiomass[order(anchovy.data$AnchovyBiomass)],predict(mod,type="response")[order(anchovy.data$AnchovyBiomass)])
+text(300,.9,paste("r =",formatC(cor(anchovy.data$AnchovyBiomass,anchovy.data$fo),digits=3)),cex=1.5) 
+
+p=anchovy.data$fo
+sep=sqrt((p*(1-p)/anchovy.data$n))
+C=exp(1.96*sep/(p*(1-p)))
+pL=p/(p+(1-p)*C)
+pU=p/(p+(1-p)/C)
+for(i in 1:length(anchovy.data$AnchovyBiomass))
+   lines(x=rep(anchovy.data$AnchovyBiomass[i],2), y=c(pL[i],pU[i]))
+```
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+anchovy.data$Year=as.numeric(as.character(anchovy.data$Year))
+par(mar=c(5, 4, 4, 4) + 0.1)
+plot(anchovy.data$Year,anchovy.data$AnchovyBiomass,xlab="Year",ylab="Anchovy abundance",type="b")
+anchovy.range=range(anchovy.data$AnchovyBiomass)
+points(anchovy.data$Year,anchovy.range[1]+anchovy.data$fo*diff(anchovy.range),pch=2)
+lines(anchovy.data$Year,anchovy.range[1]+anchovy.data$fo*diff(anchovy.range),lty=2)
+for(i in 1:length(anchovy.data$Year))
+ lines(x=rep(anchovy.data$Year[i],2), y=c(anchovy.range[1]+pL[i]*diff(anchovy.range),anchovy.range[1]+pU[i]*diff(anchovy.range)))
+axis(4,at=seq(0,1999,500),labels=format((seq(0,1999,500)-anchovy.range[1])/diff(anchovy.range),digits=1))
+mtext("Anchovy FO",4,2.5)
+points(1994,1500,pch=1)
+points(1994,1400,pch=2)
+text(1994,1500,"Anchovy abundance",pos=4)
+text(1994,1400,"Anchovy FO(May-Oct)",pos=4)
+```
+
+```{r,hake,echo=FALSE}
+#################################
+# Hake
+#################################
+hake.data=data.frame(Year=fo$Year,fo=fo$hake,n=fo$n.scat)
+hake.data=merge(hake.data,hake,by="Year")
+hake.resp=cbind(floor(hake.data$fo*hake.data$n+.5),floor((1-hake.data$fo)*hake.data$n+.5))
+
+mod=glm(hake.resp~hake.data$Age01,family="quasibinomial")
+
+```
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(mod,split.tables=Inf)
+```
+
+```{r,echo=FALSE,fig.width=6,fig.height=6}
+plot(hake.data$Age01,hake.data$fo,xlab="Hake abundance age 0 and 1 (billions)",ylab="Proportion of SMI female scats containing hake",ylim=c(0,1))
+lines(hake.data$Age01[order(hake.data$Age01)],predict(mod,type="response")[order(hake.data$Age01)])
+text(12,.2,paste("r =",formatC(cor(hake.data$Age01,hake.data$fo),digits=3)),cex=1.5) 
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+hake.data$Year=as.numeric(as.character(hake.data$Year))
+par(mar=c(5, 4, 4, 4) + 0.1)
+plot(hake.data$Year,hake.data$Age01,xlab="Year",ylab="Hake abundance age 0 and 1 (billions)",type="b")
+hake.range=range(hake.data$Age1)
+points(hake.data$Year,hake.range[1]+hake.data$fo*diff(hake.range),pch=2)
+lines(hake.data$Year,hake.range[1]+hake.data$fo*diff(hake.range),lty=2)
+axis(4,at=seq(1,11,2),labels=format((seq(1,11,2)-hake.range[1])/diff(hake.range),digits=1))
+mtext("Hake FO",4,2.5)
+points(2004,10,pch=1)
+points(2004,9,pch=2)
+text(2004,10,"Hake abundance",pos=4)
+text(2004,9,"Hake FO (May-Oct)",pos=4)
+```
+
+```{r,loligo,echo=FALSE}
+#################################
+# Logligo
+#################################
+lol.data=data.frame(Year=fo$Year,fo=fo$squid,n=fo$n.scat)
+lol.data=merge(lol.data,loligo[loligo$Quarter==3,],by="Year")
+lol.data=lol.data[!is.na(lol.data$SSBmt),]
+lol.resp=cbind(floor(lol.data$fo*lol.data$n+.5),floor((1-lol.data$fo)*lol.data$n+.5))
+
+mod=glm(lol.resp~lol.data$SSBmt,family="quasibinomial")
+
+```
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(mod,split.tables=Inf)
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6}
+plot(lol.data$SSBmt,lol.data$fo,xlab="Loligo abundance (mt)",ylab="Proportion of SMI female scats containing loligo",ylim=c(0,1))
+lines(lol.data$SSBmt[order(lol.data$SSBmt)],predict(mod,type="response")[order(lol.data$SSBmt)])
+text(1200,.9,paste("r =",formatC(cor(lol.data$SSBmt,lol.data$fo),digits=3)),cex=1.5) 
+
+
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+lol.data$Year=as.numeric(as.character(lol.data$Year))
+par(mar=c(5, 4, 4, 4) + 0.1)
+plot(lol.data$Year,lol.data$SSBmt,xlab="Year",ylab="Third quarter loligo abundance (mt)",type="b")
+lol.range=range(lol.data$SSBmt)
+points(lol.data$Year,lol.range[1]+lol.data$fo*diff(lol.range),pch=2)
+lines(lol.data$Year,lol.range[1]+lol.data$fo*diff(lol.range),lty=2)
+axis(4,at=seq(1000,4000,500),labels=format((seq(1000,4000,500)-lol.range[1])/diff(lol.range),digits=1))
+mtext("Loligo FO",4,2.5)
+points(1999.75,pch=1)
+points(1999.75,1500,pch=2)
+text(1999.75,"Loligo abundance",pos=4)
+text(1999.75,1500,"Loligo FO(May-Oct)",pos=4)
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6}
+ biplot(prcomp(fo[,2:7]),xlim=c(-.4,.45),cex=0.9)
+
+```
+
+3.2 Average pup weights corrected for in season timing differences
+
+Initially we fitted mixed effect models that soley treated annual (cohort) variation in pup weights as a random effect. We will refer to this as the "adjustment model" because it is solely used to make sex and cohort-specific predictions of average weight at 1 Oct and 1 Feb and not as an explanatory model. We only included sex and growth (days) as fixed effects to adjust for variation in measurement timing and well known differences between male and female pups. The best random effect model included variation across batches (collection dates) and variation across cohorts that was a function of sex and measurement timing. Males are about 2.7 kg (se=0.113) larger than females on 1 Oct and have a larger average daily growth rate (+ 0.012 kg/day, se=0.002). With the larger size and growth comes more random variance in size and growth across cohorts (~sex*days) for the random portion of the model.
+
+```{r,GrowthAdj,echo=FALSE,size='small'}
+load("C:\\Users\\JLaake\\Desktop\\MyDocuments\\Analyses\\ZC Mortality Event\\Not calcofi\\.Rdata")
+```
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+pander(res.adjust$model.table[,c(1,3)],digits=7)
+```
+
+
+
+```{r,echo=FALSE}
+summary(zc.weight.adjust.model)
+```
+
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(summary(zc.weight.adjust.model)$tTable,split.tables=Inf)
+```
+
+
+
+There has been substantial cohort variation in average pup weights with a 10kg range at 1 Oct (Figure 1) and 20kg range at 1 Feb (Figure 2). The sex difference in variation is also quite apparent (Fig 1-2) with larger swings in male weights; however the time variation pattern between the sexes is quite consistent. Punctuated declines in 1983-1984, 1992, 1997-1998 are associated with El Nino events which are known to impact sea lions negatively (citations). The recent steep declines in pup weights have been evident in large numbers of sea lion pups stranding in Jan-May 2013 and 2015 and to a slightly lesser degree in 2014.
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+par(mfrow=c(2,1))
+maxyear=max(ZCWeight.df$Year)
+female.averages=list(fit=ZCWeight.df$female.adjusted.mean.fall,se=ZCWeight.df$female.adjusted.mean.fall.se)
+male.averages=list(fit=ZCWeight.df$male.adjusted.mean.fall,se=ZCWeight.df$male.adjusted.mean.fall.se)
+female.mean=mean(female.averages$fit)
+male.mean=mean(male.averages$fit)
+ymin=min(c(female.averages$fit-1.96*female.averages$se-female.mean, male.averages$fit-1.96*male.averages$se-male.mean))*1.1
+ymax=max(c(female.averages$fit+1.96*female.averages$se-female.mean, male.averages$fit+1.96*male.averages$se-male.mean))*1.1
+female.averages$fit=female.averages$fit-female.mean
+plot_weight.series(1975:maxyear,female.averages,main="California sea lion Female Pups",ylim=c(ymin,ymax),date="1 Oct")
+abline(h=0)
+male.averages$fit=male.averages$fit-male.mean
+plot_weight.series(1975:maxyear,male.averages,main="California sea lion Male Pups",ylim=c(ymin,ymax),date="1 Oct")
+abline(h=0)
+#barcols=rep("gray",41)
+#barcols[female.averages$fit>1.7]="green"
+#barcols[female.averages$fit< -1.7]="red"
+#barplot(female.averages$fit,col=barcols,ylab="Sea lion female pup weight difference from average (kg)",ylim=c(-6,4),space=0,xpd=FALSE)
+#axis(1,at=1:41,labels=1975:2015)
+#San Miguel Island female California sea lion pup weights expressed as the difference from the average weight. Gray bars are within 10% of the average #weight. Green bars are higher and red bars are lower.
+
+```
+
+Figure 1. Predicted Zalophus pup weights on San Miguel Island at 1 Oct expressed as anomaly from overall mean. 
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+par(mfrow=c(2,1))
+maxyear=max(ZCWeight.df$Year)
+winter.female.averages=list(fit=ZCWeight.df$female.adjusted.mean.winter,se=ZCWeight.df$female.adjusted.mean.se.winter)
+winter.male.averages=list(fit=ZCWeight.df$male.adjusted.mean.winter,se=ZCWeight.df$male.adjusted.mean.se.winter)
+female.mean=mean(winter.female.averages$fit)
+male.mean=mean(winter.male.averages$fit)
+ymin=min(c(winter.female.averages$fit-female.mean-1.96*winter.female.averages$se, winter.male.averages$fit-male.mean-1.96*winter.male.averages$se))*1.1
+ymax=max(c(winter.female.averages$fit-female.mean+1.96*winter.female.averages$se, winter.male.averages$fit-male.mean+1.96*winter.male.averages$se))*1.1
+winter.female.averages$fit=winter.female.averages$fit-female.mean
+plot_weight.series(1975:maxyear,winter.female.averages,main="California sea lion Female Pups",ylim=c(ymin,ymax),date="1 Feb")
+abline(h=0)
+winter.male.averages$fit=winter.male.averages$fit-male.mean
+plot_weight.series(1975:maxyear,winter.male.averages,main="California sea lion Male Pups",ylim=c(ymin,ymax),date="1 Feb")
+abline(h=0)
+```
+
+Figure 2. Predicted Zalophus pup weights on San Miguel Island at 1 Feb expressed as anomaly from overall mean. 
+
+Even though El Nino events are known to negatively impact sea lions, the multivariate ENSO index (MEI) measured at the equator and lagged by 2 months is not a particularly good predictor of local SST (Figure 3) and SST is negatively correlated with pup weights (Figure 4).  In particular, in 1984 MEI was low and SST was high with low pup weights and in 1987 MEI was high, SST was low and pup weights were above average.  These 2 years help SST to be a better predictor than MEI for pup weights.
+
+
+
+```{r,GrowthTiming2,echo=FALSE,fig.width=7,fig.height=6}
+xdf=cbind(LaggedMEIAprtoSept[-1],AprtoSeptAnomalies[-(1:3)])
+plot(xdf[,1],xdf[,2],xlab="Lagged MEI Anomaly for Apr - Sept",ylab="Apr - Sept SST Anomaly",pch=16)
+abline(h=0)
+abline(v=0)
+text(xdf[1983-1975+1,1]-.15,xdf[1983-1975+1,2],"1983",col="red") 
+text(xdf[1984-1975+1,1]-.15,xdf[1984-1975+1,2],"1984",col="red") 
+text(xdf[1992-1975+1,1]-.15,xdf[1992-1975+1,2],"1992",col="red") 
+text(xdf[1993-1975+1,1]-.15,xdf[1993-1975+1,2],"1993",col="red") 
+text(xdf[1997-1975+1,1]-.15,xdf[1997-1975+1,2]-.1,"1997",col="red") 
+text(xdf[1998-1975+1,1]-.15,xdf[1998-1975+1,2],"1998",col="red") 
+text(xdf[2014-1975+1,1]-.15,xdf[2014-1975+1,2],"2014",col="red") 
+text(xdf[2015-1975+1,1]-.15,xdf[2015-1975+1,2]+.1,"2015",col="red") 
+text(xdf[1987-1975+1,1]-.15,xdf[1987-1975+1,2],"1987",col="green") 
+
+
+```
+
+Figure 3. Relationship between SST and MEI (lagged 2 months) for April-September.  Years in red had high local SST anomalies and 1987 with a high MEI had a small SST anomaly.
+
+
+```{r,GrowthTiming,echo=FALSE,fig.width=7,fig.height=6}
+xdf=cbind(env.data$SST,ZCWeight.df$female.adjusted.mean.fall-mean(ZCWeight.df$female.adjusted.mean.fall))
+plot(xdf[,1],xdf[,2],xlab="Average SST Anomaly for Apr-Sept",ylab="Female Weight Anomaly (kg)",cex.axis=1.3,cex.lab=1.3,pch=16)
+abline(h=0)
+abline(v=0)
+text(1,2,paste("r =",formatC(cor(xdf[,1],xdf[,2]),digits=3)),cex=2) 
+text(xdf[1983-1975+1,1]-.15,xdf[1983-1975+1,2],"1983",col="red") 
+text(xdf[1984-1975+1,1]-.15,xdf[1984-1975+1,2],"1984",col="red") 
+text(xdf[1992-1975+1,1]-.15,xdf[1992-1975+1,2],"1992",col="red") 
+text(xdf[1993-1975+1,1]-.15,xdf[1993-1975+1,2],"1993",col="red") 
+text(xdf[1997-1975+1,1]-.15,xdf[1997-1975+1,2],"1997",col="red") 
+text(xdf[1998-1975+1,1]-.15,xdf[1998-1975+1,2],"1998",col="red") 
+text(xdf[2014-1975+1,1]-.15,xdf[2014-1975+1,2],"2014",col="red") 
+text(xdf[2015-1975+1,1]-.15,xdf[2015-1975+1,2],"2015",col="red") 
+
+text(xdf[2009-1975+1,1]-.15,xdf[2009-1975+1,2],"2009",col="green") 
+text(xdf[2010-1975+1,1],xdf[2010-1975+1,2]-.2,"2010",col="green") 
+text(xdf[2011-1975+1,1]-.15,xdf[2011-1975+1,2],"2011",col="green") 
+text(xdf[2012-1975+1,1]-.15,xdf[2012-1975+1,2],"2012",col="green") 
+text(xdf[2013-1975+1,1]-.15,xdf[2013-1975+1,2],"2013",col="green") 
+#text(xdf[1987-1975+1,1]-.15,xdf[1987-1975+1,2],"1987",col="green")
+
+```
+
+Figure 4. Relationship between SST and average female pup weight at 1 Oct. Years in red had high SST values. Those in green from 2009-2013 are outliers due to declining trend in pup weights and the 1987 value highlighted in Figure 3 with a high MEI anomaly and low SST anomaly.
+
+3.3 Pup Growth Models with Standard Environmental Data
+
+
+```{r,GrowthEnv,results='asis',echo=FALSE,size='small'}
+
+#cor(subset(env.data,select=c("SST","SLH","dynamic_height_0_500m","R_SIGMA_75m")),use="pairwise.complete.obs")
+#cor(subset(env.data,select=c("SST1","SLH1","dynamic_height_0_500m.oct","R_SIGMA_75m.oct")),use="pairwise.complete.obs")
+#xx=merge(ZCWeight.df,env.data)
+#xx$growth=c(as.vector(unlist(xx$female.adjusted.mean.winter-xx$female.adjusted.mean.fall)))
+#cor(xx[,c("growth","SST1","SLH1","dynamic_height_0_500m.oct","R_SIGMA_75m.oct")],use="pairwise.complete.obs")
+#cor(xx[,c("female.adjusted.mean.fall","SST","SLH","dynamic_height_0_500m","R_SIGMA_75m")],use="pairwise.complete.obs")
+
+
+pander(res.environ$model.table[1:15,c(1,4)],digits=7)
+```
+
+
+```{r,echo=FALSE}
+summary(zc.weight.environ.model)
+
+```
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(summary(zc.weight.environ.model)$tTable,split.tables=Inf)
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.mean.fall,pch="F",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,female.adjusted.mean.fall,lty=2))
+	
+with(ZCWeight.df,plot(ZCWeight.df$Year,male.environ.mean.fall,pch="M",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,male.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
+
+
+```
+Figure 5. Predictions from fitted best model with data from 1975-2014 using standard environmental data. The model includes SST for initial weight and SST1 for growth rate as well as sex and an annual declining trend in pup weights. The triangles are the model predictions for average weight at 1 Oct and the circles are the same values from the adjustment model.
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),],plot(Year,female.environ.mean.fall-female.environ.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
+abline(0,0)
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),],plot(Year,male.environ.mean.fall-male.environ.mean.fall.fixed,pch="M",ylab="Male residuals",type="b"))
+abline(0,0)
+
+```
+
+
+```{r,echo=FALSE,fig.width=7,fig.height=8}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),],plot(Year,female.environ.mean.fall,type="b",ylim=c(12,22),xlab="Year",ylab="Female pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),],lines(Year,female.environ.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1979,13,paste("r =",formatC(cor(ZCWeight.df$female.environ.mean.fall.fixed[!is.na(ZCWeight.df$female.environ.mean.fall)],ZCWeight.df$female.adjusted.mean.fall[!is.na(ZCWeight.df$female.environ.mean.fall)]),digits=3)),cex=1.5) 
+#points(1999,13.75,pch=1)
+#points(1999,12.75,pch=2)
+#text(1999,13.75,"1 Oct mean weight",pos=4)
+#text(1999,12.75,"Model predicted mean weight",pos=4)
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),],plot(Year,male.environ.mean.fall,type="b",ylim=c(12,24),xlab="Year",ylab="Male pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),],lines(Year,male.environ.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1979,13,paste("r =",formatC(cor(ZCWeight.df$male.environ.mean.fall.fixed[!is.na(ZCWeight.df$male.environ.mean.fall)],ZCWeight.df$male.adjusted.mean.fall[!is.na(ZCWeight.df$male.environ.mean.fall)]),digits=3)),cex=1.5) 
+#points(1999,13.75,pch=1)
+#points(1999,12.75,pch=2)
+#text(1999,13.75,"1 Oct mean weight",pos=4)
+#text(1999,12.75,"Model predicted mean weight",pos=4)
+```
+
+
+
+3.4 Pup Growth Models with Standard Environmental and Fish Abundance Data
+
+
+
+```{r,GrowthEnvFish,results='asis',echo=FALSE,size='small'}
+pander(res.environ.abun$model.table[1:15,c(1,4)],digits=7)
+```
+
+
+```{r,echo=FALSE}
+summary(zc.weight.model.environ.abun)
+
+```
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(summary(zc.weight.model.environ.abun)$tTable,split.tables=Inf)
+```
+
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.abun.mean.fall,pch="F",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,female.adjusted.mean.fall,lty=2))
+	
+with(ZCWeight.df,plot(ZCWeight.df$Year,male.environ.abun.mean.fall,pch="M",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,male.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
+
+```
+
+Figure 6. Predictions from fitted best model with `r length(table(zcweights.environ.abun$Year))` non-consecutive years of data from `r min(zcweights.environ.abun$Year)`-`r max(zcweights.environ.abun$Year)` using standard environmental and fish abundance data. The model includes SST and log(AnchovyBiomass) for initial weight and SST1 for growth rate as well as main effect for sex and its interaction with SST and a sex-specific growth rate. The triangles are the model predictions for average weight at 1 Oct and the circles are the same values from the adjustment model.
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.mean.fall),],plot(Year,female.environ.abun.mean.fall-female.environ.abun.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
+abline(0,0)
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.mean.fall),],plot(Year,male.environ.abun.mean.fall-male.environ.abun.mean.fall.fixed,pch="M",ylab="Male residuals",type="b"))
+abline(0,0)
+```
+
+
+```{r,echo=FALSE,fig.width=7,fig.height=8}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.mean.fall),],plot(Year,female.environ.abun.mean.fall,type="b",ylim=c(12,22),xlab="Year",ylab="Female pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.mean.fall),],lines(Year,female.environ.abun.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1985,13,paste("r =",formatC(cor(ZCWeight.df$female.environ.abun.mean.fall.fixed[!is.na(ZCWeight.df$female.environ.abun.mean.fall)],ZCWeight.df$female.adjusted.mean.fall[!is.na(ZCWeight.df$female.environ.abun.mean.fall)]),digits=3)),cex=1.5) 
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.mean.fall),],plot(Year,male.environ.abun.mean.fall,type="b",ylim=c(12,24),xlab="Year",ylab="Male pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.mean.fall),],lines(Year,male.environ.abun.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1985,13,paste("r =",formatC(cor(ZCWeight.df$male.environ.abun.mean.fall.fixed[!is.na(ZCWeight.df$male.environ.abun.mean.fall)],ZCWeight.df$male.adjusted.mean.fall[!is.na(ZCWeight.df$male.environ.abun.mean.fall)]),digits=3)),cex=1.5) 
+```
+
+
+
+3.5 Pup Growth Models with Standard Environmental, Fish Abundance and Diet Data
+
+
+```{r,GrowthEnvFishDiet,results='asis',echo=FALSE,size='small'}
+pander(res.environ.abun.diet$model.table[1:15,c(1,4)],digits=7)
+```
+
+
+```{r,echo=FALSE}
+summary(zc.weight.model.environ.abun.diet)
+
+```
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(summary(zc.weight.model.environ.abun.diet)$tTable,split.tables=Inf)
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.abun.diet.mean.fall,pch="F",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,female.adjusted.mean.fall,lty=2))
+	
+with(ZCWeight.df,plot(ZCWeight.df$Year,male.environ.diet.mean.fall,pch="M",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,male.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
+	
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall),],plot(Year,female.environ.abun.diet.mean.fall-female.environ.abun.diet.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
+abline(0,0)
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall),],plot(Year,male.environ.abun.diet.mean.fall-male.environ.abun.diet.mean.fall.fixed,pch="M",ylab="Male residuals",type="b"))
+abline(0,0)
+```
+
+
+```{r,echo=FALSE,fig.width=7,fig.height=8}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall),],plot(Year,female.environ.abun.diet.mean.fall,type="b",ylim=c(12,22),xlab="Year",ylab="Female pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall),],lines(Year,female.environ.abun.diet.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1985,13,paste("r =",formatC(cor(ZCWeight.df$female.environ.abun.diet.mean.fall.fixed[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall)],ZCWeight.df$female.adjusted.mean.fall[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall)]),digits=3)),cex=1.5) 
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall),],plot(Year,male.environ.abun.diet.mean.fall,type="b",ylim=c(12,24),xlab="Year",ylab="Male pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall),],lines(Year,male.environ.abun.diet.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1985,13,paste("r =",formatC(cor(ZCWeight.df$male.environ.abun.diet.mean.fall.fixed[!is.na(ZCWeight.df$male.environ.abun.diet.mean.fall)],ZCWeight.df$male.adjusted.mean.fall[!is.na(ZCWeight.df$male.environ.abun.diet.mean.fall)]),digits=3)),cex=1.5) 
+```
+
+Figure 7. Predictions from fitted best model with `r length(table(zcweights.environ.abun.diet$Year))` non-consecutive years of data from `r min(zcweights.environ.abun.diet$Year)`-`r max(zcweights.environ.abun.diet$Year)` using standard environmental, fish abundance data and female sea lion diet FO values. The model includes SST, log(SardineAnchovyBiomass) and rockfish FO for initial weight and SST1 for growth rate as well as main effect for sex and sex-specifc growth rate.The triangles are the model predictions for average weight at 1 Oct and the circles are the same values from the adjustment model.
+
+
+```{r,echo=FALSE,fig.width=7,fig.height=8}
+xx=cbind(Year=1975:2015,Fwt=ZCWeight.df$female.adjusted.mean.fall,
+subset(env.data,select=c("squid","AnchovyBiomass","SST")))
+xx=xx[!is.na(xx$squid),]
+xx=xx[!is.na(xx$AnchovyBiomass),]
+xx$AnchovyBiomass=log(xx$AnchovyBiomass)
+cor(xx)
+par(mfrow=c(4,1))
+plot(xx$Year,xx$AnchovyBiomass,type="b")
+abline(h=mean(xx$AnchovyBiomass))
+plot(xx$Year,xx$SST,type="b")
+abline(h=0)
+plot(xx$Year,xx$squid,type="b")
+abline(h=mean(xx$squid))
+plot(xx$Year,xx$Fwt,type="b")
+abline(h=mean(xx$Fwt))
+```
+
+3.6 Pup Growth Models with Standard Environmental and Diet Data
+
+```{r,results='asis',echo=FALSE,size='small'}
+pander(res.environ.diet$model.table[1:15,c(1,4)],digits=7)
+```
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(summary(zc.weight.model.environ.diet)$tTable,split.tables=Inf)
+```
+
+
+```{r,echo=FALSE}
+summary(zc.weight.model.environ.diet)
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.diet.mean.fall,pch="F",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,female.adjusted.mean.fall,lty=2))
+	
+with(ZCWeight.df,plot(ZCWeight.df$Year,male.environ.diet.mean.fall,pch="M",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,male.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
+
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],plot(Year,female.environ.diet.mean.fall-female.environ.diet.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
+abline(0,0)
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],plot(Year,male.environ.diet.mean.fall-male.environ.diet.mean.fall.fixed,pch="M",ylab="Male residuals",type="b"))
+abline(0,0)
+```
+
+
+```{r,echo=FALSE,fig.width=7,fig.height=8}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],plot(Year,female.environ.diet.mean.fall,type="b",ylim=c(12,24),xlab="Year",ylab="Female pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],lines(Year,female.environ.diet.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1987,13,paste("r =",formatC(cor(ZCWeight.df$female.environ.diet.mean.fall.fixed[!is.na(ZCWeight.df$female.environ.diet.mean.fall)],ZCWeight.df$female.adjusted.mean.fall[!is.na(ZCWeight.df$female.environ.diet.mean.fall)]),digits=3)),cex=1.5) 
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],plot(Year,male.environ.diet.mean.fall,type="b",ylim=c(12,24),xlab="Year",ylab="Male pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],lines(Year,male.environ.diet.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1987,13,paste("r =",formatC(cor(ZCWeight.df$male.environ.diet.mean.fall.fixed[!is.na(ZCWeight.df$male.environ.diet.mean.fall)],ZCWeight.df$male.adjusted.mean.fall[!is.na(ZCWeight.df$male.environ.diet.mean.fall)]),digits=3)),cex=1.5) 
+```
+
+Figure 8. Predictions from fitted best model with `r length(table(zcweights.environ.diet$Year))` non-consecutive years of data from `r min(zcweights.environ.diet$Year)`-`r max(zcweights.environ.diet$Year)` using  standard environmental data and female sea lion diet FO values. The model includes SST and squid FO for initial weight and SST1 for growth rate as well as main effect for sex and sex-specifc growth rate.The triangles are the model predictions for average weight at 1 Oct and the circles are the same values from the adjustment model. 
+
+
+3.7 Pup Growth Models with Calcofi Environmental Data
+
+
+```{r,echo=FALSE,size='small'}
+rm(list=ls())
+load("C:\\Users\\JLaake\\Desktop\\MyDocuments\\Analyses\\ZC Mortality Event\\Use calcofi\\.Rdata")
+```
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+pander(res.environ$model.table[1:15,c(1,4)],digits=7)
+```
+
+```{r,echo=FALSE}
+summary(zc.weight.environ.model)
+```
+
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(summary(zc.weight.environ.model)$tTable,split.tables=Inf)
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.mean.fall,pch="F",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,female.adjusted.mean.fall,lty=2))
+	
+with(ZCWeight.df,plot(ZCWeight.df$Year,male.environ.mean.fall,pch="M",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,male.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
+	
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),],plot(Year,female.environ.mean.fall-female.environ.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
+abline(0,0)
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),],plot(Year,male.environ.mean.fall-male.environ.mean.fall.fixed,pch="M",ylab="Male residuals",type="b"))
+abline(0,0)
+```
+
+
+```{r,echo=FALSE,fig.width=7,fig.height=8}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),],plot(Year,female.environ.mean.fall,type="b",ylim=c(12,22),xlab="Year",ylab="Female pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),],lines(Year,female.environ.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1987,13,paste("r =",formatC(cor(ZCWeight.df$female.environ.mean.fall.fixed[!is.na(ZCWeight.df$female.environ.mean.fall)],ZCWeight.df$female.adjusted.mean.fall[!is.na(ZCWeight.df$female.environ.mean.fall)]),digits=3)),cex=1.5) 
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),],plot(Year,male.environ.mean.fall,type="b",ylim=c(12,24),xlab="Year",ylab="Male pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),],lines(Year,male.environ.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1987,13,paste("r =",formatC(cor(ZCWeight.df$male.environ.mean.fall.fixed[!is.na(ZCWeight.df$male.environ.mean.fall)],ZCWeight.df$male.adjusted.mean.fall[!is.na(ZCWeight.df$male.environ.mean.fall)]),digits=3)),cex=1.5) 
+```
+
+Figure 9. Predictions from fitted best model with data from 1984-2013 using Calcofi and standard environmental data. The model includes sex and SST for initial weight and SST1 and sex and their interaction for growth rate. The triangles are the model predictions for average weight at 1 Oct and the circles are the same values from the adjustment model.
+
+
+3.8 Pup Growth Models with Calcofi Environmental and Fish Abundance Data
+
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+pander(res.environ.abun$model.table[1:15,c(1,4)],digits=7)
+```
+
+
+```{r,echo=FALSE}
+summary(zc.weight.model.environ.abun)
+```
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(summary(zc.weight.model.environ.abun)$tTable,split.tables=Inf)
+```
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.abun.mean.fall,pch="F",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,female.adjusted.mean.fall,lty=2))
+	
+with(ZCWeight.df,plot(ZCWeight.df$Year,male.environ.abun.mean.fall,pch="M",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,male.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
+	
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.mean.fall),],plot(Year,female.environ.abun.mean.fall-female.environ.abun.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
+abline(0,0)
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.mean.fall),],plot(Year,male.environ.abun.mean.fall-male.environ.abun.mean.fall.fixed,pch="M",ylab="Male residuals",type="b"))
+abline(0,0)
+```
+
+
+```{r,echo=FALSE,fig.width=7,fig.height=8}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.mean.fall),],plot(Year,female.environ.abun.mean.fall,type="b",ylim=c(12,22),xlab="Year",ylab="Female pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.mean.fall),],lines(Year,female.environ.abun.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1987,13,paste("r =",formatC(cor(ZCWeight.df$female.environ.abun.mean.fall.fixed[!is.na(ZCWeight.df$female.environ.abun.mean.fall)],ZCWeight.df$female.adjusted.mean.fall[!is.na(ZCWeight.df$female.environ.abun.mean.fall)]),digits=3)),cex=1.5) 
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.mean.fall),],plot(Year,male.environ.abun.mean.fall,type="b",ylim=c(12,24),xlab="Year",ylab="Male pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.mean.fall),],lines(Year,male.environ.abun.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1987,13,paste("r =",formatC(cor(ZCWeight.df$male.environ.abun.mean.fall.fixed[!is.na(ZCWeight.df$male.environ.abun.mean.fall)],ZCWeight.df$male.adjusted.mean.fall[!is.na(ZCWeight.df$male.environ.abun.mean.fall)]),digits=3)),cex=1.5) 
+```
+
+Figure 10. Predictions from fitted best model with `r length(table(zcweights.environ.abun$Year))` non-consecutive years of data from `r min(zcweights.environ.abun$Year)`-`r max(zcweights.environ.abun$Year)` using Calcofi and standard environmental data and fish abundance data. The model includes SST and log(AnchovyBiomass) for initial weight and SST1 for growth rate as well as main effect for sex and its interaction with SST and a sex-specific growth rate.The triangles are the model predictions for average weight at 1 Oct and the circles are the same values from the adjustment model.
+
+
+
+
+3.9 Pup Growth Models with Calcofi Environmental, Fish Abundance and Diet Data
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+pander(res.environ.abun.diet$model.table[1:15,c(1,4)],digits=7)
+```
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(summary(zc.weight.model.environ.abun.diet)$tTable,split.tables=Inf)
+```
+
+
+```{r,echo=FALSE}
+summary(zc.weight.model.environ.abun.diet)
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.abun.diet.mean.fall,pch="F",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,female.adjusted.mean.fall,lty=2))
+	
+with(ZCWeight.df,plot(ZCWeight.df$Year,male.environ.abun.diet.mean.fall,pch="M",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,male.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
+
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall),],plot(Year,female.environ.abun.diet.mean.fall-female.environ.abun.diet.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
+abline(0,0)
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall),],plot(Year,male.environ.abun.diet.mean.fall-male.environ.abun.diet.mean.fall.fixed,pch="M",ylab="Male residuals",type="b"))
+abline(0,0)
+```
+
+
+```{r,echo=FALSE,fig.width=7,fig.height=8}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall),],plot(Year,female.environ.abun.diet.mean.fall,type="b",ylim=c(12,24),xlab="Year",ylab="Female pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall),],lines(Year,female.environ.abun.diet.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1987,13,paste("r =",formatC(cor(ZCWeight.df$female.environ.abun.diet.mean.fall.fixed[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall)],ZCWeight.df$female.adjusted.mean.fall[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall)]),digits=3)),cex=1.5) 
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall),],plot(Year,male.environ.abun.diet.mean.fall,type="b",ylim=c(12,24),xlab="Year",ylab="Male pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall),],lines(Year,male.environ.abun.diet.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1987,13,paste("r =",formatC(cor(ZCWeight.df$male.environ.abun.diet.mean.fall.fixed[!is.na(ZCWeight.df$male.environ.abun.diet.mean.fall)],ZCWeight.df$male.adjusted.mean.fall[!is.na(ZCWeight.df$male.environ.abun.diet.mean.fall)]),digits=3)),cex=1.5) 
+```
+
+Figure 11. Predictions from fitted best model with `r length(table(zcweights.environ.abun.diet$Year))` non-consecutive years of data from `r min(zcweights.environ.abun.diet$Year)`-`r max(zcweights.environ.abun.diet$Year)` using Calcofi and standard environmental data, fish abundance data and female sea lion diet FO values. The model includes SST, log(SardineAnchovyBiomass), rockfish FO and a main effect for sex and SST1 and sex for growth rate.The triangles are the model predictions for average weight at 1 Oct and the circles are the same values from the adjustment model.
+
+3.10 Pup Growth Models with Calcofi Environmental and Diet Data
+
+```{r,results='asis',echo=FALSE,size='small'}
+pander(res.environ.diet$model.table[1:15,c(1,4)],digits=7)
+```
+
+
+```{r,results='asis',echo=FALSE,size='small'}
+   pander(summary(zc.weight.model.environ.diet)$tTable,split.tables=Inf)
+```
+
+
+```{r,echo=FALSE}
+summary(zc.weight.model.environ.diet)
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.diet.mean.fall,pch="F",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,female.adjusted.mean.fall,lty=2))
+	
+with(ZCWeight.df,plot(ZCWeight.df$Year,male.environ.diet.mean.fall,pch="M",type="b",ylim=c(12,26)))
+with(ZCWeight.df,points(ZCWeight.df$Year,male.adjusted.mean.fall,pch="O"))
+with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
+
+```
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],plot(Year,female.environ.diet.mean.fall-female.environ.diet.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
+abline(0,0)
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],plot(Year,male.environ.diet.mean.fall-maleenviron.diet.mean.fall.fixed,pch="M",ylab="Male residuals",type="b"))
+abline(0,0)
+```
+
+
+```{r,echo=FALSE,fig.width=7,fig.height=8}
+par(mfrow=c(2,1))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],plot(Year,female.environ.diet.mean.fall,type="b",ylim=c(12,24),xlab="Year",ylab="Female pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],lines(Year,female.environ.diet.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1987,13,paste("r =",formatC(cor(ZCWeight.df$female.environ.diet.mean.fall.fixed[!is.na(ZCWeight.df$female.environ.diet.mean.fall)],ZCWeight.df$female.adjusted.mean.fall[!is.na(ZCWeight.df$female.environ.diet.mean.fall)]),digits=3)),cex=1.5) 
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],plot(Year,male.environ.diet.mean.fall,type="b",ylim=c(12,24),xlab="Year",ylab="Male pup weight (kg)"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],lines(Year,male.environ.diet.mean.fall.fixed,type="b",lty=2,pch=2))
+text(1987,13,paste("r =",formatC(cor(ZCWeight.df$male.environ.diet.mean.fall.fixed[!is.na(ZCWeight.df$male.environ.diet.mean.fall)],ZCWeight.df$male.adjusted.mean.fall[!is.na(ZCWeight.df$male.environ.diet.mean.fall)]),digits=3)),cex=1.5) 
+```
+
+Figure 12. Predictions from fitted best model with `r length(table(zcweights.environ.diet$Year))` non-consecutive years of data from `r min(zcweights.environ.diet$Year)`-`r max(zcweights.environ.diet$Year)` using Calcofi and standard environmental data, fish abundance data and female sea lion diet FO values. The model includes R_POTEMP_75m (water temp in first 75 m) for the initial weight and growth rate. The growth rate is also sex-specific and the effect of R_POTEMP_75m on growth is sex-specific.  The initial weight was also affected by the combined sardine-anchovy FO. The triangles are the model predictions for average weight at 1 Oct and the circles are the same values from the adjustment model.
+
+
+
+4 Discussion
+
+5 Summary

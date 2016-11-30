@@ -1,0 +1,1928 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\begin_modules
+knitr
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+CIPinnipedAnalysis R Package
+\end_layout
+
+\begin_layout Author
+Jeff Laake
+\end_layout
+
+\begin_layout Date
+29-Nov-2016
+\end_layout
+
+\begin_layout Section*
+Introduction
+\end_layout
+
+\begin_layout Standard
+CIPinnipedAnalysis is an R package that was written to automate many of
+ the annual calculations that we do for monitoring of pinniped populations
+ on the Channel Islands (San Miguel -SMI, and San Nicolas Island -SNI).
+ Currently it has four primary purposes: 
+\end_layout
+
+\begin_layout Enumerate
+compute production estimates of Zalophus and Callorhinus pups, 
+\end_layout
+
+\begin_layout Enumerate
+compute early pup mortality, 
+\end_layout
+
+\begin_layout Enumerate
+compute SST anomaly data for specific stations in the SMI Zc female foraging
+ area for use in modelling pup growth weights, and 
+\end_layout
+
+\begin_layout Enumerate
+compute average weights of pups corrected to standard dates and explore
+ some explanatory modelling with environmental data.
+ 
+\end_layout
+
+\begin_layout Standard
+Additional functionality may be added over time.
+ This vignette gives an overview of the package.
+ Help with individual functions is also available in R in the normal way
+ (
+\family typewriter
+help(topic)
+\family default
+ or 
+\family typewriter
+?topic
+\family default
+).
+ The current code for this package can be found at 
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+https://github.com/jlaake/CIPinnipedAnalysis
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section*
+Data
+\end_layout
+
+\begin_layout Standard
+All of the data used by this package is accessed with the CalcurData package,
+ so it is essential to understand how that package works as well if you
+ encounter problems.
+ The databases used by this package are all ACCESS databases and include:
+ 
+\end_layout
+
+\begin_layout Itemize
+CIPinnipedCensusMaster - contains the counts of live and dead pups
+\end_layout
+
+\begin_layout Itemize
+CIPinnipedCensusQuery - contains views of tables in CIPinnipedCensusMaster
+ and summary tables of production and weights created by the code in this
+ package
+\end_layout
+
+\begin_layout Itemize
+BrandMaster - contains branding and tagging data and weights of unmarked
+ Zalophus pups; used for average weight analysis
+\end_layout
+
+\begin_layout Itemize
+CuTagNew - contains tagging and weight data for Callorhinus
+\end_layout
+
+\begin_layout Itemize
+Environmental.data - contains buoy weather data and other environmental data
+ for analysis of weight data
+\end_layout
+
+\begin_layout Standard
+All of the tables are accessed via getCalcurData and saveCalcurData functions
+ in the CalcurData package.
+\end_layout
+
+\begin_layout Section*
+Pup Production Analysis
+\end_layout
+
+\begin_layout Standard
+On San Miguel Island, typically three mortality surveys are conducted during
+ July (early, mid and late) in specific areas of the island.
+ Also near the end of July a ground count of pups across the entire island
+ is conducted by two observers except for areas at the east end which are
+ counted by a single observer.
+ Currently this analysis is simply a bookkeeping function that tallies the
+ number of dead pups, corrects for dead pups missed with an annual derived
+ correction factor from tagging data, interpolates the number dead at the
+ time of the live count, and averages live counts across observer for each
+ area and sums the live count for the entire island.
+ The mortality rate (mr) in the sampled area is applied to the total live
+ count to produce an estimate of the number of pups produced (eg.
+ pups produced = live count/(1-mr)).
+ To make this all work the data have to be entered correctly and some tables
+ need to be updated correctly.
+ I will go through each of these steps.
+\end_layout
+
+\begin_layout Subsection*
+Updating data
+\end_layout
+
+\begin_layout Standard
+In CIPinnipedCensusMaster ACCESS database, the following tables must be
+ updated with the current year's data before the programs can be run: 
+\end_layout
+
+\begin_layout Itemize
+Zc Cu dead pup census - this table contains the counts of dead pups on each
+ mortality survey for Zc and Cu
+\end_layout
+
+\begin_layout Itemize
+Zc Cu live pup census - this table contains the live pup counts for Zc and
+ Cu
+\end_layout
+
+\begin_layout Itemize
+Zc Survey Dates - contains a record for each area giving the survey number
+ and date on which the dead pup survey was conducted in that area
+\end_layout
+
+\begin_layout Itemize
+Cu Survey Dates - contains a record giving the survey number and date on
+ which the Cu dead pups were counted
+\end_layout
+
+\begin_layout Itemize
+DeadPupSampleAreas - contains a record for each area code used in the dead
+ pup counts for each species which provides the area code used to match
+ to the live count area and a Y/N flag to indicate whether the area should
+ be included in the mortality rate sample area for that year.
+\end_layout
+
+\begin_layout Standard
+Updating the first two tables should be straightforward but it is important
+ to quality check the data.
+ In particular make sure that you don't have any errors in the area codes
+ and there are no spaces in the code used for the areas.
+ Also, check to make sure all of the survey numbers and dates are correct.
+ It is easiest to do this by using filter in the ACCESS table to spot errors.
+ Select the current year that was added and then look through the lists
+ of all of the values for the other fields.
+ 
+\end_layout
+
+\begin_layout Standard
+To update the last three tables, it is easiest to copy the data from the
+ ACCESS table for the previous year into EXCEL, update them for the current
+ year, dates, survey numbers and delete and add any new records (e.g., new
+ area codes used).
+ Then use External Data in ACCESS to add the new data.
+ Note that the CuSurveyDates table cannot have more than one date entry
+ per survey and must be in chronological order for the programs to run.
+ For 
+\begin_inset Quotes eld
+\end_inset
+
+DeadPupSampleAreas
+\begin_inset Quotes erd
+\end_inset
+
+, it is essential that any dead pup area has an area code in the 
+\begin_inset Quotes eld
+\end_inset
+
+MatchingLiveArea
+\begin_inset Quotes erd
+\end_inset
+
+ field that will match to the live pup census.
+ It is also essential that the areas are correctly assigned Y/N in 
+\begin_inset Quotes eld
+\end_inset
+
+Dead pup sample area
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Prior to updating these tables, you should run the 
+\begin_inset Quotes eld
+\end_inset
+
+Zc Cu dead pup date-area query
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+Zc Cu dead pup census_SurveyDates
+\begin_inset Quotes erd
+\end_inset
+
+ and the 
+\begin_inset Quotes eld
+\end_inset
+
+Average/var of live counts by area, year
+\begin_inset Quotes erd
+\end_inset
+
+ in CIPinnipedCansusMaster, so you know what areas, dates and survey numbers
+ were used.
+ Those values can then be used to update the tables.
+\end_layout
+
+\begin_layout Standard
+Before attempting to do any analysis, use the function check.dead.pup.areas().
+ This function makes sure that the dead pup census area codes match up with
+ the areas used in the live pup count.
+ If there is any discrepancy it is reported in the file named MissingDeadPupArea.
+txt.
+ If there are no errors the contents of the file will be:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "90col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+***Checking CU Survey Dates against CU survey dates for SMI mainland
+\end_layout
+
+\begin_layout Plain Layout
+***Checking Zc CU dead pup census for Zc at SMI
+\end_layout
+
+\begin_layout Plain Layout
+***Checking Zc CU dead pup census for Cu at SMI
+\end_layout
+
+\begin_layout Plain Layout
+***Checking Zc CU live pup census for Zc at SMI
+\end_layout
+
+\begin_layout Plain Layout
+***Checking Zc CU live pup census for Cu at SMI
+\end_layout
+
+\begin_layout Plain Layout
+***Checking Zc dead tag initial for Zc at SMI
+\end_layout
+
+\begin_layout Plain Layout
+***Checking Zc dead tag resight for Zc at SMI
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Any errors will be listed under the section to which they apply.
+ After fixing any errors you are ready to proceed to the analysis.
+ Note that not everything reported may be an error and just a warning about
+ discrepancies.
+\end_layout
+
+\begin_layout Subsection*
+Analysis
+\end_layout
+
+\begin_layout Standard
+The script P
+\family typewriter
+upProduction.r
+\family default
+ in the package directory will run the code to compute the live count, dead
+ count and estimated production for Zc and Cu.
+ If it runs to completion without any errors it will create a 
+\begin_inset Quotes eld
+\end_inset
+
+ZcProduction
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+CuProduction
+\begin_inset Quotes erd
+\end_inset
+
+ table in the CIPinnipedCansusQuery database.
+ Any errors are reported in the file 
+\family typewriter
+PupProduction.log
+\family default
+ but you can remove the 
+\family typewriter
+sink
+\family default
+ function call in the script and have the errors appear on the screen.
+ It should always be checked but some of the 
+\begin_inset Quotes eld
+\end_inset
+
+errors
+\begin_inset Quotes erd
+\end_inset
+
+ are unavoidable and are just notes that for some areas there was no mortality
+ and it has been assumed to be 0.
+ Other errors should be checked to make sure that the live and dead pup
+ areas align.
+ 
+\end_layout
+
+\begin_layout Standard
+The script calls the function 
+\family typewriter
+production.stats
+\family default
+ for: 1) Zc on San Miguel (SMI) mainland, 2) Zc on Castle Rock, 3) Zc on
+ San Nicolas Island (SNI), 4) Cu on SMI mainland and 5) Cu on Castle Rock.
+ The function 
+\family typewriter
+production.stats
+\family default
+ calls functions 
+\family typewriter
+construct.live
+\family default
+ and 
+\family typewriter
+construct.dead
+\family default
+ to extract data from CIPinnipedCensusMaster database and construct a dataframe
+ of live pup counts and dead pup counts for specified island and species.
+ The function 
+\family typewriter
+construct.live
+\family default
+ extracts data from table 
+\begin_inset Quotes eld
+\end_inset
+
+Zc Cu live pup census
+\begin_inset Quotes erd
+\end_inset
+
+ and sums counts for an observer within an area for a year and then averages
+ those counts across observers that counted the same area that year.
+ It returns a dataframe containing YearArea, Survey date, Area, AvgCount,
+ Year, Month, Day, DeadPupArea (Y/N if included in area sampled for dead
+ pups).
+ The function 
+\family typewriter
+construct.dead
+\family default
+ extracts data from table 
+\begin_inset Quotes eld
+\end_inset
+
+Zc Cu dead pup census
+\begin_inset Quotes erd
+\end_inset
+
+ and table 
+\begin_inset Quotes eld
+\end_inset
+
+Zc dead tag initial
+\begin_inset Quotes erd
+\end_inset
+
+ and totals dead pups by survey number/date.
+ It will produce errors if there are more than one survey date for each
+ survey number within an area in a year.
+ If it required more than one day to cover an area, assign the counts to
+ the date on which the majority of the area was covered.
+ It returns a dataframe containing YearArea, SurveyNumber, SurveyDate, Area,
+ count, Year, Month, Day, DeadPupArea (Y/N if included in area sampled for
+ dead pups), and MatchingLiveArea.
+ 
+\end_layout
+
+\begin_layout Standard
+Upon computing the live and dead pup dataframes, 
+\family typewriter
+production.stats
+\family default
+ uses the 
+\family typewriter
+approx
+\family default
+ function in R with the cummulative number dead at each survey to interpolate
+ the number of pups that were dead at the time of the live survey for each
+ area.
+ It is done by area because it can take four or five days to conduct the
+ entire live count and the timing of the dead pup counts also varies across
+ areas.
+ The value returned is a dataframe containing results LiveCountDate, Area,
+ Year, LiveInDeadSampleArea, DeadInDeadSampleArea, AdjustedDeadInDeadSampleArea,
+ MortalityRateAtLiveCount, TotalLiveCountByYear, PupProduction.
+ Those values are saved in ZcProduction and CuProduction tables in the CIPinnipe
+dCensusQuery database.
+\end_layout
+
+\begin_layout Subsection*
+Dead Pup Count Correction Factor
+\end_layout
+
+\begin_layout Standard
+Previously, a constant correction factor of 1.33 was used to account for
+ dead pups missed during the surveys prior to the live count because they
+ were simply overlooked or were decomposed or hidden prior to detection.
+ That correction factor was based on an analysis of tagging data on dead
+ pups that assumed a constant detection rate.
+ However we know from our experience that the location of the pup on the
+ beach (above or below beach crest) and the substrate (consolidated (rock)
+ or non-consolidated (sand)) will affect whether a pup was counted prior
+ to its disappearance or decomposition.
+ Thus code has been added to adjust dead pup counts based on the substrate
+ and location.
+ Unfortunately the location/substrate data were not collected prior to 1998,
+ so for those years we used aggregrated beach regions with similar substrate
+ including: 1) SCV - sandy areas inlcuding east and west Adams cove and
+ point Bennet spit, 2) NWC- nothwest cove, 3) WCV - west cove, and 4) PTS
+ - including northeast point, northwest point and point Bennett.
+ Tagging data at San Miguel (SMI) were collected in 1994, 1995, 1998 and
+ 2002 and in 2006 at San Nicolas (SNI).
+ For years prior to 1998 the data from 1994-1995 and 1998 and 2002 were
+ used to construct region-specific correction factors at SMI and for 1998
+ and later the 1998 and 2002 tagging data were used.
+ 
+\end_layout
+
+\begin_layout Standard
+The 5 sets of tagging data were analyzed using the POPAN model in MARK (White
+ and Burnham 1999) via the RMark interface (Laake 2013).
+ The POPAN model is an implementation of the Jolly-Seber model (Schwarz
+ and Arnason 1996) which can estimate the total abundance of dead pups from
+ the observed sample of which some were tagged and resighted over time.
+ The function that fits the POPAN models and constructs the correction factors
+ is 
+\family typewriter
+popan.cf
+\family default
+ which calls 
+\family typewriter
+getdead_ch
+\family default
+ to construct the capture history data for the dead pups and calls the functions
+ from RMark to fit the models via MARK.
+ It then calls 
+\family typewriter
+popan.derived
+\family default
+ from RMark to derive the quantities to estimate the correction factors.
+ The correction factor for a particular survey time is computed as:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\beta_{j}^{*}/C_{i}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+where 
+\begin_inset Formula $C_{i}$
+\end_inset
+
+ (named 
+\family typewriter
+cfdata$BiGross$cumdead
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+ in the code
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+) is the cummulative count of dead pups up to and including the i
+\begin_inset script superscript
+
+\begin_layout Plain Layout
+th
+\end_layout
+
+\end_inset
+
+survey and 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\beta_{j}^{*}$
+\end_inset
+
+ (named 
+\family typewriter
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+cfdata$BiGross$estimate
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+ in the code) is the cummulative estimated number of pups that died before
+ the 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+j
+\begin_inset script superscript
+
+\begin_layout Plain Layout
+th
+\end_layout
+
+\end_inset
+
+survey and that estimate includes pups that died and disappeared during
+ the interval between surveys (Schwarz and Arnason 1996).
+ The estimates of 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\beta_{j}^{*}$
+\end_inset
+
+are model averaged for the sequence of models fitted to the data.
+ A correction factor is computed for each area using the 1994,1995,1998,
+ and 2002 SMI data and for the four substrate-position combinations for
+ tagging collected in 1998 and later.
+ The results from the fitted models and the correction factor data are stored
+ in a list with elements names 
+\family typewriter
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+popan.results
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+ (fitted model results), 
+\family typewriter
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+cfdata
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+ (correction factor data) and 
+\family typewriter
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+cfbyocc
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+ (cummulative correction factor for each survey occasion).
+ A list was constructed for each of the 7 analyses and stored as data objects
+ in the package so they could be retrieved and used without refitting the
+ models each time the pup production code was called.
+ They are named 
+\family typewriter
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+smiyyyy.popan.results
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+ where 
+\family typewriter
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+yyyy
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+ is 1994, 1995, 1998 and 2002 and 
+\family typewriter
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+smiyyyya.popan.results
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+ 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+for
+\family typewriter
+ yyyy 
+\family default
+of 1998,2002 where area was used in fitting models instead of the covariates.
+ For San Nicolas the results are named
+\family typewriter
+ sni2006.popan.results
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+.
+ 
+\end_layout
+
+\begin_layout Standard
+The dead pup counts for each year are corrected for missed pups with the
+ function 
+\family typewriter
+correct_dead
+\family default
+ which calls 
+\family typewriter
+average_cf
+\family default
+ to compute an average (only for SMI) correction factor for the date of
+ the survey.
+ Typically the timing of the live survey will not match the timing of one
+ of the occasions of the tagging survey years and it is typically in between
+ dead pup surveys within the year.
+ Therefore, we compute an interpolated value for the dead pup counts from
+ the cummulative dead pup counts and likewise compute an interpolated correction
+ factor from the sequence of correction factors from each tagging years.
+ The latter are averaged in 
+\family typewriter
+average_cf
+\family default
+ for the appropriate set of years at SMI.
+ For 1994 and 1995 the data were incomplete or unavailable for after 1 Aug
+ so the 1998a and 2002a data are used to construct a correction factor for
+ dates after 1 Aug for years prior to 1998 but for dates prior to 1 Aug
+ the 1995-1995 data are used.
+ Likewise, thre was no tagging data prior to 1 Aug for 1998 so only 2002
+ data are used to compute correction factors for dates before 1 Aug in 1998
+ and later.
+ The corrected number of dead pups is computed separately for each region
+ at SMI because the counts require several days to complete.
+ For data collected in 1998 and later, within each region the count in each
+ of the four position/substrate categories (AC, AN, BC, BN) is corrected
+ with the position/substrate specific correction factor and then the estimates
+ are totalled across the 4 categories.
+\end_layout
+
+\begin_layout Section*
+Early Pup Mortality Analysis
+\end_layout
+
+\begin_layout Standard
+After running the 
+\family typewriter
+PupProduction
+\family default
+ script, the 
+\family typewriter
+EarlyPupMortality
+\family default
+ script can be run to produce a cummulative survival curve for each species
+ at SMI mainland and SNI where several mortality surveys have been conducted.
+
+\family typewriter
+ 
+\family default
+The script calls the function ZcMortalityStats for Zc and CuMortalityStats
+ for Cu to create the tables ZcEarlyPupMortality and CuEarlyPupMortality
+ in CIPinnipedCensusQuery database with the same names.
+ Prior to calling ZcMortalityStats, the dead pup counts are corrected for
+ missed pups as described above.
+ The dataframe is a survivorship curve based on the corrected dead pup counts.
+ The curve extends from birth to either Aug or Sept-Oct depending on the
+ extent of the mortality surveys which has varied across the years.
+ 
+\end_layout
+
+\begin_layout Section*
+Sea Surface Temperature Anomalies and Other Environmental Variables
+\end_layout
+
+\begin_layout Standard
+Sea surface temperature rises during El Nino events and is a reasonable
+ proxy variable for the influence of El Nino on pinnipeds.
+ Sea surface data are stored in the ACCESS enviromental.data.mdb file and
+ are loaded there from NOAA buoy and land stations using the functions in
+ the CalcurData R package.
+ To measure the effective SST that would influence Zalophus pups, we use
+ SST as measured at 8 locations: East Santa Barbara (ESB), West Santa Barbara
+ (WSB), Point Arguello (PtArg), Point Santa Maria (PtSM), Port San Luis
+ (PtSL), Cape San Martin (CSM), Monterey Bay (MB) and Point Reyes (PtReyes).
+ The function 
+\family typewriter
+create.SST.anomalies
+\family default
+ is a wrapper function that uses the functions 
+\family typewriter
+create.anomalies
+\family default
+ and 
+\family typewriter
+create.anomaly.table
+\family default
+ (in SST.anomaly.r) to create SST monthly anomaly matrices for each of 8 locations.
+ They create daily means from hourly observations and then averages daily
+ means within each month.
+ Average monthly values are computed for a defined set of years (
+\family typewriter
+average.years
+\family default
+ argument) and then the overal mean is subtracted from the the observed
+ year-month matrix of meams to produce anomaly values.
+ The function returns a three dimensional array (year by month by location)
+ with the 8 locations ordered as ESB, WSB, PtArg, PtSM, PtSL, CSM, MB and
+ PtReyes.
+ A side effect of function is to delete existing anomaly tables in ACCESS
+ and re-write new ones if the argument 
+\family typewriter
+store=TRUE.
+
+\family default
+ The default value is 
+\family typewriter
+store=FALSE.
+\end_layout
+
+\begin_layout Standard
+In addition to SST data, both upwelling indices (UWI) and multivariate ENSO
+ indices (MEI) are stored in the ACCESS enviromental.data.mdb file.
+ The R script CreateAnomalies.r in the package home directory can be called
+ to: 1) create the SST anomalies and various within season averages, 2)
+ read in the monthly UWI values for 33N and 36N from the access database
+ and create seasonal averages, 3) read in the MEI values and create seasonal
+ averages with a 2-month lag to accommodate lag between equator and Central
+ CA.
+ In addition the SeaLevelHeight data from Pt San Luis in the package dataframe
+ is attached and seasonal averages are computed.
+ The various seasonal averages are used with measures of growth or survival
+ which are measured over different periods (seasons) within a year.
+\end_layout
+
+\begin_layout Section*
+Pup Weight Analysis
+\end_layout
+
+\begin_layout Standard
+Zalophus and Callorhinus pups have been weighed annually in the fall on
+ San Miguel Island since 1975.
+ In addition, since the branding program started an additional set of weights
+ have been measured of branded and non-branded Zalophus pups in late Jan
+ to Feb for most years.
+ The 
+\family typewriter
+CIPinnipedCensusAnalysis
+\family default
+ package contains a set of functions to extract and compile the weight informati
+on from the databases and some scripts that perform analysis of those data
+ to compute the average weight corrected for standard dates of 1 Oct and
+ 1 Feb and for exlpanatory modelling.
+ 
+\end_layout
+
+\begin_layout Standard
+Those analyses uses linear Gaussaian mixed effect models with the function
+ 
+\family typewriter
+lme
+\family default
+ from the
+\family typewriter
+ nlme
+\family default
+ package.
+ To support that analysis, 
+\family typewriter
+CIPinnipedCensusAnalysis
+\family default
+ contains a function 
+\family typewriter
+fitmixed
+\family default
+ which either fits a sequence of random effect models with a single fixed
+ effect formula with REML or fits a sequence of fixed effect models with
+ a single random effect using MLE.
+ This simplifies and automates the model selection process which has three-steps
+ as suggested in the book Mixed effect models and extensions in ecology
+ with R by Zuur et al.: 
+\end_layout
+
+\begin_layout Enumerate
+first fit a series of random effect models with a satuated fixed effect
+ model using restricted maximum-likelihood (REML) and select the best random
+ effect model (minimum Akaike Information criterion (AIC), 
+\end_layout
+
+\begin_layout Enumerate
+with the best random effect model, fit a sequence of fixed effect models
+ with maximum likelihood estimation (MLE) and select the model with minimum
+ AIC, and 
+\end_layout
+
+\begin_layout Enumerate
+finally fit the best random and fixed effect sub-models with REML for prediction
+s.
+ 
+\end_layout
+
+\begin_layout Standard
+The scripts used to analyze the pup weight data, use the fitmixed function
+ with different sets of models appropriate for the data.
+ 
+\end_layout
+
+\begin_layout Standard
+The package contains two primary scripts for analyis of weight data: ZcWeightAna
+lysis.r and CuWeightAnalysis.r.
+ Both scripts, use the script CreateAnaomalies.r which uses the function
+ 
+\family typewriter
+create.SST.anomalies
+\family default
+ to create SST anomaly data which is amalgamated into seaonal blocks that
+ are appropriate for the growth periods.
+ It also creates anaomalies for the upwelling indices (UWI) and multivariate
+ ENSO index (MEI) from the data extracted from the environmental.data database.
+ Because both weight scripts need the environmental data, they check to
+ see if the anomaly data exist and if they do the script is not re-run to
+ prevent redundancy.
+\end_layout
+
+\begin_layout Standard
+The ZcWeightAnalysis.r scripts runs the script CreateAnaomalies.r if needed
+ and then runs the ZC Weight Adjustment Model.r (cross sectional analysis)
+ script, the ZC Weight Environment Models.r (cross sectional analysis) script,
+ the ZC Growth.r (longitudinal analysis) script and then contains some code
+ to compute cross-sectional comparisons of branded and non-branded pups.
+ The CUWeightAnalysis is similar and runs a CU Weight Adjustment Model.r
+ (cross sectional analysis) script and the CU Weight Environment Models.r
+ (cross sectional analysis).
+ The analysis scripts use the functions 
+\family typewriter
+get.zc.weights
+\family default
+ and 
+\family typewriter
+get.cu.weights
+\family default
+ to extract and compile the weight data from the various tables.
+ Because these scripts could change and already contain comments for explanation
+, I will not provide any further documentation for them here other than
+ to describe 
+\family typewriter
+get.zc.weights
+\family default
+ and 
+\family typewriter
+get.cu.weights
+\family default
+.
+ 
+\end_layout
+
+\begin_layout Subsection*
+
+\family typewriter
+get.zc.weights
+\end_layout
+
+\begin_layout Standard
+Weight data are available in mulitple tables in BrandMaster because they
+ are split into branded, tagged, and unmarked for initial capture.
+ Also there are recaptures of branded and tagged animals at various times
+ for lingitudinal data.
+ This function extracts the data from all of the files and puts them into
+ a single dataframe for analysis.
+ There are 2 arguments for the function but the defaults can be used for
+ each.
+ The first is 
+\family typewriter
+fdir
+\family default
+ which defaults to NULL and is set to 
+\family typewriter
+dir
+\family default
+ in 
+\family typewriter
+getCalcurData.
+ 
+\family default
+The default value specifies to use the default data location.
+ The other is ENYears which specifies the years in which growth has been
+ impacted by El Nino.
+ The function does the following:
+\end_layout
+
+\begin_layout Itemize
+reads in area code table
+\end_layout
+
+\begin_layout Itemize
+reads ZcBrand table into a dataframe and removes any records with unknown
+ sex or missing weight
+\end_layout
+
+\begin_layout Itemize
+reads UnmarkedPupWeights table into a dataframe and removes any records
+ with unknown sex or missing weight
+\end_layout
+
+\begin_layout Itemize
+reads TagInitial table into a dataframe and removes any records for non-pups
+ or with unknown sex or missing weight; the area code table is merged to
+ the tag data to assign a sitecode (e.e., SMI,SNI,...) matching by region
+\end_layout
+
+\begin_layout Itemize
+reads Recaptures table into a dataframe and removes any records with unknown
+ sex or or missing weight.
+ This contains recaptures of branded animals including those in Jan/Feb
+ for brand evaluation.
+ These are linked to the initial brand record to get the cohort value.
+\end_layout
+
+\begin_layout Itemize
+reads TagRecapture table into a dataframe and removes any records with unknown
+ sex or or missing weight.
+ This contains recaptures of tagged animals including those in Jan/Feb for
+ brand evaluation.
+ These are linked to the initial tag record to get the cohort value.
+\end_layout
+
+\begin_layout Itemize
+add a field 
+\family typewriter
+days
+\family default
+ to each table.
+ It contains the number of days since 1 Oct in the year they were a pup
+ (e.g., approximately 4 months of age).
+\end_layout
+
+\begin_layout Itemize
+combine all of them into a single dataframe using a common set of fields
+ and names
+\end_layout
+
+\begin_layout Itemize
+add a field 
+\family typewriter
+EN
+\family default
+ which is 1 when the cohort year is contained in 
+\family typewriter
+ENyears
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+The combined dataframe is the result.
+ In the weight analysis scripts, only sitecode=
+\begin_inset Quotes erd
+\end_inset
+
+SMI
+\begin_inset Quotes erd
+\end_inset
+
+ is used and the appropriate range of 
+\family typewriter
+days
+\family default
+ is used as well to measure growth up to 150 days past 1 Oct and prior to
+ 1 Sept.
+ However, this same function could be used to extract data for a longitudinal
+ analysis of growth over a longer time frame.
+\end_layout
+
+\begin_layout Subsection*
+
+\family typewriter
+get.cu.weights
+\end_layout
+
+\begin_layout Standard
+This function is much simpler and the process is very similar.
+ Weight data are only available for tagged and unmarked pups.
+ The function arguments are the same as above.
+ The function does the following:
+\end_layout
+
+\begin_layout Itemize
+reads CuTags table into a dataframe and removes any records with unknown
+ sex or missing weight and those from Castle Rock.
+ It only uses area codes 
+\begin_inset Quotes eld
+\end_inset
+
+ACV
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes erd
+\end_inset
+
+EAC
+\begin_inset Quotes erd
+\end_inset
+
+.
+ It also excludes any weights prior to 1 Sept.
+\end_layout
+
+\begin_layout Itemize
+reads UnmarkedPupWeights table into a dataframe and removes any records
+ with unknown sex or missing weight.
+\end_layout
+
+\begin_layout Itemize
+reads DuplicateTags0708 table into a dataframe and removes any records with
+ unknown sex or missing weight.
+ These tags are not used for resight because they are duplicates but are
+ ok for weights.
+ 
+\end_layout
+
+\begin_layout Itemize
+add a field 
+\family typewriter
+days
+\family default
+ to each table.
+ It contains the number of days since 1 Oct in the year they were a pup
+ (e.g., approximately 4 months of age).
+\end_layout
+
+\begin_layout Itemize
+combine all of them into a single dataframe using a common set of fields
+ and names
+\end_layout
+
+\begin_layout Itemize
+add a field 
+\family typewriter
+EN
+\family default
+ which is 1 when the cohort year is contained in 
+\family typewriter
+ENyears
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+Currently this function does not use the recapture data because little exists.
+\end_layout
+
+\begin_layout Section*
+Running the Code
+\end_layout
+
+\begin_layout Standard
+To install and CIPinnipedAnalysis, you also need to install the following
+ packages in R from CRAN:
+\family typewriter
+ nlme
+\family default
+,
+\family typewriter
+ plotrix
+\family default
+, 
+\family typewriter
+RODBC
+\family default
+.
+ You must aso have the CalcurData package installed.
+ The code must also be run in 32 bit R unless you have 64 bit ODBC setup
+ on your computer.
+ Running all of the analysis in the package is quite simple and can be done
+ with five lines of R code shown below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<eval=FALSE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+library(CIPinnipedAnalysis)
+\end_layout
+
+\begin_layout Plain Layout
+
+lastyear=2016                       
+\end_layout
+
+\begin_layout Plain Layout
+
+example(CIPinnipedAnalysis,ask=FALSE)  # pup production/pup mortality -
+ calls scripts PupProduction.r and EarlyPupMortality.r
+\end_layout
+
+\begin_layout Plain Layout
+
+example(get.zc.weights,ask=FALSE)      # zalophus pup weight code
+\end_layout
+
+\begin_layout Plain Layout
+
+example(get.cu.weights,ask=FALSE)      # callorhinus pup weight code
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+The variable 
+\family typewriter
+lastyear
+\family default
+ is set to define the last year for the computation of the SST Anomalies
+ and the environmental growth models.
+ It should be set such that the environmental data is available through
+ Feb of 
+\family typewriter
+lastyear+1
+\family default
+ for the growth scripts to work.
+ Setting 
+\family typewriter
+ask=FALSE
+\family default
+ will make it run unattended.
+ Make sure to check the log files as described above.
+ It is also possible to run the code for a single species (Zc or Cu) as
+ shown below.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<eval=FALSE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+library(CIPinnipedAnalysis)
+\end_layout
+
+\begin_layout Plain Layout
+
+lastyear=2016  
+\end_layout
+
+\begin_layout Plain Layout
+
+# Code to run Zc only   
+\end_layout
+
+\begin_layout Plain Layout
+
+example(Zc,ask=FALSE)                  # pup production/pup mortality only
+ for Zc
+\end_layout
+
+\begin_layout Plain Layout
+
+example(get.zc.weights,ask=FALSE)      # zalophus pup weight code
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# Code to run Cu only   
+\end_layout
+
+\begin_layout Plain Layout
+
+example(Cu,ask=FALSE)                  # pup production/pup mortality only
+ for Cu
+\end_layout
+
+\begin_layout Plain Layout
+
+example(get.cu.weights,ask=FALSE)      # callorhinus pup weight code
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Scripts and Rmarkdown Files
+\end_layout
+
+\begin_layout Standard
+The package contains both R script files (.r) to run analyses and Rmarkdown
+ files (.rmd) to run an analysis and produce a 
+\begin_inset Quotes eld
+\end_inset
+
+report
+\begin_inset Quotes erd
+\end_inset
+
+ with tables and figures.
+ These .r and .md files are stored in the CIPinnipedAnalysis directory wherever
+ you have stored your R library.
+ You can modify these files in that directory but if you were to ever re-install
+ the package they would be over-written.
+ To change them permanently, they would have to be changed in the R package
+ install file.
+ An alternative approach would be to copy the files to another location
+ and use them from that location where they can be changed at will.
+ That will work fine except that use of 
+\begin_inset Quotes eld
+\end_inset
+
+example
+\begin_inset Quotes erd
+\end_inset
+
+ as shown above will always use the .r file from the CIPinnipedAnalysis directory
+ in the R library.
+ If you choose to store the scripts in a different location, then you can
+ use the 
+\family typewriter
+source()
+\family default
+ function and specify the directory location.
+ An example is shown below where the files are stored in the directory named
+ mydir.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<eval=FALSE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+library(CIPinnipedAnalysis)
+\end_layout
+
+\begin_layout Plain Layout
+
+lastyear=2016  
+\end_layout
+
+\begin_layout Plain Layout
+
+# Code to run Zc only   
+\end_layout
+
+\begin_layout Plain Layout
+
+check.dead.pup.areas()  
+\end_layout
+
+\begin_layout Plain Layout
+
+source("c:/mydir/ZcPupProduction.r"))  
+\end_layout
+
+\begin_layout Plain Layout
+
+source("c:/mydir/ZcEarlyPupMortality.r")
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The following is a list of .r script files and .rmd files contained in the
+ package and what they accomplish:
+\end_layout
+
+\begin_layout Itemize
+Calcofi.rmd - Fits weight adjustment model for Zc to predict weights at 1
+ Oct and 1 Feb and produces plots from 1997 onward for the Calcofi report;
+ the .rmd file uses scripts ZC_Weight_Adjustment_Model.r and ZC_Growth.r.
+\end_layout
+
+\begin_layout Itemize
+Calcofi_barplots.rmd - Named based on adaptation from above .rmd but is not
+ actually for Calcofi; it produces similar output but for all years and
+ shows weights as a barplot colored based on whether they are close to average,
+ below average or above average.
+ Also produces a table of daily growth rates by year.
+ Uses same scripts as above.
+\end_layout
+
+\begin_layout Itemize
+CreateAnomalies.r - creates environmental data and averages used in growth
+ rate and other models; includes sea level height, sea surface temperature,
+ multivariate ENSO index, and upwelling indices
+\end_layout
+
+\begin_layout Itemize
+Cu_Pup_Weights.rmd - uses CU_Weight_Adjustment_Model.r script and creates
+ plots of 1 Oct predicted weights over time and the same thing with weight
+ expressed as an anomaly from the overall sex-specific means.
+\end_layout
+
+\begin_layout Itemize
+CU_Weight_Adjustment_Model.r - fits a sequence of mixed effect models to
+ adjust weight data to a standardized date of 1 Oct with the best fitting
+ model (minimum AICc) because data are often collected at various times
+ (days) throughout the fall rather than exactly at 1 Oct.
+ Creates a data CUWeight.df with observed and adjusted values.
+ This dataframe is stored in CIPinnipedCensusQuery database if store_weights
+ function is called (see CUWeightAnalysis.r).
+ Standard errors are constructed using a non-parametric resampling bootstrap
+ (nboot replicates).
+ Individual weights are resampled with replacement from each sex in each
+ cohort.
+ For each bootstrap sample the best mixed effects model is fitted and the
+ predictions (e.g., for 1 Oct) are made and the standard deviation of the
+ predictions is the standard error for the estimated weight.
+\end_layout
+
+\begin_layout Itemize
+CU_Weight_Environment_Model.r - fits a sequence of models defined in environment.m
+odels.r to weight/growth data for fur seals; some of the environment data.
+ If environment data are not available in the workspace it calls the CreateAnoma
+lies.r script.
+ If object use.calcofi set to TRUE then it also uses the available calcofi
+ data in the calcofi.rda data in the package (see ?calcofi).
+ The calcofi data are not available for all of the years and the analysis
+ will be limited to those years in which it is available.
+ This script will add values to the CUWeight.df dataframe.
+ Standard errors are computed with a bootstrap as described above.
+\end_layout
+
+\begin_layout Itemize
+CU_Weight_FishBiomass_Model.r - fits a sequence of models defined in environment.m
+odels.r with added fish abundance variables for hake, anchoy and sardine.
+ This script will add values to the CUWeight.df dataframe.
+ Standard errors are computed with a bootstrap as described above.
+\end_layout
+
+\begin_layout Itemize
+CuEarlyPupMortality.r - constructs annual estimates of early pup mortality/cummul
+ative survival for Cu.
+ Currently uses fixed correction factor of 1.33 for missed pups.
+ This will be corrected once tag data are analyzed.
+ A data table in CIPinnipedCensusQuery is added with the mortality and cummulati
+ve survival values over time.
+ 
+\end_layout
+
+\begin_layout Itemize
+CUProduction_EarlyPupMortality.rmd - Uses scripts CuPupProduction.r and CuEarlyPup
+Mortality.r and then creates four plots: 1) count of live pups, 2) total
+ pre-census mortality, 3) estimated pup production across years, 4) cummulative
+ early survival for each year.
+\end_layout
+
+\begin_layout Itemize
+CuPupProduction.r - computes pup production values from live counts and counts
+ of dead pups on mainland and on Castle Rock.
+ These are stored in the CUProduction table in CIPinnpedCensusQuery.
+\end_layout
+
+\begin_layout Itemize
+CuWeightAnalysis.r - Uses scripts 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+CU_Weight_Adjustment_Model.r
+\end_layout
+
+\begin_layout Itemize
+CU_Weight_Environment_Model.r, and
+\end_layout
+
+\begin_layout Itemize
+CU_Weight_FishBiomass_Model.r 
+\end_layout
+
+\begin_layout Standard
+and then stores the CUWeight.df file into CIPinnipedCensusQuery.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+EarlyPupMortality.r - Uses scripts ZcEarlyPupMortality.r and CuEarlyPupMortality.r
+\end_layout
+
+\begin_layout Itemize
+environment_models.r - defines a list of fixed effect models (fixed.f) which
+ contain only standard environmental variables (use.calcofi=FALSE) or both
+ standard and calcofi data (use.calcofi=TRUE).
+\end_layout
+
+\begin_layout Itemize
+EnvPlots.rmd - Uses script CreateAnomalies.r and then produces three figures:
+ 1) Seasonal SST anomalies, 2) MEI time series, and 3) UWI for 33N and 36N.
+\end_layout
+
+\begin_layout Itemize
+Production.rmd - Uses scripts CuPupProduction.r and ZcProduction.r and produces
+ first three plots for each species that are produced in CUProduction_EarlyPupMo
+rtality.rmd and ZcProduction_EarlyPupMortality.rmd.
+\end_layout
+
+\begin_layout Itemize
+PupProduction.r - Constructs pup production tables for Zc and Cu using ZcPupProdu
+ction.r and CuPupProduction.r
+\end_layout
+
+\begin_layout Itemize
+Stranding.rmd - Similar to calcofi.rmd but only plots 1 Feb predicted weights
+ and daily growth rate.
+ Used for presentation on reasons for high stranding numbers.
+\end_layout
+
+\begin_layout Itemize
+ZC_Growth.r - A longitudinal analysis of growth in Zc pups using data from
+ initial fall captures and winter recaptures.
+ Fits sex-specific mean growth rate with random effects of sex by cohort
+ and individual random effect.
+\end_layout
+
+\begin_layout Itemize
+Zc_Pup_Weights.rmd - uses ZC_Weight_Adjustment_Model.r script and creates
+ plots of 1 Oct and 1Feb predicted weights over time and the same thing
+ with weight expressed as an anomaly from the overall sex-specific means.
+\end_layout
+
+\begin_layout Itemize
+ZC_Weight_Adjustment_Model.r - fits a sequence of mixed effect models to
+ adjust weight data to a standardized date of 1 Oct with the best fitting
+ model (minimum AICc) because data are often collected at various times
+ (days) throughout the fall rather than exactly at 1 Oct.
+ Creates a data ZCWeight.df with observed and adjusted values.
+ This dataframe is stored in CIPinnipedCensusQuery database if store_weights
+ function is called (see ZcWeightAnalysis.r).
+ Standard errors are constructed using a non-parametric resampling bootstrap
+ (nboot replicates).
+ Individual weights are resampled with replacement from each sex in each
+ batch within each cohort.
+ Unlike Cu sampling which occurs in one day, Zc sampling occurs over serveral
+ days and a day is a batch.
+ Both batch and cohort are used as random effects.
+ Batch differences can occur because the sampling can occur at different
+ locations on the island.
+ For each bootstrap sample the best mixed effects model is fitted and the
+ predictions (e.g., for 1 Oct) are made and the standard deviation of the
+ predictions is the standard error for the estimated weight.
+ 
+\end_layout
+
+\begin_layout Itemize
+ZC_Weight_Diet_Model.r - fits a sequence of models defined in environment.models.r
+ with added female diet variables.
+ This script will add values to the ZCWeight.df dataframe.
+ Standard errors are computed with a bootstrap as described above.
+ The script can also be used to fit models with environment, fish abundance
+ and female diet variables.
+ See ZC_Pup_Growth.rmd file.
+\end_layout
+
+\begin_layout Itemize
+ZC_Weight_Environment_Model.r - fits a sequence of models defined in environment.m
+odels.r to weight/growth data for fur seals; some of the environment data.
+ If environment data are not available in the workspace it calls the CreateAnoma
+lies.r script.
+ If object use.calcofi set to TRUE then it also uses the available calcofi
+ data in the calcofi.rda data in the package (see ?calcofi).
+ The calcofi data are not available for all of the years and the analysis
+ will be limited to those years in which it is available.
+ This script will add values to the ZCWeight.df dataframe.
+ Standard errors are computed with a bootstrap as described above.
+\end_layout
+
+\begin_layout Itemize
+ZC_Weight_FishBiomass_Model.r - fits a sequence of models defined in environment.m
+odels.r with added fish abundance variables.
+ This script will add values to the ZCWeight.df dataframe.
+ Standard errors are computed with a bootstrap as described above.
+ 
+\end_layout
+
+\begin_layout Itemize
+ZcEarlyPupMortality.r - constructs annual estimates of early pup mortality/cummul
+ative survival for Zc at SMI and SNI.
+ See description above for calculation of correction factor for missed pups.
+ A data table in CIPinnipedCensusQuery is added with the mortality and cummulati
+ve survival values over time.
+ 
+\end_layout
+
+\begin_layout Itemize
+ZcProduction_EarlyPupMortality.rmd - Uses scripts ZcPupProduction.r and ZcEarlyPup
+Mortality.r and then creates four plots: 1) count of live pups, 2) total
+ pre-census mortality, 3) estimated pup production across years, 4) cummulative
+ early survival for each year.
+\end_layout
+
+\begin_layout Itemize
+ZcPupProduction.R - computes pup production values from live counts and counts
+ of dead pups on mainland.
+ These are stored in the ZcProduction table in CIPinnpedCensusQuery.
+\end_layout
+
+\begin_layout Itemize
+ZC_Pup_Growth.rmd - rmarkdown file used for Zc growth analysis paper.
+\end_layout
+
+\begin_layout Itemize
+ZcWeightAnalysis.r - Uses scripts 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+ZC_Weight_Adjustment_Model.r
+\end_layout
+
+\begin_layout Itemize
+ZC_Weight_Environment_Model.r
+\end_layout
+
+\begin_layout Itemize
+ZC_Weight_FishBiomass_Model.r
+\end_layout
+
+\begin_layout Itemize
+ZC_Weight_Diet_Model.r, and 
+\end_layout
+
+\begin_layout Itemize
+ZC_Growth.r 
+\end_layout
+
+\begin_layout Standard
+and then stores the ZCWeight.df file into CIPinnipedCensusQuery.
+ Afterwards, it fits some models and compute some test statistics comparing
+ weights for branded and tagged pups at brand evaluation.
+\end_layout
+
+\end_deeper
+\begin_layout Section*
+Literature
+\end_layout
+
+\begin_layout Standard
+Laake, J.
+ L.
+ 2013.
+ RMark : An R Interface for Analysis of Capture-Recapture Data with MARK.
+ AFSC Processed Rep.
+ 2013-01, 25p.
+ Alaska Fish.
+ Sci.
+ Cent., NOAA, Natl.
+ Mar.
+ Fish.
+ Serv., 7600 Sand Point Way NE, Seattle WA 98115.
+\end_layout
+
+\begin_layout Standard
+\noindent
+Schwarz, C.
+ J., and A.
+ N.
+ Arnason.
+ 1996.
+ A general methodology for the analysis of capture-recapture experiments
+ in open populations.
+ Biometrics 52:860–873.
+\end_layout
+
+\begin_layout Standard
+\noindent
+White, G.
+ C., and K.
+ P.
+ Burnham.
+ 1999.
+ Program MARK: survival estimation from populations of marked animals.
+ Bird Study 46:120–139.
+\end_layout
+
+\end_body
+\end_document

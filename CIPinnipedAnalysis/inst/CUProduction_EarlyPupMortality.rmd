@@ -8,6 +8,7 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 		```{r,results="hide",echo=FALSE}
 		suppressPackageStartupMessages(library(CIPinnipedAnalysis))
 		source(file.path(system.file(package="CIPinnipedAnalysis"),"CuPupProduction.r"))
+		source(file.path(system.file(package="CIPinnipedAnalysis"),"CuEarlyPupMortality.r"))
 		maxyr=max(CuProduction$Year)
 		```
 
@@ -31,7 +32,7 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 		axis(1,at=seq(1970,maxyr,2),labels= seq(1970,maxyr,2))
 		```
 
-Figure 4. Count of live Callorhinus pups on San Miguel Island
+Figure 1. Count of live Callorhinus pups on San Miguel Island
 
 ```{r,results="hide",echo=FALSE,fig.width=6,fig.height=7,dpi=300}
 		plot(CuProduction$Year[CuProduction$Area=="Mainland"],CuProduction$MortalityRateAtLiveCount[CuProduction$Area=="Mainland"],xlab="Year",ylab="Mortality",xaxt="n",main="Cu Mainland Pre-census Mortality",xlim=c(1970,maxyr))
@@ -39,7 +40,7 @@ Figure 4. Count of live Callorhinus pups on San Miguel Island
 		axis(1,at=seq(1970,maxyr,2),labels= seq(1970,maxyr,2))
 		```
 
-Figure 5. Pre-census Callorhinus pup mortality rate
+Figure 2. Pre-census Callorhinus pup mortality rate
 
 
 ```{r,results="hide",echo=FALSE,fig.width=6,fig.height=7,dpi=300}
@@ -61,9 +62,38 @@ Figure 5. Pre-census Callorhinus pup mortality rate
 		axis(1,at=seq(1970,maxyr,2),labels= seq(1970,maxyr,2))
 		```
 
-Figure 6. Estimated pup production of Callorhinus pups on San Miguel Island
+Figure 3. Estimated pup production of Callorhinus pups on San Miguel Island
 
 
+
+```{r,results="hide",echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+   minyear=min(cu.mort$Year)
+   maxyear=max(cu.mort$Year)
+   numyears=maxyear-minyear+1
+   ltype=rep(1:6,ceiling(numyears/6))
+   col=rep(c("black","red","blue","orange","green"),each=ceiling(numyears/5))
+   cu.mort$DaysFrom15June=as.Date(cu.mort$SurveyDate)-as.Date(paste(cu.mort$Year,"-06-15",sep=""))
+   i=1
+   with(cu.mort[cu.mort$Year==minyear,],plot(c(0,DaysFrom15June),c(1,CumS),xlab="Days from 15 June",ylab="Cumulative Survival",ylim=c(min(cu.mort$CumS,na.rm=TRUE),1),lty=ltype[1],col=col[1],type="l",xlim=c(0,max(cu.mort$DaysFrom15June))))
+   for (y in (minyear+1):maxyear)
+   {
+    	i=i+1
+	    with(cu.mort[cu.mort$Year==y,],lines(c(0,DaysFrom15June),c(1,CumS),lty=ltype[i],col=col[i]))
+    }
+    legend(140,1,legend=minyear:maxyear,lty=ltype[1:numyears],col=col[1:numyears],cex=0.8)
+
+    CumSto1Aug=rep(NA,numyears)
+    i=1
+    for (y in minyear:maxyear)
+    {
+	   cat("\n",y)
+	   CumSto1Aug[i]=with(cu.mort[cu.mort$Year==y,],approx(DaysFrom15June,CumS,xout=42)$y)
+	   i=i+1
+    }
+    plot(minyear:maxyear,CumSto1Aug,xlab="Year",ylab="Cumulative survival to 27 July",type="b")
+
+		```
+Figure 4 Estimated cuumulative survival of Callorhinus pups from birth to fall by year on San Miguel Island.
 
 
 
