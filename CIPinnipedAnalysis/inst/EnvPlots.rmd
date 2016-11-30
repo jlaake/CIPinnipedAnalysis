@@ -8,6 +8,9 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ```{r,results="hide",echo=FALSE}
   suppressPackageStartupMessages(library(CIPinnipedAnalysis))
   sdir=system.file(package="CIPinnipedAnalysis")
+  ################################
+  # lastyear=  You must set a value here and remove # before running
+  ################################
 	source(file.path(sdir,"CreateAnomalies.r"))
 	 
 	x=rbind(data.frame(Year=minyear:maxyear,Season=rep("Spring",numyears),SSTAnomaly=JantoMayAnomalies[1:numyears]),

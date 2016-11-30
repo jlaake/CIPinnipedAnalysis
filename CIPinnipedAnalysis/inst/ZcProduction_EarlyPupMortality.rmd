@@ -69,7 +69,7 @@ Figure 2. Pre-census Zalophus pup mortality rate
 Figure 3. Estimated pup production of Zalophus pups on San Miguel Island
 
 
-```{r,results="hide",echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+```{r,results="hide",echo=FALSE,fig.width=7,fig.height=7,dpi=300}
 minyear=min(zcsmi.mort$Year)
 numyears=maxyear-minyear+1
 
@@ -82,7 +82,7 @@ for (y in (minyear+1):maxyear)
 	i=i+1
 	with(zcsmi.mort[zcsmi.mort$Year==y,],lines(c(0,DaysFrom15June),c(1,CumS),lty=ltype[i],col=col[i]))
 }
-legend(140,1,legend=minyear:maxyear,lty=ltype[1:numyears],col=col[1:numyears],cex=0.8)
+legend(130,1,legend=minyear:maxyear,lty=ltype[1:numyears],col=col[1:numyears],cex=0.8)
 abline(v=42)
 CumSto1Aug=rep(NA,numyears)
 i=1
@@ -93,5 +93,5 @@ for (y in minyear:maxyear)
 }
 plot(minyear:maxyear,CumSto1Aug,xlab="Year",ylab="Cumulative survival to 27 July",type="b")
 ```
-Figure 4 Estimated cuumulative survival of Zalophus pups from birth to fall by year on San Miguel Island.
+Figure 4 Estimated cummulative survival of Zalophus pups from birth by year on San Miguel Island.
 

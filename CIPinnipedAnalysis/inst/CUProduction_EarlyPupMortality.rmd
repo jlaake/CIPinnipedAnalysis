@@ -1,5 +1,5 @@
 ---
-		title: "Pinniped Production"
+title: "Callorhinus Pup Production and Early Mortality"
 output: pdf_document
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ---
@@ -9,6 +9,7 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 		suppressPackageStartupMessages(library(CIPinnipedAnalysis))
 		source(file.path(system.file(package="CIPinnipedAnalysis"),"CuPupProduction.r"))
 		source(file.path(system.file(package="CIPinnipedAnalysis"),"CuEarlyPupMortality.r"))
+	    CuProduction=getCalcurData("CIPquery","CuProduction",dir=fdir1)
 		maxyr=max(CuProduction$Year)
 		```
 
@@ -27,7 +28,7 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 		cr.years=c(cr.years,missing.years)
 		cr.prod=cr.prod[order(cr.years)]
 		cr.years=sort(cr.years)
-		plot(cr.years,cr.prod,main="Castle Rock Northern fur seal Live Pup Count",xlab="Year",ylab="Pup production",xaxt="n",xlim=c(1970,maxyr), ylim=c(0,1500))
+		plot(cr.years,cr.prod,main="Castle Rock Northern fur seal Live Pup Count",xlab="Year",ylab="Pup production",xaxt="n",xlim=c(1970,maxyr), ylim=c(0,2000))
 		lines(cr.years,cr.prod)
 		axis(1,at=seq(1970,maxyr,2),labels= seq(1970,maxyr,2))
 		```
@@ -66,7 +67,7 @@ Figure 3. Estimated pup production of Callorhinus pups on San Miguel Island
 
 
 
-```{r,results="hide",echo=FALSE,fig.width=6,fig.height=7,dpi=300}
+```{r,results="hide",echo=FALSE,fig.width=7,fig.height=7,dpi=300}
    minyear=min(cu.mort$Year)
    maxyear=max(cu.mort$Year)
    numyears=maxyear-minyear+1
@@ -80,7 +81,7 @@ Figure 3. Estimated pup production of Callorhinus pups on San Miguel Island
     	i=i+1
 	    with(cu.mort[cu.mort$Year==y,],lines(c(0,DaysFrom15June),c(1,CumS),lty=ltype[i],col=col[i]))
     }
-    legend(140,1,legend=minyear:maxyear,lty=ltype[1:numyears],col=col[1:numyears],cex=0.8)
+    legend(130,1,legend=minyear:maxyear,lty=ltype[1:numyears],col=col[1:numyears],cex=0.8)
 
     CumSto1Aug=rep(NA,numyears)
     i=1
@@ -93,7 +94,7 @@ Figure 3. Estimated pup production of Callorhinus pups on San Miguel Island
     plot(minyear:maxyear,CumSto1Aug,xlab="Year",ylab="Cumulative survival to 27 July",type="b")
 
 		```
-Figure 4 Estimated cuumulative survival of Callorhinus pups from birth to fall by year on San Miguel Island.
+Figure 4 Estimated cummulative survival of Callorhinus pups from birth by year on San Miguel Island.
 
 
 

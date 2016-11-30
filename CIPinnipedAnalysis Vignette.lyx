@@ -81,7 +81,7 @@ Jeff Laake
 \end_layout
 
 \begin_layout Date
-29-Nov-2016
+30-Nov-2016
 \end_layout
 
 \begin_layout Section*
@@ -259,9 +259,7 @@ To update the last three tables, it is easiest to copy the data from the
  year, dates, survey numbers and delete and add any new records (e.g., new
  area codes used).
  Then use External Data in ACCESS to add the new data.
- Note that the CuSurveyDates table cannot have more than one date entry
- per survey and must be in chronological order for the programs to run.
- For 
+  For 
 \begin_inset Quotes eld
 \end_inset
 
@@ -491,10 +489,6 @@ Zc dead tag initial
 \end_inset
 
  and totals dead pups by survey number/date.
- It will produce errors if there are more than one survey date for each
- survey number within an area in a year.
- If it required more than one day to cover an area, assign the counts to
- the date on which the majority of the area was covered.
  It returns a dataframe containing YearArea, SurveyNumber, SurveyDate, Area,
  count, Year, Month, Day, DeadPupArea (Y/N if included in area sampled for
  dead pups), and MatchingLiveArea.
@@ -1352,7 +1346,7 @@ Running the Code
 \end_layout
 
 \begin_layout Standard
-To install and CIPinnipedAnalysis, you also need to install the following
+To install and use CIPinnipedAnalysis, you also need to install the following
  packages in R from CRAN:
 \family typewriter
  nlme
@@ -1394,8 +1388,17 @@ lastyear=2016
 
 \begin_layout Plain Layout
 
-example(CIPinnipedAnalysis,ask=FALSE)  # pup production/pup mortality -
- calls scripts PupProduction.r and EarlyPupMortality.r
+example(CIPinnipedAnalysis,ask=FALSE)  # pup production/pup mortality 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                       # calls scripts PupProduction.r 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                       # and EarlyPupMortality.r
 \end_layout
 
 \begin_layout Plain Layout
@@ -1472,13 +1475,12 @@ lastyear=2016
 
 \begin_layout Plain Layout
 
-example(Zc,ask=FALSE)                  # pup production/pup mortality only
- for Zc
+example(Zc,ask=FALSE)              # Zc pup production/pup mortality 
 \end_layout
 
 \begin_layout Plain Layout
 
-example(get.zc.weights,ask=FALSE)      # zalophus pup weight code
+example(get.zc.weights,ask=FALSE)  # zalophus pup weight code
 \end_layout
 
 \begin_layout Plain Layout
@@ -1492,13 +1494,12 @@ example(get.zc.weights,ask=FALSE)      # zalophus pup weight code
 
 \begin_layout Plain Layout
 
-example(Cu,ask=FALSE)                  # pup production/pup mortality only
- for Cu
+example(Cu,ask=FALSE)              # Cu pup production/pup mortality 
 \end_layout
 
 \begin_layout Plain Layout
 
-example(get.cu.weights,ask=FALSE)      # callorhinus pup weight code
+example(get.cu.weights,ask=FALSE)  # callorhinus pup weight code
 \end_layout
 
 \begin_layout Plain Layout

@@ -83,7 +83,8 @@ else
   live=construct.live("SMI","Cu",dir)
   dead=construct.dead("SMI","Cu",dir)
   CUDates=getCalcurData("CIPCensus","CU Survey Dates",dir=dir)
-#  CUDates=sqlFetch(connection,"CU Survey Dates")
+#  date_tally=table(CUDates$Year,CUDates[,"Survey number"])
+#  if(any(date_tally>1)) stop("Check CU Survey Dates; only one record per survey number is allowed in a year")
   CUDates$days=as.double(difftime(CUDates$Date,strptime(paste(c(6),c(15),CUDates$Year,sep="/"), "%m/%d/%Y")))
 }
 if(!is.null(years))
@@ -290,6 +291,7 @@ for (i in 1:length(livenames))
 				    cat(paste("For",livenames[i],"shifting time of livecount from day ",LiveByYearandArea$Days[i],"to ",x[length(x)]))
 				    LiveByYearandArea$Days[i]=x[length(x)]
 			    }
+				if(length(x)!=length(y))browser()
 			    dead.at.livecount=approx(x=x,y=y,xout=LiveByYearandArea$Days[i])$y
               }
            }
@@ -300,8 +302,9 @@ for (i in 1:length(livenames))
               else
               {
                  SurveyNum=as.numeric(row.names(DeadByYearandArea[[livenames[[i]]]]))
-                 xdays=c(0,sort(CUDates$days[CUDates$Year==xyear&CUDates[,"Survey number"]%in%SurveyNum]))
-                 y=c(0,DeadByYearandArea[[livenames[i]]]$CumCount)
+                 xdays=c(0,DeadByYearandArea[[livenames[i]]]$Days)
+#				 xdays=c(0,sort(CUDates$days[CUDates$Year==xyear&CUDates[,"Survey number"]%in%SurveyNum]))
+				 y=c(0,DeadByYearandArea[[livenames[i]]]$CumCount)
                  if(length(xdays)!=length(y))
                    cat(paste("\nWarning: For ",livenames[i]," length of average survey dates and counts do not match"))
                  if(length(xdays)!=length(unique(xdays)))
@@ -311,6 +314,7 @@ for (i in 1:length(livenames))
 					 cat(paste("For",livenames[i],"shifting time of livecount from day ",LiveByYearandArea$Days[i],"to ",xdays[length(xdays)]))
 					 LiveByYearandArea$Days[i]=xdays[length(xdays)]
 				 }
+				 if(length(xdays)!=length(y))browser()
                  dead.at.livecount=approx(x=xdays,y=y,xout=LiveByYearandArea$Days[i])$y
               }
            } 

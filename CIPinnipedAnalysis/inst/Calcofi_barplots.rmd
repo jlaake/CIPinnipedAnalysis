@@ -9,7 +9,6 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
   suppressPackageStartupMessages(library(CIPinnipedAnalysis))
     suppressPackageStartupMessages(library(pander))
   sdir=system.file(package="CIPinnipedAnalysis")
-  nboot=2
   source(file.path(sdir,"ZC_Weight_Adjustment_Model.r"))
   source(file.path(sdir,"ZC_Growth.r"))
 ```
