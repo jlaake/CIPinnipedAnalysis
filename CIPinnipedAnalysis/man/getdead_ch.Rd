@@ -20,7 +20,8 @@ getdead_ch(island, year, development = "fullterm", merge = TRUE)
 ch(capture history), 
 Carcass condition: F-fresh, D- decomposing, P- pancake, 
 Position: A (Above) or B (Below)
-Substrate: N (non-consolidated - sandy), C (consolidated - rocky)}
+Substrate: N (non-consolidated - sandy), C (consolidated - rocky)
+AreaCode - beach area"}
 }
 \description{
 Creates capture histories for tagged and untagged dead pups for POPAN analysis
