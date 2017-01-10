@@ -8,6 +8,7 @@
 \alias{smi1998a.popan.results}
 \alias{smi2002.popan.results}
 \alias{smi2002a.popan.results}
+\alias{smi2016.cu.popan.results}
 \alias{sni2006.popan.results}
 \title{POPAN model results and correction factors from dead pup tagging data}
 \format{A list with elements: popan.results - a marklist of fitted POPAN models, cfdata - list of correction factor data used to correct

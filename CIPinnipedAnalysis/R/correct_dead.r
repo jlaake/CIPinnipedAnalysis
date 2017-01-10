@@ -18,11 +18,14 @@
 #' Note: In 1994 the number of untagged and stacked was not recorded on the last occasion; thus the correction factor for the last occasion is not useful.  
 #' 
 #' @usage correct_dead(island,year)
+#'        cu_correct_dead(year)
 #'        average_cf(island,year,ndays1=Inf,ndays2,area=NULL,lev=NULL)
+#'        cu_average_cf(island,year,ndays1=Inf,ndays2,cfyears=2016)
 #'        compute_cf(BiGross,ndays1=Inf,ndays2)
 #'        process_ch(ch,freq=NULL,all=FALSE)
-#' @aliases correct_dead average_cf compute_cf process_ch
-#' @export correct_dead average_cf compute_cf process_ch
+#' 
+#' @aliases correct_dead average_cf compute_cf process_ch cu_correct_dead cu_average_cf
+#' @export correct_dead average_cf compute_cf process_ch cu_correct_dead cu_average_cf
 #' @param island ("SMI" or "SNI")
 #' @param year four digit numeric year
 #' @param BiGross is the estimates of gross immigration into the population of dead pups; it is a list with results from fitted models
@@ -33,6 +36,7 @@
 #' @param ch vector of capture histories
 #' @param freq frequency of capture history
 #' @param all logical indicating whether all quantities should be computed from capture history
+#' @param cfyears vector of years to use for correction factor data for Cu. Right now only 2016 are available.
 #' @return correct_dead returns a list containing a dataframe with corrected dead pup counts by occasion and strata (eg group - area or substrate/position) and a dataframe with a total across strata by occasion. 
 #' average_cf returns an average correction factor for a particular range of dates by interpolation and then averaging over years (cfyears) for a particular area code or postion-substrate strata.  
 #' @author Jeff Laake 
@@ -169,6 +173,79 @@ average_cf=function(island,year,ndays1=Inf,ndays2,area=NULL,lev=NULL)
 		if(ndays2<min(xx$daysfrom1July[select]))ndays2=min(xx$daysfrom1July[select])
 		if(ndays2>max(xx$daysfrom1July[select]))ndays2=max(xx$daysfrom1July[select])
 		cf[i]=compute_cf(xx[select,],ndays1=ndays1,ndays2=ndays2)
+		i=i+1
+	}
+	return(mean(cf))
+}
+cu_correct_dead=function(year)
+{
+	island="SMI"
+#   get dead pups for the island and year as capture histories
+	x.popan=suppressMessages(cu_getdead_ch(year))
+#   only use first 3 characters of the area code
+	x.popan$df[,"AreaCode"]=factor(substr(as.character(x.popan$df[,"AreaCode"]),1,3))
+#   ignore any 0 records
+	x.popan$df=x.popan$df[!x.popan$df$freq==0,]
+#   get first capture occasion from the capture history
+	chlist=CIPinnipedAnalysis::process_ch(x.popan$df$ch,x.popan$df$freq)
+	times=x.popan$days
+	time.intervals=as.numeric(diff(times))
+#   use RMark code to process the capture history 
+	x.proc=process.data(x.popan$df,model="POPAN",time.intervals=time.intervals,groups=c("AreaCode"),begin.time=0)
+#   tally the number dead at first occasion by group	
+	numdead= tapply(abs(x.proc$data$freq),list(factor(chlist$first,1:nrow(times)),x.proc$data$group),sum)
+	numdead[is.na(numdead)]=0
+#   compute cumulative dead across occasions within each group (strata)
+	cumdead=as.vector(apply(t(numdead), 1, cumsum))
+#   create a dataframe (df) with occasion and strata (either area or area-substrate-position)
+	k=length(times)
+	gindex=rep(1:nrow(x.proc$group.covariates),each=k)
+	df=x.proc$group.covariates[gindex,,drop=FALSE]
+	df$occasion=rep(as.numeric(names(times)),nrow(x.proc$group.covariates))
+	df$key=paste(df[,"AreaCode"],df$occasion)
+	x.popan$daysfrom1July$key=paste(x.popan$daysfrom1July$Area,x.popan$daysfrom1July$Occasion)
+	df=merge(df, x.popan$daysfrom1July,by="key")
+	df$occasion=NULL
+	df[,"AreaCode"]=NULL
+	df$key=NULL
+	df=df[order(df$Area,df$Occasion),]
+	df$cumdead=cumdead
+#
+#   compute and apply correction factor to observed data; toss out any records missing
+#   position and substrate if after 1997
+#
+	df$cf=rep(NA,nrow(df))
+	for(i in 1:nrow(df))
+		df$cf[i]=cu_average_cf(island=island,year=year,ndays2=df$daysfrom1July[i])
+	df$estimate.dead=df$cumdead*df$cf	
+#   sum over strata for each occasion
+	bystrata=df
+	df=data.frame(occasion=sort(unique(df$Occasion)),cumdead=tapply(df$cumdead,df$Occasion,sum),estimate.dead=tapply(df$estimate.dead,df$Occasion,sum))
+	df$cf=df$estimate.dead/df$cumdead	
+	return(list(bystrata=bystrata,total=df))
+}
+
+cu_average_cf=function(island,year,ndays1=Inf,ndays2,cfyears=2016)
+# currently only a single correction factor is used for Cu because there is
+# only one year of data and historically substrate and position covariates have not
+# been collected with dead pup count data.
+{	
+	
+	cf=vector("numeric",length=length(cfyears))
+	i=1
+	for (y in cfyears)
+	{	
+		if(!eval(parse(text=paste("exists('",tolower(island),y,".cu.popan.results')",sep=""))))
+			eval(parse(text=paste("data(",tolower(island),y,".cu.popan.results)",sep="")))
+			xx=eval(parse(text=paste(tolower(island),y,".cu.popan.results$cfdata$BiGross",sep="")))
+		if(!is.infinite(ndays1))
+		{
+			if(ndays1<min(xx$daysfrom1July))ndays2=min(xx$daysfrom1July)
+			if(ndays1>max(xx$daysfrom1July))ndays2=max(xx$daysfrom1July)
+		}
+		if(ndays2<min(xx$daysfrom1July))ndays2=min(xx$daysfrom1July)
+		if(ndays2>max(xx$daysfrom1July))ndays2=max(xx$daysfrom1July)
+		cf[i]=compute_cf(xx,ndays1=ndays1,ndays2=ndays2)
 		i=i+1
 	}
 	return(mean(cf))

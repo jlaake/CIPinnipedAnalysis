@@ -134,6 +134,31 @@ construct.dead=function(island,species,dir=NULL)
        xmat1$Year=as.POSIXlt(xmat1$SurveyDate)[[6]]+1900
        xmat=rbind(xmat,xmat1)
     }
+	if(species=="Cu")
+	{
+		dead.tag=getCalcurData("CIPCensus","tbl Cu Dead Tag - initial")
+		dead.tag=dead.tag[dead.tag$Island==island&tolower(dead.tag$Development)=="full" ,]
+		dead.tag[,"Area code"]=factor(dead.tag[,"AreaCode"])
+#   Make sure that there is only one survey number per survey date in each area
+		xx=(tapply(dead.tag[,"CuDPCSurveyNum"],list(dead.tag[,"CuDPCSurveyNum"],dead.tag[,"SurveyDate"],dead.tag[,"Area code"]),length))
+		xx=apply(xx,c(2,3),function(x) length(x[!is.na(x)]))
+		if(any(xx>1))
+		{
+			indices=which(xx>1,arr.ind=TRUE)
+			stop("In dead tag, for Zc, the following survey dates/areas have more than one survey number: ",paste(rownames(xx)[indices[,"row"]]
+							,colnames(xx)[indices[,"col"]],sep="-",collapse=","))
+		}
+#   Create dataframe of counts
+		xx=sapply(split(dead.tag[,"CuDPCSurveyNum"],list(dead.tag[,"CuDPCSurveyNum"],dead.tag[,"SurveyDate"],dead.tag[,"Area code"])),length)
+		xx=xx[xx>0]
+		xmat1=as.data.frame(do.call("rbind",strsplit(names(xx),"\\.")))
+		names(xmat1)=c("SurveyNumber","SurveyDate","Area")
+		xmat1$SurveyNumber=as.numeric(as.character(xmat1$SurveyNumber))
+		xmat1$SurveyDate=as.Date(as.character(xmat1$SurveyDate),format="%Y-%m-%d")
+		xmat1$count=xx
+		xmat1$Year=as.POSIXlt(xmat1$SurveyDate)[[6]]+1900
+		xmat=rbind(xmat,xmat1)
+	}
     xmat$YearArea=paste(xmat$Year,xmat$Area,sep="")
     xmat$Month=as.POSIXlt(xmat$SurveyDate)[[5]]+1
     xmat$Day=as.POSIXlt(xmat$SurveyDate)[[4]]

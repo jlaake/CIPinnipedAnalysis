@@ -195,7 +195,7 @@ deadstacked=getCalcurData("CIPCensus","Zc Cu dead pup census")
 month=as.POSIXlt(deadstacked[,"Survey date"])[[5]]+1
 deadstacked=deadstacked[month>=6,]
 deadpupareas=getCalcurData("CIPCensus","DeadPupSampleAreas")
-deadpupareas=deadpupareas[deadpupareas$YearAreaSpecies=="Zc",c("YearArea","Dead pup sample area","Location")]
+deadpupareas=deadpupareas[deadpupareas$YearAreaSpecies=="Cu",c("YearArea","Dead pup sample area","Location")]
 initial=initial[initial$Island==island & initial$Year==year & tolower(initial$Development)==development,]
 if(nrow(initial)==0) 
 {

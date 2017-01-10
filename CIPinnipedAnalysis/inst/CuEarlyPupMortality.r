@@ -29,11 +29,25 @@ if(!is.null(fdir) && fdir=="")
 	fdir2=fdir
 }
 
+#Set maxyear for SMI
+deads=getCalcurData("CIPCensus","Zc Cu dead pup census")
+maxyear=max(deads$Year[deads$Island=="SMI"])
 
 # Construct mortality tables for Cu on San Miguel
-cu.mort=CuMortalityStats(fdir1=fdir1,fdir2=fdir2)
-cu.mort.table=cu.mort
-cu.mort.table$SurveyDate=substr(as.character(cu.mort$SurveyDate),1,10)
+Production=getCalcurData("CIPquery","CuProduction",dir=fdir1)
+Production=Production[Production$Area=="Mainland"&Production$Island=="SMI",]
+cusmi.mort=NULL
+for(y in 1997:maxyear)
+{
+	dead=cu_correct_dead(y)$bystrata
+	pups=Production$AdjustedDeadInDeadSampleArea[Production$Year==y]+Production$LiveInDeadSampleArea[Production$Year==y]
+	cusmi.mort=rbind(cusmi.mort,MortalityStats(year=y,dead,pups))
+}	
+cusmi.mort$Island="SMI"
+cu.mort.table=cusmi.mort
 xx=saveCalcurData(cu.mort.table,db="CIPquery",tbl="CuEarlyPupMortality",dir=fdir1)
+
+
+
 
 

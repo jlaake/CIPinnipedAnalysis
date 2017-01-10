@@ -5,7 +5,7 @@
 \title{Pup production stats}
 \usage{
 production.stats(island = "SMI", mainland = TRUE, years = NULL,
-  PreLiveCountCf = 1.33, species = "Zc", dir = NULL)
+  PreLiveCountCf = 1, species = "Zc", dir = NULL)
 }
 \arguments{
 \item{island}{the character name for the island "SMI" or "SNI"}
@@ -17,7 +17,7 @@ Castle Rock}
 
 \item{PreLiveCountCf}{Multiplicative correction factor for observed
 mortality prior to live count to account for dead pups that were missed
-and decomposed or were buried}
+and decomposed or were buried; It is used for Castle Rock which doesn't have tag data}
 
 \item{species}{either "Zc" for Zalophus or "Cu" for Callorhinus}
 

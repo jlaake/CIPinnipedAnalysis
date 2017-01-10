@@ -43,7 +43,7 @@ for(y in 1991:maxyear)
 {
 	dead=correct_dead("SMI",y)$bystrata
 	pups=Production$AdjustedDeadInDeadSampleArea[Production$Year==y]+Production$LiveInDeadSampleArea[Production$Year==y]
-	zcsmi.mort=rbind(zcsmi.mort,ZcMortalityStats(year=y,dead,pups))
+	zcsmi.mort=rbind(zcsmi.mort,MortalityStats(year=y,dead,pups))
 }	
 zcsmi.mort$Island="SMI"
 
@@ -58,7 +58,7 @@ for(y in 2005:maxyear)
 	dead=correct_dead("SNI",y)$bystrata
 	pups=Production$AdjustedDeadInDeadSampleArea[Production$Year==y]+Production$LiveInDeadSampleArea[Production$Year==y]
 	if(y<2008)pups=NA
-	zcsni.mort=rbind(zcsni.mort,ZcMortalityStats(year=y,dead,pups))
+	zcsni.mort=rbind(zcsni.mort,MortalityStats(year=y,dead,pups))
 }	
 zcsni.mort$Island="SNI"
 xx=saveCalcurData(rbind(zcsmi.mort,zcsni.mort),db="CIPquery",tbl="ZcEarlyPupMortality",dir=fdir1)

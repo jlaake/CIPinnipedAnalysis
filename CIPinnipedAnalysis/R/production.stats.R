@@ -27,7 +27,7 @@
 #' @param years vector of years to select or NULL if all to be used
 #' @param PreLiveCountCf Multiplicative correction factor for observed
 #'   mortality prior to live count to account for dead pups that were missed
-#'   and decomposed or were buried
+#'   and decomposed or were buried; It is used for Castle Rock which doesn't have tag data
 #' @param species either "Zc" for Zalophus or "Cu" for Callorhinus
 #' @param dir database directory for CensusMaster
 #' @export
@@ -36,7 +36,7 @@
 #'   MortalityRateAtLiveCount,TotalLiveCountByYear,PupProduction
 #' @author Jeff Laake
 production.stats <-
-function(island="SMI",mainland=TRUE,years=NULL,PreLiveCountCf=1.33,species="Zc",dir=NULL)
+function(island="SMI",mainland=TRUE,years=NULL,PreLiveCountCf=1,species="Zc",dir=NULL)
 {
 # Computes pup production stats for San Miguel or Castle Rock
 # Define a function to create a dataframe of cummulative counts of dead pups with dates
@@ -71,7 +71,7 @@ if(island=="SNI" | mainland)
 else
    cat("\nProduction Stats for ",species," on Castle Rock\n")
 #
-# Read in ZC live and dead count tables from the ACCESS file SMICensusQuery.mdb
+# if species ="Zc" read in ZC live and dead count tables from the ACCESS file SMICensusQuery.mdb
 #
 if(species=="Zc")
 {
@@ -80,13 +80,15 @@ if(species=="Zc")
 }
 else
 {
+#
+# If species= "Cu" read in Cu live and dead count tables from the ACCESS file SMICensusQuery.mdb
+#
   live=construct.live("SMI","Cu",dir)
   dead=construct.dead("SMI","Cu",dir)
   CUDates=getCalcurData("CIPCensus","CU Survey Dates",dir=dir)
-#  date_tally=table(CUDates$Year,CUDates[,"Survey number"])
-#  if(any(date_tally>1)) stop("Check CU Survey Dates; only one record per survey number is allowed in a year")
   CUDates$days=as.double(difftime(CUDates$Date,strptime(paste(c(6),c(15),CUDates$Year,sep="/"), "%m/%d/%Y")))
 }
+# If for specific set of years, extract values for those years
 if(!is.null(years))
 {
    live=live[live$Year%in%years,]
@@ -219,7 +221,7 @@ if(length(missing.live.areas)!=0)
   stop("\n",species," Production table not constructed")
 }
 #
-# If no errors, then for each live area interpolate cumulative mortality at date of live count
+# If no errors, then for each year (y) in live area and each area (a) interpolate cumulative mortality at date of live count
 # and store as Dead.at.live.count.  If all of the dead pup counts are after the live pup count
 # this is an error and should not happen.
 #
@@ -227,7 +229,7 @@ livenames=paste(LiveByYearandArea$Year,LiveByYearandArea$Area,sep=".")
 cfvalues=NULL
 for(y in sort(unique(LiveByYearandArea$Year)))
 {
-	if(species=="Zc"& mainland)
+	if(species=="Zc"& mainland & y>1997)
 	{
 	   xx=suppressMessages(getdead_ch(island,y,merge=FALSE))
 	   if(all(!is.na(xx$df$Substrate))&all(!is.na(xx$df$Position)))
@@ -243,8 +245,11 @@ for(y in sort(unique(LiveByYearandArea$Year)))
     }
 	for(a in sort(unique(substr(LiveByYearandArea$Area[LiveByYearandArea$Year==y],1,3))))
     {
+		# Zc Mainland Correction factor 
         if(species=="Zc"& mainland)
         {
+		  # if year >1997, compute an average correction factor which is weighted by proportion of count in each
+		  # position and substrate category in area a
 	      if(y>1997)
 	      {
 			counts=as.vector(with(xx$df[xx$df$survey<=3 & substr(xx$df$Area,1,3)== a,],tapply(abs(freq),list(Position,Substrate),sum,na.rm=TRUE)))
@@ -258,11 +263,17 @@ for(y in sort(unique(LiveByYearandArea$Year)))
 		    cf=sum(prop*cf)
 	      }else
 	      {
+			# if y<1997 use a single correction for each area a
 		    cf=average_cf(island,y,ndays2=LiveByYearandArea$Days[LiveByYearandArea$Year==y&substr(LiveByYearandArea$Area,1,3)==a]-16,area=a)	 
 	      }
-      } else
-	     cf=PreLiveCountCf
-	 cfvalues=rbind(cfvalues,data.frame(Year=y,Area=a,cf=cf))
+        } else {
+		   if(species=="Cu"& mainland)
+		   {
+			   cf=cu_average_cf(island,y,ndays2=LiveByYearandArea$Days[LiveByYearandArea$Year==y&substr(LiveByYearandArea$Area,1,3)==a]-16)	 
+		   }else
+			  cf=PreLiveCountCf
+	   }
+	   cfvalues=rbind(cfvalues,data.frame(Year=y,Area=a,cf=cf))
    }
 }
 LiveByYearandArea$Dead.at.live.count=0

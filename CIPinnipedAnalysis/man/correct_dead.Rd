@@ -4,11 +4,15 @@
 \alias{average_cf}
 \alias{compute_cf}
 \alias{correct_dead}
+\alias{cu_average_cf}
+\alias{cu_correct_dead}
 \alias{process_ch}
 \title{Correction factors for dead pup counts}
 \usage{
 correct_dead(island,year)
+       cu_correct_dead(year)
        average_cf(island,year,ndays1=Inf,ndays2,area=NULL,lev=NULL)
+       cu_average_cf(island,year,ndays1=Inf,ndays2,cfyears=2016)
        compute_cf(BiGross,ndays1=Inf,ndays2)
        process_ch(ch,freq=NULL,all=FALSE)
 }
@@ -32,6 +36,8 @@ correct_dead(island,year)
 \item{freq}{frequency of capture history}
 
 \item{all}{logical indicating whether all quantities should be computed from capture history}
+
+\item{cfyears}{vector of years to use for correction factor data for Cu. Right now only 2016 are available.}
 }
 \value{
 correct_dead returns a list containing a dataframe with corrected dead pup counts by occasion and strata (eg group - area or substrate/position) and a dataframe with a total across strata by occasion. 
