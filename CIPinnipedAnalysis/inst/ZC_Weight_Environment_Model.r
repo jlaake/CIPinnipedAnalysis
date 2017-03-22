@@ -78,6 +78,11 @@ env.data=merge(env.data,fish_abundance,all.x=TRUE )
 # package
 data(fo)
 fo=create_fo(fo)
+fo$diet=NA
+fo$diet[fo$Year%in%1981:1986]="Diet1"
+fo$diet[fo$Year%in%c(1980,2009,2012,2013,1992,2000,1995,2001,2011,1991,2010)]="Diet2"
+fo$diet[fo$Year%in%c(1993,1996,1997,1998,2002,2003,2004,2005,2006,2007,2014,2015)]="Diet3"
+fo$diet=factor(fo$diet)
 names(fo)[1]="cohort"
 #merge in diet data
 env.data=merge(env.data,fo,all.x=TRUE)

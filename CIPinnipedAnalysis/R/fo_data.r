@@ -24,11 +24,6 @@ create_fo=function(fo)
 	fo=as.data.frame(fo)
 	fo=cbind(fo,sa=as.vector(sa),lo.cal=as.vector(lo.cal),hi.cal=as.vector(hi.cal$fo),n.scat=as.vector(hi.cal$n.scat))
 	fo$ratio=fo$hi.cal/fo$lo.cal
-	fo$diet=NA
-	fo$diet[fo$Year%in%1981:1986]="Diet1"
-	fo$diet[fo$Year%in%c(1980,2009,2012,2013,1992,2000,1995,2001,2011,1991,2010)]="Diet2"
-	fo$diet[fo$Year%in%c(1993,1996,1997,1998,2002,2003,2004,2005,2006,2007)]="Diet3"
-	fo$diet=factor(fo$diet)
 	return(fo)
 }
 #' Creates Frequency of Occurrence (FO) DataFrame for Primary Prey of Callorhinus

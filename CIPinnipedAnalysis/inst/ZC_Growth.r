@@ -22,8 +22,9 @@ zcweights.lon=zcweights.lon[zcweights.lon$cohort<=lastyear,]
 #  Use SMI from 1 Sept to end of Feb
 #
 zcweights.lon=zcweights.lon[zcweights.lon$days>-30&zcweights.lon$days<150&zcweights.lon$sitecode=="SMI",]
-# to exclude Dec 2014 weights use
-#zcweights.lon=zcweights.lon[zcweights.lon$days<70 | zcweights.lon$days>=78,]
+# to exclude Dec 2014 weights at SMI use; appears there was an initial growth and then decline in growth 
+# so it adds noise; also it is not comparable to other years that use entire span until late Jan - early Feb
+zcweights.lon=zcweights.lon[zcweights.lon$days<68 | zcweights.lon$days>=83,]
 # Extract the pups with more than one measurement
 long.id=table(zcweights.lon$AnimalID)
 long.id=names(long.id[long.id>1])
