@@ -23,9 +23,9 @@ OcttoFebSLH=NULL
 for(i in 1:length(octtodec))
 {
 	if(i+1 > length(jantofeb))
-	  OcttoFebSLH=c(OcttoFebSLH,mean(octtodec[[i]]))
+	  OcttoFebSLH=c(OcttoFebSLH,mean(octtodec[[i]],na.rm=TRUE))
     else
-		OcttoFebSLH=c(OcttoFebSLH,mean(c(octtodec[[i]],jantofeb[[i+1]])))
+		OcttoFebSLH=c(OcttoFebSLH,mean(c(octtodec[[i]],jantofeb[[i+1]]),na.rm=TRUE))
 }
 numyears=lastyear-1975+1
 JunetoSeptSLH=JunetoSeptSLH[1:numyears]

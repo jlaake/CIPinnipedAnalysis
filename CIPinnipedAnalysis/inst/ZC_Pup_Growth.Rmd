@@ -20,7 +20,7 @@ library(pander)
 }))
 fdir=NULL
 nboot=100
-lastyear=2015
+lastyear=2016
 runit=FALSE
 options(width=150)
 if(runit)
@@ -188,7 +188,8 @@ No details here yet and we should consider whether we want this.  Essentially it
 
 
 ```{r,fodata,echo=FALSE}
-fo=create_fo()
+data(fo)
+fo=create_fo(fo)
 # read in abundance data files
 data(sardine)
 data(anchovy)
@@ -249,7 +250,7 @@ for(i in 1:length(sardine.data$Age01))
    lines(x=rep(sardine.data$SardineBiomass[i],2), y=c(pL[i],pU[i]))
 ```
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 sardine.data$Year=as.numeric(as.character(sardine.data$Year))
 par(mar=c(5, 4, 4, 4) + 0.1)
 plot(sardine.data$Year,sardine.data$Age01,xlab="Year",ylab="Sardine abundance age 0 and 1 (1000's)",type="b")
@@ -297,7 +298,7 @@ for(i in 1:length(anchovy.data$AnchovyBiomass))
    lines(x=rep(anchovy.data$AnchovyBiomass[i],2), y=c(pL[i],pU[i]))
 ```
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 anchovy.data$Year=as.numeric(as.character(anchovy.data$Year))
 par(mar=c(5, 4, 4, 4) + 0.1)
 plot(anchovy.data$Year,anchovy.data$AnchovyBiomass,xlab="Year",ylab="Anchovy abundance",type="b")
@@ -338,7 +339,7 @@ text(12,.2,paste("r =",formatC(cor(hake.data$Age01,hake.data$fo),digits=3)),cex=
 ```
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 hake.data$Year=as.numeric(as.character(hake.data$Year))
 par(mar=c(5, 4, 4, 4) + 0.1)
 plot(hake.data$Year,hake.data$Age01,xlab="Year",ylab="Hake abundance age 0 and 1 (billions)",type="b")
@@ -381,7 +382,7 @@ text(1200,.9,paste("r =",formatC(cor(lol.data$SSBmt,lol.data$fo),digits=3)),cex=
 ```
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 lol.data$Year=as.numeric(as.character(lol.data$Year))
 par(mar=c(5, 4, 4, 4) + 0.1)
 plot(lol.data$Year,lol.data$SSBmt,xlab="Year",ylab="Third quarter loligo abundance (mt)",type="b")
@@ -556,7 +557,7 @@ summary(zc.weight.environ.model)
 ```
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.mean.fall,pch="F",type="b",ylim=c(12,26)))
 with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
@@ -571,7 +572,7 @@ with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
 Figure 5. Predictions from fitted best model with data from 1975-2014 using standard environmental data. The model includes SST for initial weight and SST1 for growth rate as well as sex and an annual declining trend in pup weights. The triangles are the model predictions for average weight at 1 Oct and the circles are the same values from the adjustment model.
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),],plot(Year,female.environ.mean.fall-female.environ.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
 abline(0,0)
@@ -622,7 +623,7 @@ summary(zc.weight.model.environ.abun)
 
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.abun.mean.fall,pch="F",type="b",ylim=c(12,26)))
 with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
@@ -637,7 +638,7 @@ with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
 Figure 6. Predictions from fitted best model with `r length(table(zcweights.environ.abun$Year))` non-consecutive years of data from `r min(zcweights.environ.abun$Year)`-`r max(zcweights.environ.abun$Year)` using standard environmental and fish abundance data. The model includes SST and log(AnchovyBiomass) for initial weight and SST1 for growth rate as well as main effect for sex and its interaction with SST and a sex-specific growth rate. The triangles are the model predictions for average weight at 1 Oct and the circles are the same values from the adjustment model.
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.mean.fall),],plot(Year,female.environ.abun.mean.fall-female.environ.abun.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
 abline(0,0)
@@ -677,7 +678,7 @@ summary(zc.weight.model.environ.abun.diet)
 ```
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.abun.diet.mean.fall,pch="F",type="b",ylim=c(12,26)))
 with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
@@ -690,7 +691,7 @@ with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
 ```
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall),],plot(Year,female.environ.abun.diet.mean.fall-female.environ.abun.diet.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
 abline(0,0)
@@ -713,7 +714,7 @@ Figure 7. Predictions from fitted best model with `r length(table(zcweights.envi
 
 
 ```{r,echo=FALSE,fig.width=7,fig.height=8}
-xx=cbind(Year=1975:2015,Fwt=ZCWeight.df$female.adjusted.mean.fall,
+xx=cbind(Year=1975:lastyear,Fwt=ZCWeight.df$female.adjusted.mean.fall,
 subset(env.data,select=c("squid","AnchovyBiomass","SST")))
 xx=xx[!is.na(xx$squid),]
 xx=xx[!is.na(xx$AnchovyBiomass),]
@@ -747,7 +748,7 @@ summary(zc.weight.model.environ.diet)
 ```
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.diet.mean.fall,pch="F",type="b",ylim=c(12,26)))
 with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
@@ -760,7 +761,7 @@ with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
 ```
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],plot(Year,female.environ.diet.mean.fall-female.environ.diet.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
 abline(0,0)
@@ -804,7 +805,7 @@ summary(zc.weight.environ.model)
 ```
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.mean.fall,pch="F",type="b",ylim=c(12,26)))
 with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
@@ -817,7 +818,7 @@ with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
 ```
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.mean.fall),],plot(Year,female.environ.mean.fall-female.environ.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
 abline(0,0)
@@ -857,7 +858,7 @@ summary(zc.weight.model.environ.abun)
    pander(summary(zc.weight.model.environ.abun)$tTable,split.tables=Inf)
 ```
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.abun.mean.fall,pch="F",type="b",ylim=c(12,26)))
 with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
@@ -870,7 +871,7 @@ with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
 ```
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.mean.fall),],plot(Year,female.environ.abun.mean.fall-female.environ.abun.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
 abline(0,0)
@@ -912,7 +913,7 @@ summary(zc.weight.model.environ.abun.diet)
 ```
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.abun.diet.mean.fall,pch="F",type="b",ylim=c(12,26)))
 with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
@@ -925,7 +926,7 @@ with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
 ```
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.abun.diet.mean.fall),],plot(Year,female.environ.abun.diet.mean.fall-female.environ.abun.diet.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
 abline(0,0)
@@ -963,7 +964,7 @@ summary(zc.weight.model.environ.diet)
 ```
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df,plot(ZCWeight.df$Year,female.environ.diet.mean.fall,pch="F",type="b",ylim=c(12,26)))
 with(ZCWeight.df,points(ZCWeight.df$Year,female.adjusted.mean.fall,pch="O"))
@@ -976,11 +977,11 @@ with(ZCWeight.df,lines(ZCWeight.df$Year,male.adjusted.mean.fall,lty=2))
 ```
 
 
-```{r,echo=FALSE,fig.width=6,fig.height=6,eval=FALSE}
+```{r,echo=FALSE,fig.width=6,fig.height=6}
 par(mfrow=c(2,1))
 with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],plot(Year,female.environ.diet.mean.fall-female.environ.diet.mean.fall.fixed,pch="F",type="b",ylab="Female residuals"))
 abline(0,0)
-with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],plot(Year,male.environ.diet.mean.fall-maleenviron.diet.mean.fall.fixed,pch="M",ylab="Male residuals",type="b"))
+with(ZCWeight.df[!is.na(ZCWeight.df$female.environ.diet.mean.fall),],plot(Year,male.environ.diet.mean.fall-male.environ.diet.mean.fall.fixed,pch="M",ylab="Male residuals",type="b"))
 abline(0,0)
 ```
 
