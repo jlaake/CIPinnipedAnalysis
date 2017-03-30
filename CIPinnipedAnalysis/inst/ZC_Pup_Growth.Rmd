@@ -482,7 +482,7 @@ par(mfrow=c(2,1))
 maxyear=max(ZCWeight.df$Year)
 female.averages=list(fit=ZCWeight.df$female.adjusted.mean.fall,se=ZCWeight.df$female.adjusted.mean.fall.se)
 male.averages=list(fit=ZCWeight.df$male.adjusted.mean.fall,se=ZCWeight.df$male.adjusted.mean.fall.se)
-ymin=min(c(female.averages$fit-1.96*female.averages$se, male.averages$fit-1.96*male.averages$se))*1.1
+ymin=min(c(female.averages$fit-1.96*female.averages$se, male.averages$fit-1.96*male.averages$se))*.9
 ymax=max(c(female.averages$fit+1.96*female.averages$se, male.averages$fit+1.96*male.averages$se))*1.1
 plot_weight.series(1975:maxyear,female.averages,main="California sea lion Female Pups",ylim=c(ymin,ymax),date="1 Oct")
 plot_weight.series(1975:maxyear,male.averages,main="California sea lion Male Pups",ylim=c(ymin,ymax),date="1 Oct")
@@ -503,7 +503,7 @@ par(mfrow=c(2,1))
 maxyear=max(ZCWeight.df$Year)
 winter.female.averages=list(fit=ZCWeight.df$female.adjusted.mean.winter,se=ZCWeight.df$female.adjusted.mean.se.winter)
 winter.male.averages=list(fit=ZCWeight.df$male.adjusted.mean.winter,se=ZCWeight.df$male.adjusted.mean.se.winter)
-ymin=min(c(winter.female.averages$fit-1.96*winter.female.averages$se, winter.male.averages$fit-1.96*winter.male.averages$se))*1.1
+ymin=min(c(winter.female.averages$fit-1.96*winter.female.averages$se, winter.male.averages$fit-1.96*winter.male.averages$se))*.9
 ymax=max(c(winter.female.averages$fit+1.96*winter.female.averages$se, winter.male.averages$fit+1.96*winter.male.averages$se))*1.1
 plot_weight.series(1975:maxyear,winter.female.averages,main="California sea lion Female Pups",ylim=c(ymin,ymax),date="1 Feb")
 plot_weight.series(1975:maxyear,winter.male.averages,main="California sea lion Male Pups",ylim=c(ymin,ymax),date="1 Feb")
@@ -514,11 +514,11 @@ Figure 2b. Predicted Zalophus pup weights on San Miguel Island at 1 Feb.
 
 
 ```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=600}
-source(file.path(sdir,"ZC_Growth.r"))
+source(file.path(system.file(package="CIPinnipedAnalysis"),"ZC_Growth.r"))
 female.averages=data.frame(fit=pp$gr[pp$sex=="F"],se=stderrors[as.numeric(row.names(pp[pp$sex=="F",]))])
 male.averages=data.frame(fit=pp$gr[pp$sex=="M"],se=stderrors[as.numeric(row.names(pp[pp$sex=="M",]))])
 par(lty=1)
-plot_growth.series(sort(unique(pp$cohort)),female.averages,ylim=c(0,.12),xaxp=c(1998,2014,8))
+plot_growth.series(sort(unique(pp$cohort)),female.averages,ylim=c(0,.12),xaxp=c(1988,2016,7))
 par(lty=2)
 plot_growth.series(sort(unique(pp$cohort))+.2,male.averages,pch=2,add=TRUE,slty=1)
 points(2005,0.04,pch=2)
