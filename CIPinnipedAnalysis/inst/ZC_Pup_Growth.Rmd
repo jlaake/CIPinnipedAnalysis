@@ -528,8 +528,37 @@ lines(x=c(2004.75,2005.25),y=c(0.03,0.03),pch=1,lty=1)
 text(2005.4,0.04,"Males",pos=4)
 text(2005.4,0.03,"Females",pos=4)
 ```
-
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=600}
+growth=data.frame(Year=sort(unique(pp$cohort)),female=female.averages$fit,male=male.averages$fit)
+SSTDF=data.frame(Year=do.call(rbind,strsplit(do.call("rbind",strsplit(row.names(coef(res.environ[[4]])),"/"))[,2]," "))[,1])
+SSTDF=merge(SSTDF,subset(env.data,select=c("Year","SST1")),by="Year")
+dm=coef(res.environ[[4]])[,c(5,7:8)]
+fgr=vector("numeric",length=nrow(dm))
+for( i in 1:nrow(dm))
+  fgr[i]=as.matrix(dm[i,,drop=FALSE])%*%c(1,SSTDF$SST1[i],1)
+SSTDF$fgr=fgr
+SSTDF=unique(SSTDF)
+gr_comparison=merge(growth,SSTDF,by="Year")
+```
 Figure 2c. Daily growth rate of Zalophus pup weights on San Miguel Island initially captured and measured in Sept-Oct and recaptured and measured in late Jan to early Feb. This graph excludes weights from Dec 2014.
+ 
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=600}
+with(gr_comparison,plot(female,fgr,ylab="Cross-sectional growth",xlab="Longitudinal growth"))
+```
+Figure 2d. Comparison of annual female pup rates from cross-sectional data with the environment model and longitudinal measuments of growth rate with tagged female pups measured in October and February.
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=600}
+plot(as.numeric(as.character(SSTDF$Year)),SSTDF$fgr,type="b",ylab="Female pup growth rate (kg/day)",xlab="Birth Year",xaxp=c(1975,2016,41))
+```
+Figure 2e. Annual female pup growth rates predictions from cross-sectional data with the environment model.
+
+
+```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=600}
+plot(SSTDF$SST1,SSTDF$fgr,ylab="Female pup growth rate (kg/day)",xlab="Average sea surface temperature anomaly from Oct-Feb")
+```
+Figure 2f. Annual female pup growth rates predictions from cross-sectional data with the environment model as a function of average sea surfae temperatuer anomaly from Oct-Feb.
+
 
 
 Even though El Nino events are known to negatively impact sea lions, the multivariate ENSO index (MEI) measured at the equator and lagged by 2 months is not a particularly good predictor of local SST (Figure 3) and SST is negatively correlated with pup weights (Figure 4).  In particular, in 1984 MEI was low and SST was high with low pup weights and in 1987 MEI was high, SST was low and pup weights were above average.  These 2 years help SST to be a better predictor than MEI for pup weights.

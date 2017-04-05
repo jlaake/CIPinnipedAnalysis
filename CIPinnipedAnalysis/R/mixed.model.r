@@ -62,7 +62,8 @@ fitmixed=function(fixed.f,random.f,data,control=lmeControl(opt="optim"),method=N
 	results$data=data
 	return(results)
 }
-#' Compute AICc (AIC with small sample size correction) for a series of models
+#' Compute AICc (AIC with small sample size correction) for a series of models and model.table with
+#' number of parameters and model weight.
 #' 
 #' @param results list of model results with element model.table
 #' @param nobs number of observations  
@@ -77,13 +78,19 @@ compute_AICc=function(results,nobs,nref,fixed.f)
 {
 	i=1
 	results$model.table$AICc=NA
+	results$model.table$fixed_par=NA
+	results$model.table$random_par=NA
 	for( mod in as.numeric(row.names(results$model.table)))
 	{
 		K=ncol(coef(results[[mod]]))+nref
+		results$model.table$fixed_par[i]=ncol(coef(results[[mod]]))
+		results$model.table$random_par[i]=nref
 		results$model.table$AICc[i]=results$model.table$AIC[i] + 2*K*(K+1)/(nobs-K+1)
 		i=i+1
 	}
 	results$model.table=results$model.table[order(results$model.table$AICc),]
+	results$model.table$weight=exp(-.5*(results$model.table$AICc-min(results$model.table$AICc)))
+	results$model.table$weight=results$model.table$weight/sum(results$model.table$weight)
 	results$best=as.numeric(row.names(results$model.table))[1]
 	results$best.f=fixed.f[[results$best]]
 	return(results)
