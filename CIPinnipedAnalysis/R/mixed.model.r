@@ -82,14 +82,14 @@ compute_AICc=function(results,nobs,nref,fixed.f)
 	results$model.table$random_par=NA
 	for( mod in as.numeric(row.names(results$model.table)))
 	{
-		K=ncol(coef(results[[mod]]))+nref
-		results$model.table$fixed_par[i]=ncol(coef(results[[mod]]))
+		K=nrow(summary(results[[mod]])$varFix)+nref
+		results$model.table$fixed_par[i]=nrow(summary(results[[mod]])$varFix)
 		results$model.table$random_par[i]=nref
 		results$model.table$AICc[i]=results$model.table$AIC[i] + 2*K*(K+1)/(nobs-K+1)
 		i=i+1
 	}
-	results$model.table=results$model.table[order(results$model.table$AICc),]
-	results$model.table$weight=exp(-.5*(results$model.table$AICc-min(results$model.table$AICc)))
+	results$model.table=results$model.table[order(results$model.table$AIC),]
+	results$model.table$weight=exp(-.5*(results$model.table$AIC-min(results$model.table$AIC)))
 	results$model.table$weight=results$model.table$weight/sum(results$model.table$weight)
 	results$best=as.numeric(row.names(results$model.table))[1]
 	results$best.f=fixed.f[[results$best]]

@@ -67,6 +67,7 @@ fixed.f=list(
 		weight~days,
 		weight~1)
 res.adjust=fitmixed(fixed.f,random.f,data=zcweights) 
+res.adjust=compute_AICc(res.adjust, length(table(zcweights$Year))*2,4,fixed.f)
 
 # Finally fit best fixed/random model with REML
 zc.weight.model=lme(fixed=res.adjust$best.f,random=res.adjust$best.r,data=res.adjust$data,method="REML",control=lmeControl(opt="optim"))
