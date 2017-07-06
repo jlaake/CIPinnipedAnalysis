@@ -45,8 +45,10 @@ env.data=data.frame(cohort=1975:lastyear,SST=AprtoSeptAnomalies[-(1:3)][1:numyea
 		MEI=LaggedMEIAprtoSept[-1][1:numyears],MEI1=LaggedMEIOcttoFeb[-1][1:numyears],MEI2=LaggedMEIJunetoFeb[-1][1:numyears],UWI33=UWImeansAprtoSept[1,-(1:6)][1:numyears],UWI36=UWImeansAprtoSept[2,-(1:6)][1:numyears],
 		UWI331=UWImeansOcttoFeb[1,-(1:6)][1:numyears],UWI361=UWImeansOcttoFeb[2,-(1:6)][1:numyears],UWI332=UWImeansJunetoFeb[1,-(1:6)][1:numyears],UWI362=UWImeansJunetoFeb[2,-(1:6)][1:numyears],
 		SLH=AprtoSeptSLH[1:numyears],SLH1=OcttoFebSLH[1:numyears])
-
 env.data=merge(env.data,calcofi.df,all.x=TRUE)
+
+data(DensityPDONPGO)
+env.data=cbind(env.data,DensityPDONPGO)
 # get fish data
 # read in abundance data files
 data(sardine)
@@ -90,7 +92,7 @@ names(env.data)[1]="Year"
 if(any(sapply(env.data,function(x) any(is.na(x)))))
 {
    cat("Following variables are missing data\n")
-   paste(names(env.data)[sapply(env.data,function(x) any(is.na(x)))],sep="\n")
+   cat(paste(names(env.data)[sapply(env.data,function(x) any(is.na(x)))],sep="\n"))
 }
 #
 # merge weight data with environment data

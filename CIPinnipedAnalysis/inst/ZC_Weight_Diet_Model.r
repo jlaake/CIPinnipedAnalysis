@@ -95,7 +95,7 @@ male.averages=data.frame(fit=pp1[,2],se=stderrors[(length(pp1[,1])+1):(2*length(
 expected.female.averages=data.frame(fit=pp0[,1],se=stderrors[1:length(pp0[,1])])
 expected.male.averages=data.frame(fit=pp0[,2],se=stderrors[(length(pp0[,1])+1):(2*length(pp0[,1]))])
 
-ZCWeight.df1=data.frame(Year=sort(unique(zcweights.environ.diet$Year)),female.environ.diet.mean.fall=female.averages$fit,
+ZCWeight.df1=data.frame(Year=sort(unique(zc.weight.model.environ.diet$data$cohort)+1975),female.environ.diet.mean.fall=female.averages$fit,
 female.environ.diet.mean.fall.se=female.averages$se,
 male.environ.diet.mean.fall=male.averages$fit,
 male.environ.diet.mean.fall.se=male.averages$se,

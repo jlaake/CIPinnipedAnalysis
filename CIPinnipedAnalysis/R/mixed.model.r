@@ -27,7 +27,13 @@ fitmixed=function(fixed.f,random.f,data,control=lmeControl(opt="optim"),method=N
 			if(is.null(method))method="REML"
 	}
 	# subset data to only include all variables used in the set of models and then exclude any rows with NA
-	data=subset(data,select=unique(c(unlist(sapply(fixed.f,all.vars)),unlist(sapply(unlist(random.f),all.vars)))))
+	vars=unique(c(unlist(sapply(fixed.f,all.vars)),unlist(sapply(unlist(random.f),all.vars))))
+	if(any(!vars%in%names(data))) 
+	{
+		cat("Variables in formula that are not in data :", paste(vars[!vars%in%names(data)],collapse="' "))
+		stop()
+	}
+	data=subset(data,select=vars)
 	data=na.exclude(data)
 	results=vector("list",length(fixed.f)*length(random.f))
 	model.table=data.frame(fixed=rep(NA,length(fixed.f)*length(random.f)),random=rep(NA,length(fixed.f)*length(random.f)))
