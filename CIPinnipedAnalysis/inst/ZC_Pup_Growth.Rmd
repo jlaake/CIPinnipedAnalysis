@@ -532,11 +532,24 @@ text(2005.4,0.03,"Females",pos=4)
 growth=data.frame(Year=sort(unique(pp$cohort)),female=female.averages$fit,male=male.averages$fit)
 SSTDF=data.frame(Year=do.call(rbind,strsplit(do.call("rbind",strsplit(row.names(coef(res.environ[[4]])),"/"))[,2]," "))[,1])
 SSTDF=merge(SSTDF,subset(env.data,select=c("Year","SST1")),by="Year")
-dm=coef(res.environ[[4]])[,c(5,7:8)]
+dm=coef(res.environ[[res.environ$best]])[,c(5,7:8)]
 fgr=vector("numeric",length=nrow(dm))
 for( i in 1:nrow(dm))
   fgr[i]=as.matrix(dm[i,,drop=FALSE])%*%c(1,SSTDF$SST1[i],1)
 SSTDF$fgr=fgr
+########################################
+# Sharon - new code here
+#
+fgr.errors=matrix(0,nrow=nrow(dm),ncol=length(res.environ.coef))   
+for(j in 1:length(res.environ.coef))
+{
+   dm=res.environ.coef[[j]][,c(5,7:8)]
+   for(i in 1:nrow(dm))
+      fgr.errors[i,j]=as.matrix(dm[i,,drop=FALSE])%*%c(1,SSTDF$SST1[i],1)
+}
+SSTDF$fgr.se=sqrt(apply(fgr.errors,1,var))
+# to here
+##########################################
 SSTDF=unique(SSTDF)
 gr_comparison=merge(growth,SSTDF,by="Year")
 ```
@@ -555,9 +568,10 @@ Figure 2e. Annual female pup growth rates predictions from cross-sectional data 
 
 
 ```{r,echo=FALSE,fig.width=6,fig.height=7,dpi=600}
-plot(SSTDF$SST1,SSTDF$fgr,ylab="Female pup growth rate (kg/day)",xlab="Average sea surface temperature anomaly from Oct-Feb")
+# Sharon - different plot fct to show 95% CI
+plotCI(SSTDF$SST1,SSTDF$fgr,1.96*SSTDF$fgr.se,1.96*SSTDF$fgr.se,ylab="Female pup growth rate (kg/day)",xlab="Average sea surface temperature anomaly from Oct-Feb")
 ```
-Figure 2f. Annual female pup growth rates predictions from cross-sectional data with the environment model as a function of average sea surfae temperatuer anomaly from Oct-Feb.
+Figure 2f. Annual female pup growth rates predictions from cross-sectional data with the environment model as a function of average sea surface temperature anomaly from Oct-Feb.
 
 
 

@@ -12,6 +12,16 @@ if(!exists("ZCWeight.df"))
 if(!exists("anomalies"))
 	source(file.path(system.file(package="CIPinnipedAnalysis"),"CreateAnomalies.r"))
 if(!exists("use.calcofi"))use.calcofi=FALSE
+# > Loading required package: CIPinnipedAnalysis
+# Loading required package: RMark
+# This is RMark 2.2.3
+#  Documentation available at http://www.phidot.org/software/mark/rmark/RMarkDocumentation.zip
+# 
+# Loading required package: CalcurData
+# Loading required package: plotrix
+# Loading required package: nlme
+# > > > + 
+
 #################################################################################
 # Cross-sectional analysis
 #################################################################################
@@ -123,10 +133,11 @@ res.environ=compute_AICc(res.environ, length(table(zcweights.environ$Year))*2,5,
 zc.weight.environ.model=lme(fixed=res.environ$best.f,random=res.environ$best.r,data=res.environ$data,method="REML",control=lmeControl(opt="optim"))
 print(summary(zc.weight.environ.model))
 
-
+# Sharon - new code is here and some minor changes below                                                                                         
 bootstrap.se=function(x,nreps,days=0)
 {
 	pmat=matrix(0,nrow=nreps,ncol=nrow(unique(data.frame(cohort=x$cohort,sex=x$sex))))
+	coef.list=vector("list",length=nreps)
 	i=0
 	while(i<nreps)
 	{
@@ -134,6 +145,7 @@ bootstrap.se=function(x,nreps,days=0)
 		xsamp=lapply(split(x,list(x$batch,x$sex)),function(x) if(nrow(x)>0) x[sample(1:nrow(x),replace=TRUE),] else NULL)
 		xsamp=do.call("rbind",xsamp)
 		mod=try(lme(fixed=res.environ$best.f,random=res.environ$best.r,data=as.data.frame(xsamp),method="REML",control=lmeControl(opt="optim")))
+		coef.list[[i+1]]=coef(mod)
 		if(class(mod)!="try-error")
 		{
 			i=i+1
@@ -142,12 +154,14 @@ bootstrap.se=function(x,nreps,days=0)
 			pmat[i,]=as.vector(tapply(as.vector(pp),list(x$cohort,x$sex),mean))
 		}
 	}
-	return(sqrt(apply(pmat,2,var)))
+	return(list(se=sqrt(apply(pmat,2,var)),coef.list=coef.list))
 }
 
 #################  1 Oct Predictions ####################
 # use 100 reps to compute std error
 stderrors=bootstrap.se(res.environ$data,nboot,days=0)
+res.environ.coef=stderrors$coef.list
+stderrors=stderrors$se
 # Compute fall 1 Oct predictions and construct dataframes for female and male averages with std errors
 pp=res.environ$data
 pp$days=0
@@ -185,7 +199,7 @@ ZCWeight.df$male.environ.mean.fall.fixed[(add+1):(add+length(female.averages$fit
 
 #################  1 Feb Predictions ####################
 # use 100 reps to compute std error
-stderrors=bootstrap.se(res.environ$data,nboot,days=123)
+stderrors=bootstrap.se(res.environ$data,nboot,days=123)$se
 # Compute fall 1 Feb predictions and construct dataframes for female and male averages with std errors
 pp=res.environ$data
 pp$days=123
