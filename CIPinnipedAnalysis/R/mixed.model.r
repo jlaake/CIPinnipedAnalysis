@@ -10,7 +10,7 @@
 #' @param method REML or ML; chosen as needed but can be specified
 #' @param save.model if TRUE saves each complete model rather than removing data,fitted,residual components
 #' @param ... other arguments for plot
-#' @return list with following elements: results - list with each fitted model object; model.table- model selection table;
+#' @return list with following elements: results - list with each fitted model object; model.table- model selection table based on AIC;
 #' best - model number that was best fit in results list; best.f - formula for fixed effect from best model; best.r - formula for random effects for best model
 #' @export
 #' @author Jeff Laake
@@ -55,6 +55,8 @@ fitmixed=function(fixed.f,random.f,data,control=lmeControl(opt="optim"),method=N
 			model.table[i,]=cbind(fixed=paste(cf,collapse=""),random=paste(r,collapse=", "))
 		}
 	model.table$AIC=sapply(results,AIC)
+	results$model.table$weight=exp(-.5*(results$model.table$AIC-min(results$model.table$AIC)))
+	results$model.table$weight=results$model.table$weight/sum(results$model.table$weight)
 	results$model.table=model.table[order(model.table$AIC),]
 	results$best=as.numeric(row.names(results$model.table)[1]) 
 	if(length(fixed.f)==1)
@@ -69,7 +71,7 @@ fitmixed=function(fixed.f,random.f,data,control=lmeControl(opt="optim"),method=N
 	return(results)
 }
 #' Compute AICc (AIC with small sample size correction) for a series of models and model.table with
-#' number of parameters and model weight.
+#' number of parameters and model weight based on AICc rather than AIC.
 #' 
 #' @param results list of model results with element model.table
 #' @param nobs number of observations  
@@ -94,8 +96,8 @@ compute_AICc=function(results,nobs,nref,fixed.f)
 		results$model.table$AICc[i]=results$model.table$AIC[i] + 2*K*(K+1)/(nobs-K+1)
 		i=i+1
 	}
-	results$model.table=results$model.table[order(results$model.table$AIC),]
-	results$model.table$weight=exp(-.5*(results$model.table$AIC-min(results$model.table$AIC)))
+	results$model.table=results$model.table[order(results$model.table$AICc),]
+	results$model.table$weight=exp(-.5*(results$model.table$AICc-min(results$model.table$AICc)))
 	results$model.table$weight=results$model.table$weight/sum(results$model.table$weight)
 	results$best=as.numeric(row.names(results$model.table))[1]
 	results$best.f=fixed.f[[results$best]]
