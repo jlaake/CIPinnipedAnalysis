@@ -52,9 +52,9 @@ construct.live=function(island,species,dir=NULL)
 	names(count.df)=c("Survey date","Area")
 	count.df$AvgCount=total.count.by.area
 	count.df[,"Survey date"]=as.Date(count.df[,"Survey date"])
-	count.df$Year=as.POSIXlt(count.df[,"Survey date"])[[6]]+1900
-	count.df$Month=as.POSIXlt(count.df[,"Survey date"])[[5]]+1
-	count.df$Day=as.POSIXlt(count.df[,"Survey date"])[[4]]
+	count.df$Year=as.POSIXlt(count.df[,"Survey date"])$year+1900
+	count.df$Month=as.POSIXlt(count.df[,"Survey date"])$mon+1
+	count.df$Day=as.POSIXlt(count.df[,"Survey date"])$mday
 	count.df$YearArea=paste(count.df$Year,count.df$Area,sep="")
 	dps=getCalcurData("CIPCensus","DeadPupSampleAreas",dir=dir)
 	dps=dps[dps$YearAreaSpecies==species,]
@@ -108,7 +108,7 @@ construct.dead=function(island,species,dir=NULL)
     xmat$SurveyNumber=as.numeric(as.character(xmat$SurveyNumber))
     xmat$SurveyDate=as.Date(as.character(xmat$SurveyDate),format="%Y-%m-%d")
     xmat$count=xx
-    xmat$Year=as.POSIXlt(xmat$SurveyDate)[[6]]+1900
+    xmat$Year=as.POSIXlt(xmat$SurveyDate)$year+1900
     if(species=="Zc")
     {
   	   dead.tag=getCalcurData("CIPCensus","Zc dead tag initial",dir=dir)
@@ -131,7 +131,7 @@ construct.dead=function(island,species,dir=NULL)
        xmat1$SurveyNumber=as.numeric(as.character(xmat1$SurveyNumber))
        xmat1$SurveyDate=as.Date(as.character(xmat1$SurveyDate),format="%Y-%m-%d")
        xmat1$count=xx
-       xmat1$Year=as.POSIXlt(xmat1$SurveyDate)[[6]]+1900
+       xmat1$Year=as.POSIXlt(xmat1$SurveyDate)$year+1900
        xmat=rbind(xmat,xmat1)
     }
 	if(species=="Cu")
@@ -156,12 +156,12 @@ construct.dead=function(island,species,dir=NULL)
 		xmat1$SurveyNumber=as.numeric(as.character(xmat1$SurveyNumber))
 		xmat1$SurveyDate=as.Date(as.character(xmat1$SurveyDate),format="%Y-%m-%d")
 		xmat1$count=xx
-		xmat1$Year=as.POSIXlt(xmat1$SurveyDate)[[6]]+1900
+		xmat1$Year=as.POSIXlt(xmat1$SurveyDate)$year+1900
 		xmat=rbind(xmat,xmat1)
 	}
     xmat$YearArea=paste(xmat$Year,xmat$Area,sep="")
-    xmat$Month=as.POSIXlt(xmat$SurveyDate)[[5]]+1
-    xmat$Day=as.POSIXlt(xmat$SurveyDate)[[4]]
+    xmat$Month=as.POSIXlt(xmat$SurveyDate)$mon+1
+    xmat$Day=as.POSIXlt(xmat$SurveyDate)$mday
     xmat=merge(xmat,subset(dps,select=c("YearArea","Dead pup sample area","MatchingLiveArea")),by="YearArea",all.x=TRUE)
     names(xmat)[length(names(xmat))-1]="DeadPupArea"
     return(xmat)

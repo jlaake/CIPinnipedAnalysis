@@ -28,13 +28,13 @@ getdead_ch=function(island,year,development="fullterm",merge=TRUE)
 	development=tolower(development)
 	island=toupper(island)
 	initial=getCalcurData("CIPCensus","Zc dead tag initial")
-	month=as.POSIXlt(initial[,"Survey date"])[[5]]+1
+	month=as.POSIXlt(initial[,"Survey date"])$mon+1
 	initial=initial[month>=6,]
 	resight=getCalcurData("CIPCensus","Zc dead tag resight")
-	month=as.POSIXlt(resight[,"Survey date"])[[5]]+1
+	month=as.POSIXlt(resight[,"Survey date"])$mon+1
 	resight=resight[month>=6,]
 	deadstacked=getCalcurData("CIPCensus","Zc Cu dead pup census")
-	month=as.POSIXlt(deadstacked[,"Survey date"])[[5]]+1
+	month=as.POSIXlt(deadstacked[,"Survey date"])$mon+1
 	deadstacked=deadstacked[month>=6,]
 	deadpupareas=getCalcurData("CIPCensus","DeadPupSampleAreas")
 	deadpupareas=deadpupareas[deadpupareas$YearAreaSpecies=="Zc",c("YearArea","Dead pup sample area","Location")]
@@ -184,15 +184,15 @@ cu_getdead_ch=function(year,development="full")
 development=tolower(development)
 island="SMI"
 initial=getCalcurData("CIPCensus","tbl Cu Dead Tag - initial")
-month=as.POSIXlt(initial[,"SurveyDate"])[[5]]+1
+month=as.POSIXlt(initial[,"SurveyDate"])$mon+1
 if(any(is.na(month)))stop("\nMissing date for ID= ",paste(initial$ID[is.na(month)],collapse=","))
 initial=initial[month>=6,]
 resight=getCalcurData("CIPCensus","tbl Cu Dead Tag - resight")
-month=as.POSIXlt(resight[,"SurveyDate"])[[5]]+1
+month=as.POSIXlt(resight[,"SurveyDate"])$mon+1
 if(any(is.na(month)))stop("\nMissing date for ID= ",paste(resight$ID[is.na(month)],collapse=","))
 resight=resight[month>=6,]
 deadstacked=getCalcurData("CIPCensus","Zc Cu dead pup census")
-month=as.POSIXlt(deadstacked[,"Survey date"])[[5]]+1
+month=as.POSIXlt(deadstacked[,"Survey date"])$mon+1
 deadstacked=deadstacked[month>=6,]
 deadpupareas=getCalcurData("CIPCensus","DeadPupSampleAreas")
 deadpupareas=deadpupareas[deadpupareas$YearAreaSpecies=="Cu",c("YearArea","Dead pup sample area","Location")]
