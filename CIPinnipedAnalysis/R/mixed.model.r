@@ -55,9 +55,9 @@ fitmixed=function(fixed.f,random.f,data,control=lmeControl(opt="optim"),method=N
 			model.table[i,]=cbind(fixed=paste(cf,collapse=""),random=paste(r,collapse=", "))
 		}
 	model.table$AIC=sapply(results,AIC)
+	results$model.table=model.table[order(model.table$AIC),]
 	results$model.table$weight=exp(-.5*(results$model.table$AIC-min(results$model.table$AIC)))
 	results$model.table$weight=results$model.table$weight/sum(results$model.table$weight)
-	results$model.table=model.table[order(model.table$AIC),]
 	results$best=as.numeric(row.names(results$model.table)[1]) 
 	if(length(fixed.f)==1)
 		results$best.f=fixed.f[[1]]

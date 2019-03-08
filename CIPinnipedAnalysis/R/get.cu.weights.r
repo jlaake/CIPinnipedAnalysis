@@ -18,6 +18,10 @@ get.cu.weights=function(fdir=NULL,ENYears=c(1976,1983,1984,1986,1987,1992,1997,1
 # read in weights from cutags table of the Access database
 #
 cuweights.acv=getCalcurData("Cu","Cutags",dir=fdir)
+# 
+# if any values of sex are NA stop and issue an error
+#
+if(any(is.na(cuweights.acv$sex))) stop("one or more values of sex field are blank.")
 #
 # Set maxyear to largest year; optionally you can set a lower bound
 #

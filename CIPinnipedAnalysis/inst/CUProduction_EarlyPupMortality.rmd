@@ -1,17 +1,16 @@
 ---
 title: "Callorhinus Pup Production and Early Mortality"
-output: pdf_document
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
----
+------
 		
 		
-		```{r,results="hide",echo=FALSE}
-		suppressPackageStartupMessages(library(CIPinnipedAnalysis))
-		source(file.path(system.file(package="CIPinnipedAnalysis"),"CuPupProduction.r"))
-		source(file.path(system.file(package="CIPinnipedAnalysis"),"CuEarlyPupMortality.r"))
-	    CuProduction=getCalcurData("CIPquery","CuProduction",dir=fdir1)
-		maxyr=max(CuProduction$Year)
-		```
+```{r,results="hide",echo=FALSE}
+suppressPackageStartupMessages(library(CIPinnipedAnalysis))
+source(file.path(system.file(package="CIPinnipedAnalysis"),"CuPupProduction.r"))
+source(file.path(system.file(package="CIPinnipedAnalysis"),"CuEarlyPupMortality.r"))
+CuProduction=getCalcurData("CIPquery","CuProduction",dir=fdir1)
+maxyr=max(CuProduction$Year)
+```
 
 # Callorhinus 
 
