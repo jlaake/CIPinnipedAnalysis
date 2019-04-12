@@ -34,10 +34,9 @@ month.  Computes average monthly value from a defined set of years
 (\code{average.years}) and subtracts the monthly means from the observed
 year-month matrix to produce anomaly matrix.
 }
-\author{
-Jeff Laake
-}
 \seealso{
 \code{\link{create.anomalies}}
 }
-
+\author{
+Jeff Laake
+}

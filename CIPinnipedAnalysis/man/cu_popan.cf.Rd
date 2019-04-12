@@ -40,10 +40,9 @@ smi2016.cu.popan.results=cu_popan.cf(2016)
 save(smi2016.cu.popan.results,file="smi2016.cu.popan.results.rda")
 }
 }
-\author{
-Jeff Laake
-}
 \seealso{
 correct_dead
 }
-
+\author{
+Jeff Laake
+}

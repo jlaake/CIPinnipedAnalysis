@@ -16,4 +16,3 @@ Dorval, E., P. R. Crone, and J. D. McDaniel. 2013. Variability of egg escapement
 A record for 1999-2006
 }
 \keyword{datasets}
-

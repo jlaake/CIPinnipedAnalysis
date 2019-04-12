@@ -53,10 +53,9 @@ smi1998a.popan.results=popan.cf("SMI",1998,area=TRUE)
 smi2002a.popan.results=popan.cf("SMI",2002,area=TRUE)
 }
 }
-\author{
-Jeff Laake
-}
 \seealso{
 correct_dead
 }
-
+\author{
+Jeff Laake
+}

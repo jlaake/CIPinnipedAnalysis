@@ -13,4 +13,3 @@ Cu production and early mortailty
  source(file.path(system.file(package="CIPinnipedAnalysis"),"CuEarlyPupMortality.r"))
 }
 }
-

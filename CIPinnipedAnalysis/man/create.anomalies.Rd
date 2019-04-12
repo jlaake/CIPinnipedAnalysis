@@ -44,10 +44,9 @@ source(file.path(system.file(package="CIPinnipedAnalysis"),"CreateAnomalies.r"))
 }
 
 }
-\author{
-Jeff Laake
-}
 \seealso{
 \code{\link{create.SST.anomalies}}
 }
-
+\author{
+Jeff Laake
+}

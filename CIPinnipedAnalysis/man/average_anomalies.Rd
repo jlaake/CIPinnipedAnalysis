@@ -22,4 +22,3 @@ Create average anomalies for a range of months
 \author{
 Jeff Laake
 }
-

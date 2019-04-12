@@ -15,4 +15,3 @@ MacCall, A. D., W. J. Sydeman, P. C. Davison, and J. A. Thayer. 2016. Recent col
 provided as file from Bill Sydeman
 }
 \keyword{datasets}
-

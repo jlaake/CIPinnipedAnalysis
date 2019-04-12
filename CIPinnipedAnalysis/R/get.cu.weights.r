@@ -5,6 +5,7 @@
 #' 
 #' @param fdir directory for cutagnew.mdb
 #' @param ENYears values of years that will be flagged as ENSO years
+#' @param area area code; default is c("ACV","EAC")
 #' @return dataframe of weights for Cu
 #' @export
 #' @author Jeff Laake
@@ -12,12 +13,16 @@
 #' \donttest{
 #' source(file.path(system.file(package="CIPinnipedAnalysis"),"CuWeightAnalysis.r"))
 #' }
-get.cu.weights=function(fdir=NULL,ENYears=c(1976,1983,1984,1986,1987,1992,1997,1998,2002,2009))
+get.cu.weights=function(fdir=NULL,ENYears=c(1976,1983,1984,1986,1987,1992,1997,1998,2002,2009),area=c("ACV","EAC"))
 {
 #
 # read in weights from cutags table of the Access database
 #
 cuweights.acv=getCalcurData("Cu","Cutags",dir=fdir)
+#
+# select weights based on island argument
+#
+cuweights.acv=cuweights.acv[cuweights.acv$area==area,]
 # 
 # if any values of sex are NA stop and issue an error
 #
@@ -27,9 +32,9 @@ if(any(is.na(cuweights.acv$sex))) stop("one or more values of sex field are blan
 #
 maxyear=max(cuweights.acv$cohort)
 #
-# Exclude Castle Rock and those after maxyear
+# Exclude those other than in specified areas
 #
-cuweights.acv=cuweights.acv[cuweights.acv$area%in%c("ACV","EAC")&cuweights.acv$cohort<=maxyear,]
+cuweights.acv=cuweights.acv[cuweights.acv$area%in%area&cuweights.acv$cohort<=maxyear,]
 #
 #  Exclude those with missing weight and unknown sex
 #
@@ -40,11 +45,11 @@ cuweights.acv$sex=factor(cuweights.acv$sex)
 #
 cuweights.acv=cuweights.acv[cuweights.acv$sitedate>as.POSIXct(paste(as.character(cuweights.acv$cohort),"-09-01",sep="")),]
 #
-#  read in the discard weights from the UnmarkedPupWeights table and exclude any > maxyear
+#  read in the discard weights from the UnmarkedPupWeights table and exclude any > maxyear and those not in area
 #
 cuweights.unmark=getCalcurData("Cu","UnmarkedPupWeights",dir=fdir)
 cuweights.unmark=cuweights.unmark[!cuweights.unmark$sex=="U" & !is.na(cuweights.unmark$weight),]
-cuweights.unmark=cuweights.unmark[cuweights.unmark$cohort<=maxyear,]
+cuweights.unmark=cuweights.unmark[cuweights.unmark$cohort<=maxyear&cuweights.unmark$area%in%area,]
 # Read duplicate tag table
 cuweights.dup=getCalcurData("Cu","DuplicateTags0708",dir=fdir)
 cuweights.dup=cuweights.dup[!cuweights.dup$sex=="U" & !is.na(cuweights.dup$weight),]

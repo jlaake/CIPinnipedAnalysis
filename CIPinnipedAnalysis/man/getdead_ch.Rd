@@ -40,4 +40,3 @@ records.
 \author{
 Jeff Laake
 }
-

@@ -30,4 +30,3 @@ save(scats,file="scats.rda")}
 A record for each scat sampled
 }
 \keyword{datasets}
-

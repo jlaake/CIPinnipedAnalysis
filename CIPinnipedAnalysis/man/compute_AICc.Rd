@@ -2,7 +2,8 @@
 % Please edit documentation in R/mixed.model.r
 \name{compute_AICc}
 \alias{compute_AICc}
-\title{Compute AICc (AIC with small sample size correction) for a series of models}
+\title{Compute AICc (AIC with small sample size correction) for a series of models and model.table with
+number of parameters and model weight based on AICc rather than AIC.}
 \usage{
 compute_AICc(results, nobs, nref, fixed.f)
 }
@@ -20,9 +21,9 @@ list with following elements: results - list with each fitted model object; mode
 best - model number that was best fit in results list; best.f - formula for fixed effect from best model; best.r - formula for random effects for best model
 }
 \description{
-Compute AICc (AIC with small sample size correction) for a series of models
+Compute AICc (AIC with small sample size correction) for a series of models and model.table with
+number of parameters and model weight based on AICc rather than AIC.
 }
 \author{
 Jeff Laake
 }
-

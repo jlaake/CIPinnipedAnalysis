@@ -14,4 +14,3 @@ Index       - upwelling index for the day
 A record for from 1967 onwards
 }
 \keyword{datasets}
-

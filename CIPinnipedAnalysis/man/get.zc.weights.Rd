@@ -5,8 +5,8 @@
 \title{Extracts weights for Zc pups
 :from various tables in the BrandMaster.mdb ACCESS database and returns a dataframe with ancillary fields added.}
 \usage{
-get.zc.weights(fdir = NULL, ENYears = c(1976, 1983, 1984, 1986, 1987, 1992,
-  1997, 1998, 2002, 2009), exclude = TRUE)
+get.zc.weights(fdir = NULL, ENYears = c(1976, 1983, 1984, 1986, 1987,
+  1992, 1997, 1998, 2002, 2009), exclude = TRUE)
 }
 \arguments{
 \item{fdir}{directory for data files; if NULL uses location specified in databases.txt of CalcurData package; if "" uses databases in CalcurData pacakge; otherwise uses specified directory location}
@@ -33,4 +33,3 @@ source(file.path(system.file(package="CIPinnipedAnalysis"),"ZcWeightAnalysis.r")
 \author{
 Jeff Laake
 }
-

@@ -16,4 +16,3 @@ Squid          - landings of squid
 A record for 1975-2014
 }
 \keyword{datasets}
-

@@ -18,4 +18,3 @@ Creates Frequency of Occurrence (FO) DataFrame for Primary Prey of Callorhinus
 \author{
 Jeff Laake
 }
-

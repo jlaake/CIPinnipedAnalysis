@@ -22,4 +22,3 @@ save(fo,file="fo.rda")}
 Prey species identified from Zalophus scat data
 }
 \keyword{datasets}
-

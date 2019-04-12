@@ -2,8 +2,8 @@
 % Please edit documentation in R/CIPinnipedAnalysis-package.R
 \docType{package}
 \name{CIPinnipedAnalysis-package}
-\alias{CIPinnipedAnalysis}
 \alias{CIPinnipedAnalysis-package}
+\alias{CIPinnipedAnalysis}
 \title{CIPinnipedAnalysis}
 \description{
 Channel Islands Pinniped Analysis functions
@@ -27,4 +27,3 @@ source(file.path(system.file(package="CIPinnipedAnalysis"),"EarlyPupMortality.r"
 Jeff Laake
 }
 \keyword{package}
-

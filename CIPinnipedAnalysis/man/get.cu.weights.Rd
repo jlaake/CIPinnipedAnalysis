@@ -6,13 +6,15 @@
 : from various tables in the cutagnew.mdb ACCESS
 database and returns a dataframe with ancillary fields added.}
 \usage{
-get.cu.weights(fdir = NULL, ENYears = c(1976, 1983, 1984, 1986, 1987, 1992,
-  1997, 1998, 2002, 2009))
+get.cu.weights(fdir = NULL, ENYears = c(1976, 1983, 1984, 1986, 1987,
+  1992, 1997, 1998, 2002, 2009), area = c("ACV", "EAC"))
 }
 \arguments{
 \item{fdir}{directory for cutagnew.mdb}
 
 \item{ENYears}{values of years that will be flagged as ENSO years}
+
+\item{area}{area code; default is c("ACV","EAC")}
 }
 \value{
 dataframe of weights for Cu
@@ -30,4 +32,3 @@ source(file.path(system.file(package="CIPinnipedAnalysis"),"CuWeightAnalysis.r")
 \author{
 Jeff Laake
 }
-

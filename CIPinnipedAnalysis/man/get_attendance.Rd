@@ -34,4 +34,3 @@ get_attendance(resights,year=2006,firstday=5)
 \author{
 Jeff Laake
 }
-

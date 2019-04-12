@@ -23,7 +23,7 @@ fitmixed(fixed.f, random.f, data, control = lmeControl(opt = "optim"),
 \item{...}{other arguments for plot}
 }
 \value{
-list with following elements: results - list with each fitted model object; model.table- model selection table;
+list with following elements: results - list with each fitted model object; model.table- model selection table based on AIC;
 best - model number that was best fit in results list; best.f - formula for fixed effect from best model; best.r - formula for random effects for best model
 }
 \description{
@@ -33,4 +33,3 @@ fits a sequence of fixed effect models with a single random effect using MLE.
 \author{
 Jeff Laake
 }
-

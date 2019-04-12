@@ -1,4 +1,9 @@
 ---
+output:
+  pdf_document: default
+  html_document: default
+---
+---
 title: "Callorhinus Pup Production and Early Mortality"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 ------

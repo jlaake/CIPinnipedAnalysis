@@ -13,4 +13,3 @@ Zc production and early mortality
  source(file.path(system.file(package="CIPinnipedAnalysis"),"ZcEarlyPupMortality.r"))
 }
 }
-

@@ -26,4 +26,3 @@ A sequence of oceanographic measurements at seven calcofi stations in July from 
 Data were provided by Isaac Schroeder.
 }
 \keyword{datasets}
-

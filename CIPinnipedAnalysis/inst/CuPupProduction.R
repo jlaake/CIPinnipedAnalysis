@@ -23,8 +23,6 @@ if(!is.null(fdir) && fdir=="")
 }
 # Compute production stats for CU on SMI and Castle Rock
 smidat=production.stats(island="SMI",mainland=TRUE,species="Cu",dir=fdir2)
-
-
 crdat=production.stats(island="SMI",mainland=FALSE,species="Cu",dir=fdir2)
 xx=saveCalcurData(rbind(smidat,crdat),db="CIPquery",tbl="CuProduction",dir=fdir1)
 sink()

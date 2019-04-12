@@ -1,8 +1,8 @@
 Package: CIPinnipedAnalysis
 Type: Package
 Title: Various Functions used for Analysis of Channel Islands Pinniped Data
-Version: 1.7.8
-Date: 2018-09-04
+Version: 1.7.9
+Date: 2019-04-11
 Author: Jeff Laake
 Maintainer: <jeff.laake@noaa.gov>
 Description: Channel Islands Pinniped Analysis functions include those to compute pup production, early pup mortality, pup growth based on environment, diet and fisheries data.
@@ -15,4 +15,4 @@ Depends:
 Imports:
     RODBC
 LazyLoad: yes
-RoxygenNote: 5.0.1
+RoxygenNote: 6.1.1

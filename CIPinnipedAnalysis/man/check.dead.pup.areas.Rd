@@ -38,4 +38,3 @@ Creates log file MissingDeadPupArea.txt with any errors
 \author{
 Jeff Laake
 }
-

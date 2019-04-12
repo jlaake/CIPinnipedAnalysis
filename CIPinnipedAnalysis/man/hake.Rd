@@ -16,4 +16,3 @@ A record for 1977-2015 from
 Grandin, C.J., A.C. Hicks, A.M. Berger, A.M. Edwards, N. Taylor, I.G. Taylor, and S. Cox. 2016. Status of the Pacific Hake (whiting) stock in U.S. and Canadian waters in 2016. Prepared by the Joint Technical Committee of the U.S. and Canada Pacific Hake/Whiting Agreement, National Marine Fisheries Service and Fisheries and Oceans Canada. 165 p.
 }
 \keyword{datasets}
-

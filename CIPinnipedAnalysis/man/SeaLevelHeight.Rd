@@ -15,4 +15,3 @@ A sequence of monthly average sea level height at Port San Luis
 http://tidesandcurrents.noaa.gov/sltrends/sltrends_station.shtml?stnid=9412110
 }
 \keyword{datasets}
-
